@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "YouTube の字幕を選んだ言語に訳して動画に出す。原文は YouTube の CC で。翻訳は ChatGPT プラン。操作バーのボタンで on/off"
+  },
+  "appTagline": {
+    "message": "字幕翻訳"
+  },
+  "continueWithChatGPT": {
+    "message": "ChatGPT で続ける"
+  },
+  "planNote": {
+    "message": "ChatGPT プランの利用枠を使います。API の料金はかかりません。"
+  },
+  "availabilityNote": {
+    "message": "OpenAI の仕様変更で、予告なく使えなくなることがあります。"
+  },
+  "learnMore": {
+    "message": "詳しく"
+  },
+  "lockedTitle": {
+    "message": "ロック中"
+  },
+  "lockedBody": {
+    "message": "ブラウザを起動し直したので、保存したサインインを開いてください。"
+  },
+  "unlockWith": {
+    "message": "$NAME$ で解除",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "サインインし直す"
+  },
+  "usingPlan": {
+    "message": "ChatGPT プランを使用中"
+  },
+  "savedWith": {
+    "message": "$NAME$ で保存済み",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "ブラウザを閉じるとサインアウトします"
+  },
+  "modelUnavailableWarning": {
+    "message": "このアカウントでは翻訳用のモデルが使えません。"
+  },
+  "manageUsage": {
+    "message": "使用量を管理"
+  },
+  "signOut": {
+    "message": "サインアウト"
+  },
+  "settingsTitle": {
+    "message": "翻訳の設定"
+  },
+  "targetLanguage": {
+    "message": "翻訳先"
+  },
+  "position": {
+    "message": "訳の位置"
+  },
+  "below": {
+    "message": "原文の下"
+  },
+  "above": {
+    "message": "原文の上"
+  },
+  "previewLabel": {
+    "message": "プレビュー"
+  },
+  "errSignInStart": {
+    "message": "サインインを始められませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "サインアウトできませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "翻訳先を保存できませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "訳の位置を保存できませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "状態を読めませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "サインインしています…"
+  },
+  "saveQuestion": {
+    "message": "次からは、ブラウザを起動し直しても $NAME$ だけで再開できるようにしますか？",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "サインイン情報はこのパソコンに暗号化して保存され、$NAME$ がないと開けません。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "保存する"
+  },
+  "saveNo": {
+    "message": "今回だけ"
+  },
+  "saveFresh": {
+    "message": "新しいパスキーで保存する"
+  },
+  "savedCloseTab": {
+    "message": "保存しました。このタブは閉じてかまいません"
+  },
+  "signInFailed": {
+    "message": "サインインできませんでした（$CODE$）。Jimaku のアイコンからもう一度お試しください",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "このサインインは期限切れです。Jimaku のアイコンからもう一度サインインしてください"
+  },
+  "signedInCloseTab": {
+    "message": "サインインしました。このタブは閉じてかまいません"
+  },
+  "signedIn": {
+    "message": "サインインしました"
+  },
+  "unlockTitle": {
+    "message": "Jimaku のロック解除"
+  },
+  "unlockBody": {
+    "message": "保存したサインインを $NAME$ で開きます。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "ロックを解除"
+  },
+  "unlockedCloseTab": {
+    "message": "ロックを解除しました。このタブは閉じてかまいません"
+  },
+  "passkeyCancelled": {
+    "message": "キャンセルされました。もう一度お試しください"
+  },
+  "prfUnsupported": {
+    "message": "この環境では $NAME$ での保存が使えません（Windows 11 か新しい macOS と、新しい Chrome が必要です）。ブラウザを起動し直したら、もう一度サインインしてください",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "保存したサインインを開けませんでした。Jimaku のアイコンからサインインし直してください"
+  },
+  "savedSignInExpired": {
+    "message": "保存したサインインの期限が切れました。Jimaku のアイコンからサインインし直してください"
+  },
+  "somethingWentWrong": {
+    "message": "うまくいきませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Jimaku のアイコンから ChatGPT にサインインしてください"
+  },
+  "noticeUnlock": {
+    "message": "Jimaku のアイコンからロックを解除してください"
+  },
+  "noticeUsageLimit": {
+    "message": "ChatGPT プランの利用上限に達しました（chatgpt.com/settings/usage）"
+  },
+  "noticePlanUnavailable": {
+    "message": "ChatGPT プランが今は使えません。しばらくしてから Jimaku を入れ直してください"
+  },
+  "noticeNotEligible": {
+    "message": "このアカウントでは ChatGPT プランを翻訳に使えません"
+  },
+  "noticeModelUnavailable": {
+    "message": "このアカウントでは翻訳用のモデルが使えません"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku が更新されました。このタブを再読み込みしてください"
+  },
+  "noticeRejected": {
+    "message": "ChatGPT が翻訳のリクエストを受け付けませんでした（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Jimaku 訳字幕"
+  },
+  "passkey": {
+    "message": "パスキー"
+  }
+}

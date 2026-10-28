@@ -1,0 +1,237 @@
+// Content script entry point. While the jimaku button in the control bar is on, it fetches the open video's captions
+// and shows their translation into the language chosen in the popup, translated with the ChatGPT plan.
+// The source captions are YouTube's own (the CC button); jimaku works independently of it.
+
+import { createController } from '../core/controller.ts';
+import { fatalNotice, isFatalError, type Notice } from '../core/errors.ts';
+import { DEFAULT_POSITION, placeTranslation, type NativeCaptions, type Placement } from '../core/layout.ts';
+import { createWaitMeter } from '../core/metrics.ts';
+import { createCaptionSession } from '../core/session.ts';
+import { buildCaptionUrl, pickSourceTrack } from '../core/tracks.ts';
+import { createTranslationCache, translationKey } from '../core/translation-cache.ts';
+import { t, uiLanguage } from '../shared/i18n.ts';
+import {
+  loadEnabled,
+  loadPosition,
+  loadTargetLanguage,
+  saveEnabled,
+  watchEnabled,
+  watchPosition,
+  watchTargetLanguage,
+} from '../shared/settings.ts';
+import { createToggleButton } from './button.ts';
+import { createChatGPTTranslator, extensionAlive, warmUpChatGPT, watchSignIn } from './chatgpt.ts';
+import { mountOverlay, SHIFTED_CAPTIONS } from './overlay.ts';
+import {
+  fetchCaptions,
+  fetchPlayerResponse,
+  getPlayerCaptionUrl,
+  freshCaptionUrl,
+  getVideoId,
+  waitWhileAdShowing,
+  watchPlayerCaptionRequests,
+} from './youtube.ts';
+
+const log = (...args: unknown[]) => console.debug('[jimaku]', ...args);
+
+const PLAYER_SELECTOR = '#movie_player, .html5-video-player';
+
+// Messages to the user are in the browser's language. The one for a reloaded extension is read now, while chrome.i18n
+// still answers (an orphaned script may no longer reach it)
+const UI_LANGUAGE = uiLanguage();
+const noticeText = (notice: Notice) => t(notice.key, ...(notice.substitutions ?? []));
+const RELOADED_NOTICE = noticeText(fatalNotice('extension_reloaded'));
+
+// Under or over YouTube's captions, as chosen in the popup (it applies on the next frame)
+let position = DEFAULT_POSITION;
+
+// Translations made in this tab, so turning jimaku off and on or coming back to a video doesn't translate again
+const translationCache = createTranslationCache();
+
+// The current state of YouTube's own captions (whether the CC button is on, and the caption windows on screen)
+const readNativeCaptions = (playerEl: HTMLElement): NativeCaptions => {
+  const player = playerEl.getBoundingClientRect();
+  return {
+    enabled: playerEl.querySelector('.ytp-subtitles-button')?.getAttribute('aria-pressed') === 'true',
+    playerTop: player.top,
+    playerBottom: player.bottom,
+    captions: [...playerEl.querySelectorAll<HTMLElement>('.ytp-caption-window-container .caption-window')].flatMap((el) => {
+      const rect = el.getBoundingClientRect();
+      return rect.height > 0 ? [{ top: rect.top, bottom: rect.bottom, shifted: el.matches(SHIFTED_CAPTIONS) }] : [];
+    }),
+  };
+};
+
+const start = async (videoId: string, signal: AbortSignal, onMounted: () => void) => {
+  // Measure the time from opening the video until the first translation is visible (TTFT)
+  const startedAt = performance.now();
+  const elapsed = () => Math.round(performance.now() - startedAt);
+  // Warm up the connection to the translator while the captions are being fetched
+  warmUpChatGPT();
+  const [player, target] = await Promise.all([fetchPlayerResponse(videoId, signal), loadTargetLanguage()]);
+  if (signal.aborted) return;
+  const track = player && pickSourceTrack(player, target);
+  if (!track) {
+    log(`no captions to translate into ${target}`, videoId);
+    return;
+  }
+  const languages = { source: track.languageCode, target };
+
+  // The player may just not be built yet, so throw and let it be retried
+  const playerEl = document.querySelector<HTMLElement>(PLAYER_SELECTOR);
+  const video = playerEl?.querySelector<HTMLVideoElement>('video');
+  if (!playerEl || !video) throw new Error('player not found');
+
+  // If the caption URL is already known (the CC button was on, etc.), fetch the captions and start translating during the ad.
+  // Otherwise the only way is to press the CC button so the player fetches them, and during an ad the player doesn't fetch
+  // the video's captions, so wait for the ad to end.
+  const knownCaptionUrl = freshCaptionUrl(videoId);
+  if (!knownCaptionUrl) await waitWhileAdShowing(playerEl, signal);
+  const playerCaptionUrl = knownCaptionUrl ?? (await getPlayerCaptionUrl(videoId, signal));
+  const captions = await fetchCaptions(buildCaptionUrl(track.baseUrl, playerCaptionUrl), signal);
+  if (signal.aborted) return;
+  if (!captions.length) {
+    log('captions are empty', videoId);
+    return;
+  }
+  const captionsAt = elapsed();
+
+  // During an ad, video.currentTime is the ad's time, so the video's position is updated only outside ads
+  const isAdShowing = () => playerEl.classList.contains('ad-showing');
+  // When started during an ad, translate from the start of the video
+  let contentTime = isAdShowing() ? 0 : video.currentTime;
+  let wasAdShowing = isAdShowing();
+  let placement: Placement | null = null;
+  const waitMeter = createWaitMeter(() => performance.now());
+  let firstShown = false;
+
+  const translations = translationCache.linesFor(
+    translationKey(videoId, track, target),
+    captions.map((caption) => caption.text)
+  );
+  const cached = translations.filter((translation) => translation).length;
+
+  const overlay = mountOverlay(playerEl, target, UI_LANGUAGE);
+  const session = createCaptionSession({
+    captions,
+    translations,
+    translator: createChatGPTTranslator(languages),
+    title: player.videoDetails?.title,
+    getCurrentTime: () => contentTime,
+    onError: (error) => {
+      log('translation failed', error);
+      // The extension was reloaded under the tab: take everything down now (its notice was read at load, since
+      // chrome.i18n may no longer answer here), rather than waiting for the next button check
+      if (isFatalError(error) && error.code === 'extension_reloaded') return shutDown();
+      // The session stops on these; it starts again when the user signs in (watchSignIn)
+      if (isFatalError(error)) overlay.setNotice(noticeText(fatalNotice(error.code)));
+    },
+    isFatal: isFatalError,
+  });
+  // When playback jumps, translate the new position first
+  const onSeeking = () => {
+    if (isAdShowing()) return;
+    contentTime = video.currentTime;
+    session.seek();
+  };
+  video.addEventListener('seeking', onSeeking);
+  signal.addEventListener(
+    'abort',
+    () => {
+      video.removeEventListener('seeking', onSeeking);
+      overlay.destroy();
+    },
+    { once: true }
+  );
+  onMounted();
+
+  const tick = () => {
+    if (signal.aborted) return;
+    const adShowing = isAdShowing();
+    if (adShowing) {
+      overlay.render(null);
+      // The ad's own captions are left where YouTube puts them
+      if (placement) overlay.place((placement = { ...placement, shift: 0 }));
+    } else {
+      contentTime = video.currentTime;
+      // When the ad ends, translate the video's position first (playback may start partway in)
+      if (wasAdShowing) session.seek();
+      const lines = session.linesAt(contentTime);
+      overlay.render(lines);
+      if (!firstShown && lines?.translation !== undefined) {
+        firstShown = true;
+        log(`[TTFT] first translation after ${elapsed()}ms (captions fetched after ${captionsAt}ms)`);
+      }
+      const waited = waitMeter.observe(lines?.index ?? null, lines?.translation !== undefined);
+      if (waited !== null) log(`[TTFT] waited ${Math.round(waited)}ms for a translation`);
+      placement = placeTranslation(readNativeCaptions(playerEl), {
+        position,
+        boxHeight: overlay.boxHeight(),
+        previous: placement,
+      });
+      overlay.place(placement);
+    }
+    wasAdShowing = adShowing;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+
+  log(
+    `${captions.length} lines (${track.languageCode}${track.kind === 'asr' ? ', auto-generated' : ''} → ${target}),`,
+    `${cached} already translated in this tab`
+  );
+  await session.run(signal);
+};
+
+const controller = createController(start, { onError: (error) => log('failed to start (will retry)', error) });
+
+const setEnabled = (enabled: boolean) => {
+  controller.setEnabled(enabled);
+  button.sync(enabled);
+};
+
+const button = createToggleButton(() => {
+  if (!extensionAlive()) return shutDown();
+  const enabled = !controller.isEnabled();
+  setEnabled(enabled);
+  saveEnabled(enabled).catch((error) => log('could not save the setting', error));
+});
+
+let buttonTimer: ReturnType<typeof setInterval> | undefined;
+
+// After the extension is reloaded or updated, this script keeps running in the open tab, cut off from the extension.
+// It takes its button and captions down instead of showing stale ones, and says to reload the tab.
+const shutDown = () => {
+  clearInterval(buttonTimer);
+  const wasEnabled = controller.isEnabled();
+  controller.setEnabled(false);
+  button.remove();
+  const playerEl = document.querySelector<HTMLElement>(PLAYER_SELECTOR);
+  if (wasEnabled && playerEl) mountOverlay(playerEl, UI_LANGUAGE, UI_LANGUAGE).setNotice(RELOADED_NOTICE);
+  log('the extension was reloaded; reload the tab to use the new one');
+};
+
+const init = async () => {
+  watchPlayerCaptionRequests();
+  warmUpChatGPT();
+  // Read the saved settings before watching videos (so it doesn't briefly start while off)
+  position = await loadPosition().catch(() => DEFAULT_POSITION);
+  watchPosition((value) => (position = value));
+  controller.setEnabled(await loadEnabled().catch(() => true));
+  watchEnabled(setEnabled);
+  watchSignIn(() => controller.restart());
+  // A new language starts the open video over (fetching its captions again, since the track may change)
+  watchTargetLanguage(() => controller.restart());
+
+  // YouTube is a SPA, so video changes are known from this event
+  window.addEventListener('yt-navigate-finish', () => controller.navigate(getVideoId()));
+  controller.navigate(getVideoId());
+
+  // The control bar gets created later or rebuilt, so check the button periodically and put it back.
+  // This is also where a reloaded extension is noticed
+  const syncButton = () => (extensionAlive() ? button.sync(controller.isEnabled()) : shutDown());
+  buttonTimer = setInterval(syncButton, 1000);
+  syncButton();
+};
+
+init().catch((error) => log('failed to initialize', error));

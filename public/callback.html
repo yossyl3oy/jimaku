@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Jimaku</title>
+<link rel="stylesheet" href="page.css">
+</head>
+<body>
+<main>
+  <h1>Jimaku</h1>
+  <p id="status" data-i18n="signingIn">Signing in…</p>
+  <div id="save" hidden>
+    <p id="save-question"></p>
+    <p id="save-explain" class="muted"></p>
+    <button id="save-yes" class="primary" data-i18n="saveYes">Save</button>
+    <button id="save-no" data-i18n="saveNo">Just this time</button>
+    <button id="save-fresh" class="link" hidden data-i18n="saveFresh">Save with a new passkey</button>
+  </div>
+</main>
+<script src="callback.js"></script>
+</body>
+</html>

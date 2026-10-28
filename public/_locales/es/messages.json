@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Muestra en el vídeo una traducción de los subtítulos de YouTube con tu plan de ChatGPT. Se activa desde la barra del reproductor."
+  },
+  "appTagline": {
+    "message": "Traducción de subtítulos"
+  },
+  "continueWithChatGPT": {
+    "message": "Continuar con ChatGPT"
+  },
+  "planNote": {
+    "message": "Usa tu plan de ChatGPT. Sin costes de API."
+  },
+  "availabilityNote": {
+    "message": "La disponibilidad puede cambiar con las actualizaciones de OpenAI."
+  },
+  "learnMore": {
+    "message": "Más información"
+  },
+  "lockedTitle": {
+    "message": "Bloqueado"
+  },
+  "lockedBody": {
+    "message": "El navegador se reinició. Abre tu inicio de sesión guardado para continuar."
+  },
+  "unlockWith": {
+    "message": "Desbloquear con $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Volver a iniciar sesión"
+  },
+  "usingPlan": {
+    "message": "Usando tu plan de ChatGPT"
+  },
+  "savedWith": {
+    "message": "Guardado con $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "Se cerrará la sesión al cerrar el navegador"
+  },
+  "modelUnavailableWarning": {
+    "message": "Esta cuenta no puede usar el modelo de traducción."
+  },
+  "manageUsage": {
+    "message": "Gestionar uso"
+  },
+  "signOut": {
+    "message": "Cerrar sesión"
+  },
+  "settingsTitle": {
+    "message": "Ajustes de traducción"
+  },
+  "targetLanguage": {
+    "message": "Traducir a"
+  },
+  "position": {
+    "message": "Posición de los subtítulos"
+  },
+  "below": {
+    "message": "Bajo el original"
+  },
+  "above": {
+    "message": "Sobre el original"
+  },
+  "previewLabel": {
+    "message": "Vista previa"
+  },
+  "errSignInStart": {
+    "message": "No se pudo abrir el inicio de sesión ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "No se pudo cerrar la sesión ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "No se pudo guardar el idioma ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "No se pudo guardar la posición ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "No se pudo leer el estado ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Iniciando sesión…"
+  },
+  "saveQuestion": {
+    "message": "¿Quieres que, tras reiniciar el navegador, baste con $NAME$ para continuar?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Tu inicio de sesión se guarda cifrado en este ordenador y no se puede abrir sin $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Guardar"
+  },
+  "saveNo": {
+    "message": "Solo esta vez"
+  },
+  "saveFresh": {
+    "message": "Guardar con una llave de acceso nueva"
+  },
+  "savedCloseTab": {
+    "message": "Guardado. Puedes cerrar esta pestaña."
+  },
+  "signInFailed": {
+    "message": "No se pudo iniciar sesión ($CODE$). Vuelve a intentarlo desde el icono de Jimaku.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Este inicio de sesión ha caducado. Vuelve a iniciar sesión desde el icono de Jimaku."
+  },
+  "signedInCloseTab": {
+    "message": "Sesión iniciada. Puedes cerrar esta pestaña."
+  },
+  "signedIn": {
+    "message": "Sesión iniciada"
+  },
+  "unlockTitle": {
+    "message": "Desbloquear Jimaku"
+  },
+  "unlockBody": {
+    "message": "Abre tu inicio de sesión guardado con $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Desbloquear"
+  },
+  "unlockedCloseTab": {
+    "message": "Desbloqueado. Puedes cerrar esta pestaña."
+  },
+  "passkeyCancelled": {
+    "message": "Se canceló. Inténtalo de nuevo."
+  },
+  "prfUnsupported": {
+    "message": "Aquí no se puede guardar con $NAME$ (requiere Windows 11 o un macOS reciente, y un Chrome reciente). Después de reiniciar el navegador, vuelve a iniciar sesión.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "No se pudo abrir el inicio de sesión guardado. Vuelve a iniciar sesión desde el icono de Jimaku."
+  },
+  "savedSignInExpired": {
+    "message": "El inicio de sesión guardado ha caducado. Vuelve a iniciar sesión desde el icono de Jimaku."
+  },
+  "somethingWentWrong": {
+    "message": "Algo salió mal ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Inicia sesión en ChatGPT desde el icono de Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "Desbloquea Jimaku desde su icono"
+  },
+  "noticeUsageLimit": {
+    "message": "Has alcanzado el límite de uso de tu plan de ChatGPT (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Ahora mismo no se puede usar tu plan de ChatGPT. Desactiva y vuelve a activar Jimaku más tarde."
+  },
+  "noticeNotEligible": {
+    "message": "Esta cuenta no puede usar su plan de ChatGPT para traducir"
+  },
+  "noticeModelUnavailable": {
+    "message": "Esta cuenta no puede usar el modelo de traducción"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku se actualizó. Recarga esta pestaña."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT no aceptó la solicitud de traducción ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Traducción de Jimaku"
+  },
+  "passkey": {
+    "message": "llave de acceso"
+  }
+}

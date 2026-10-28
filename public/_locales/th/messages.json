@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "แสดงคำแปลของคำบรรยาย YouTube บนวิดีโอโดยใช้แพ็กเกจ ChatGPT ของคุณ เปิด/ปิดได้จากปุ่มบนแถบควบคุมของเพลเยอร์"
+  },
+  "appTagline": {
+    "message": "แปลคำบรรยาย"
+  },
+  "continueWithChatGPT": {
+    "message": "ดำเนินการต่อด้วย ChatGPT"
+  },
+  "planNote": {
+    "message": "ใช้แพ็กเกจ ChatGPT ของคุณ ไม่มีค่าใช้จ่าย API"
+  },
+  "availabilityNote": {
+    "message": "การใช้งานอาจเปลี่ยนไปตามการอัปเดตของ OpenAI"
+  },
+  "learnMore": {
+    "message": "ดูเพิ่มเติม"
+  },
+  "lockedTitle": {
+    "message": "ล็อกอยู่"
+  },
+  "lockedBody": {
+    "message": "เบราว์เซอร์รีสตาร์ทแล้ว โปรดเปิดการลงชื่อเข้าใช้ที่บันทึกไว้เพื่อดำเนินการต่อ"
+  },
+  "unlockWith": {
+    "message": "ปลดล็อกด้วย $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "ลงชื่อเข้าใช้อีกครั้ง"
+  },
+  "usingPlan": {
+    "message": "กำลังใช้แพ็กเกจ ChatGPT"
+  },
+  "savedWith": {
+    "message": "บันทึกด้วย $NAME$ แล้ว",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "จะออกจากระบบเมื่อปิดเบราว์เซอร์"
+  },
+  "modelUnavailableWarning": {
+    "message": "บัญชีนี้ใช้โมเดลสำหรับการแปลไม่ได้"
+  },
+  "manageUsage": {
+    "message": "จัดการการใช้งาน"
+  },
+  "signOut": {
+    "message": "ออกจากระบบ"
+  },
+  "settingsTitle": {
+    "message": "การตั้งค่าการแปล"
+  },
+  "targetLanguage": {
+    "message": "แปลเป็น"
+  },
+  "position": {
+    "message": "ตำแหน่งคำบรรยาย"
+  },
+  "below": {
+    "message": "ใต้ต้นฉบับ"
+  },
+  "above": {
+    "message": "เหนือต้นฉบับ"
+  },
+  "previewLabel": {
+    "message": "ตัวอย่าง"
+  },
+  "errSignInStart": {
+    "message": "เริ่มลงชื่อเข้าใช้ไม่ได้ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "ออกจากระบบไม่ได้ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "บันทึกภาษาไม่ได้ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "บันทึกตำแหน่งไม่ได้ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "อ่านสถานะไม่ได้ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "กำลังลงชื่อเข้าใช้…"
+  },
+  "saveQuestion": {
+    "message": "ต่อไปเมื่อรีสตาร์ทเบราว์เซอร์ ให้ใช้แค่ $NAME$ เพื่อใช้งานต่อหรือไม่",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "ข้อมูลการลงชื่อเข้าใช้จะถูกเข้ารหัสและบันทึกไว้ในคอมพิวเตอร์เครื่องนี้ และเปิดไม่ได้หากไม่มี $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "บันทึก"
+  },
+  "saveNo": {
+    "message": "เฉพาะครั้งนี้"
+  },
+  "saveFresh": {
+    "message": "บันทึกด้วยพาสคีย์ใหม่"
+  },
+  "savedCloseTab": {
+    "message": "บันทึกแล้ว ปิดแท็บนี้ได้เลย"
+  },
+  "signInFailed": {
+    "message": "ลงชื่อเข้าใช้ไม่ได้ ($CODE$) โปรดลองอีกครั้งจากไอคอน Jimaku",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "การลงชื่อเข้าใช้นี้หมดอายุแล้ว โปรดลงชื่อเข้าใช้อีกครั้งจากไอคอน Jimaku"
+  },
+  "signedInCloseTab": {
+    "message": "ลงชื่อเข้าใช้แล้ว ปิดแท็บนี้ได้เลย"
+  },
+  "signedIn": {
+    "message": "ลงชื่อเข้าใช้แล้ว"
+  },
+  "unlockTitle": {
+    "message": "ปลดล็อก Jimaku"
+  },
+  "unlockBody": {
+    "message": "เปิดการลงชื่อเข้าใช้ที่บันทึกไว้ด้วย $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "ปลดล็อก"
+  },
+  "unlockedCloseTab": {
+    "message": "ปลดล็อกแล้ว ปิดแท็บนี้ได้เลย"
+  },
+  "passkeyCancelled": {
+    "message": "ยกเลิกแล้ว โปรดลองอีกครั้ง"
+  },
+  "prfUnsupported": {
+    "message": "ที่นี่บันทึกด้วย $NAME$ ไม่ได้ (ต้องใช้ Windows 11 หรือ macOS รุ่นใหม่ และ Chrome รุ่นใหม่) หลังรีสตาร์ทเบราว์เซอร์ โปรดลงชื่อเข้าใช้อีกครั้ง",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "เปิดการลงชื่อเข้าใช้ที่บันทึกไว้ไม่ได้ โปรดลงชื่อเข้าใช้อีกครั้งจากไอคอน Jimaku"
+  },
+  "savedSignInExpired": {
+    "message": "การลงชื่อเข้าใช้ที่บันทึกไว้หมดอายุแล้ว โปรดลงชื่อเข้าใช้อีกครั้งจากไอคอน Jimaku"
+  },
+  "somethingWentWrong": {
+    "message": "เกิดข้อผิดพลาด ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "โปรดลงชื่อเข้าใช้ ChatGPT จากไอคอน Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "โปรดปลดล็อก Jimaku จากไอคอน"
+  },
+  "noticeUsageLimit": {
+    "message": "ใช้งานถึงขีดจำกัดของแพ็กเกจ ChatGPT แล้ว (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "ตอนนี้ใช้แพ็กเกจ ChatGPT ไม่ได้ โปรดปิดแล้วเปิด Jimaku ใหม่ในภายหลัง"
+  },
+  "noticeNotEligible": {
+    "message": "บัญชีนี้ใช้แพ็กเกจ ChatGPT เพื่อแปลไม่ได้"
+  },
+  "noticeModelUnavailable": {
+    "message": "บัญชีนี้ใช้โมเดลสำหรับการแปลไม่ได้"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku อัปเดตแล้ว โปรดโหลดแท็บนี้ใหม่"
+  },
+  "noticeRejected": {
+    "message": "ChatGPT ไม่รับคำขอแปล ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "คำแปล Jimaku"
+  },
+  "passkey": {
+    "message": "พาสคีย์"
+  }
+}

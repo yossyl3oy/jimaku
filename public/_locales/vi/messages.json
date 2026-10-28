@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Hiển thị bản dịch phụ đề YouTube trên video bằng gói ChatGPT của bạn. Bật/tắt bằng nút trên thanh điều khiển của trình phát."
+  },
+  "appTagline": {
+    "message": "Dịch phụ đề"
+  },
+  "continueWithChatGPT": {
+    "message": "Tiếp tục với ChatGPT"
+  },
+  "planNote": {
+    "message": "Dùng gói ChatGPT của bạn. Không tốn phí API."
+  },
+  "availabilityNote": {
+    "message": "Khả năng sử dụng có thể thay đổi theo các cập nhật của OpenAI."
+  },
+  "learnMore": {
+    "message": "Tìm hiểu thêm"
+  },
+  "lockedTitle": {
+    "message": "Đã khóa"
+  },
+  "lockedBody": {
+    "message": "Trình duyệt đã khởi động lại. Hãy mở thông tin đăng nhập đã lưu để tiếp tục."
+  },
+  "unlockWith": {
+    "message": "Mở khóa bằng $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Đăng nhập lại"
+  },
+  "usingPlan": {
+    "message": "Đang dùng gói ChatGPT"
+  },
+  "savedWith": {
+    "message": "Đã lưu bằng $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "Bạn sẽ bị đăng xuất khi đóng trình duyệt"
+  },
+  "modelUnavailableWarning": {
+    "message": "Tài khoản này không dùng được mô hình dịch."
+  },
+  "manageUsage": {
+    "message": "Quản lý mức sử dụng"
+  },
+  "signOut": {
+    "message": "Đăng xuất"
+  },
+  "settingsTitle": {
+    "message": "Cài đặt dịch"
+  },
+  "targetLanguage": {
+    "message": "Dịch sang"
+  },
+  "position": {
+    "message": "Vị trí phụ đề"
+  },
+  "below": {
+    "message": "Dưới bản gốc"
+  },
+  "above": {
+    "message": "Trên bản gốc"
+  },
+  "previewLabel": {
+    "message": "Xem trước"
+  },
+  "errSignInStart": {
+    "message": "Không thể bắt đầu đăng nhập ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Không thể đăng xuất ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Không thể lưu ngôn ngữ ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Không thể lưu vị trí ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Không thể đọc trạng thái ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Đang đăng nhập…"
+  },
+  "saveQuestion": {
+    "message": "Từ lần sau, sau khi khởi động lại trình duyệt, chỉ cần $NAME$ để tiếp tục?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Thông tin đăng nhập được mã hóa và lưu trên máy tính này, không thể mở nếu không có $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Lưu"
+  },
+  "saveNo": {
+    "message": "Chỉ lần này"
+  },
+  "saveFresh": {
+    "message": "Lưu bằng khóa truy cập mới"
+  },
+  "savedCloseTab": {
+    "message": "Đã lưu. Bạn có thể đóng thẻ này."
+  },
+  "signInFailed": {
+    "message": "Không thể đăng nhập ($CODE$). Hãy thử lại từ biểu tượng Jimaku.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Lần đăng nhập này đã hết hạn. Hãy đăng nhập lại từ biểu tượng Jimaku."
+  },
+  "signedInCloseTab": {
+    "message": "Đã đăng nhập. Bạn có thể đóng thẻ này."
+  },
+  "signedIn": {
+    "message": "Đã đăng nhập"
+  },
+  "unlockTitle": {
+    "message": "Mở khóa Jimaku"
+  },
+  "unlockBody": {
+    "message": "Mở thông tin đăng nhập đã lưu bằng $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Mở khóa"
+  },
+  "unlockedCloseTab": {
+    "message": "Đã mở khóa. Bạn có thể đóng thẻ này."
+  },
+  "passkeyCancelled": {
+    "message": "Đã hủy. Vui lòng thử lại."
+  },
+  "prfUnsupported": {
+    "message": "Không thể lưu bằng $NAME$ ở đây (cần Windows 11 hoặc macOS mới, và Chrome mới). Sau khi khởi động lại trình duyệt, hãy đăng nhập lại.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Không thể mở thông tin đăng nhập đã lưu. Hãy đăng nhập lại từ biểu tượng Jimaku."
+  },
+  "savedSignInExpired": {
+    "message": "Thông tin đăng nhập đã lưu đã hết hạn. Hãy đăng nhập lại từ biểu tượng Jimaku."
+  },
+  "somethingWentWrong": {
+    "message": "Đã xảy ra lỗi ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Hãy đăng nhập ChatGPT từ biểu tượng Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "Hãy mở khóa Jimaku từ biểu tượng của nó"
+  },
+  "noticeUsageLimit": {
+    "message": "Bạn đã đạt giới hạn sử dụng của gói ChatGPT (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Hiện không dùng được gói ChatGPT. Hãy tắt rồi bật lại Jimaku sau một lúc."
+  },
+  "noticeNotEligible": {
+    "message": "Tài khoản này không thể dùng gói ChatGPT để dịch"
+  },
+  "noticeModelUnavailable": {
+    "message": "Tài khoản này không dùng được mô hình dịch"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku đã được cập nhật. Hãy tải lại thẻ này."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT không chấp nhận yêu cầu dịch ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Bản dịch Jimaku"
+  },
+  "passkey": {
+    "message": "khóa truy cập"
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Affiche sur la vidéo une traduction des sous-titres YouTube avec votre forfait ChatGPT. S'active depuis la barre du lecteur."
+  },
+  "appTagline": {
+    "message": "Traduction des sous-titres"
+  },
+  "continueWithChatGPT": {
+    "message": "Continuer avec ChatGPT"
+  },
+  "planNote": {
+    "message": "Utilise votre forfait ChatGPT. Aucun frais d'API."
+  },
+  "availabilityNote": {
+    "message": "La disponibilité peut changer avec les mises à jour d'OpenAI."
+  },
+  "learnMore": {
+    "message": "En savoir plus"
+  },
+  "lockedTitle": {
+    "message": "Verrouillé"
+  },
+  "lockedBody": {
+    "message": "Le navigateur a redémarré. Ouvrez votre connexion enregistrée pour continuer."
+  },
+  "unlockWith": {
+    "message": "Déverrouiller avec $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Se reconnecter"
+  },
+  "usingPlan": {
+    "message": "Forfait ChatGPT utilisé"
+  },
+  "savedWith": {
+    "message": "Enregistré avec $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "Vous serez déconnecté à la fermeture du navigateur"
+  },
+  "modelUnavailableWarning": {
+    "message": "Ce compte ne peut pas utiliser le modèle de traduction."
+  },
+  "manageUsage": {
+    "message": "Gérer l'utilisation"
+  },
+  "signOut": {
+    "message": "Se déconnecter"
+  },
+  "settingsTitle": {
+    "message": "Paramètres de traduction"
+  },
+  "targetLanguage": {
+    "message": "Traduire en"
+  },
+  "position": {
+    "message": "Position des sous-titres"
+  },
+  "below": {
+    "message": "Sous l'original"
+  },
+  "above": {
+    "message": "Au-dessus de l'original"
+  },
+  "previewLabel": {
+    "message": "Aperçu"
+  },
+  "errSignInStart": {
+    "message": "Impossible de lancer la connexion ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Impossible de se déconnecter ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Impossible d'enregistrer la langue ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Impossible d'enregistrer la position ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Impossible de lire l'état ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Connexion…"
+  },
+  "saveQuestion": {
+    "message": "À l'avenir, reprendre après un redémarrage du navigateur avec seulement $NAME$ ?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Votre connexion est enregistrée chiffrée sur cet ordinateur et ne peut pas être ouverte sans $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Enregistrer"
+  },
+  "saveNo": {
+    "message": "Juste cette fois"
+  },
+  "saveFresh": {
+    "message": "Enregistrer avec une nouvelle clé d'accès"
+  },
+  "savedCloseTab": {
+    "message": "Enregistré. Vous pouvez fermer cet onglet."
+  },
+  "signInFailed": {
+    "message": "Connexion impossible ($CODE$). Réessayez depuis l'icône de Jimaku.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Cette connexion a expiré. Reconnectez-vous depuis l'icône de Jimaku."
+  },
+  "signedInCloseTab": {
+    "message": "Connecté. Vous pouvez fermer cet onglet."
+  },
+  "signedIn": {
+    "message": "Connecté"
+  },
+  "unlockTitle": {
+    "message": "Déverrouiller Jimaku"
+  },
+  "unlockBody": {
+    "message": "Ouvrez votre connexion enregistrée avec $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Déverrouiller"
+  },
+  "unlockedCloseTab": {
+    "message": "Déverrouillé. Vous pouvez fermer cet onglet."
+  },
+  "passkeyCancelled": {
+    "message": "Annulé. Veuillez réessayer."
+  },
+  "prfUnsupported": {
+    "message": "L'enregistrement avec $NAME$ n'est pas disponible ici (il faut Windows 11 ou un macOS récent, et un Chrome récent). Après le redémarrage du navigateur, reconnectez-vous.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Impossible d'ouvrir la connexion enregistrée. Reconnectez-vous depuis l'icône de Jimaku."
+  },
+  "savedSignInExpired": {
+    "message": "La connexion enregistrée a expiré. Reconnectez-vous depuis l'icône de Jimaku."
+  },
+  "somethingWentWrong": {
+    "message": "Un problème est survenu ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Connectez-vous à ChatGPT depuis l'icône de Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "Déverrouillez Jimaku depuis son icône"
+  },
+  "noticeUsageLimit": {
+    "message": "Vous avez atteint la limite d'utilisation de votre forfait ChatGPT (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Votre forfait ChatGPT n'est pas utilisable pour le moment. Désactivez puis réactivez Jimaku un peu plus tard."
+  },
+  "noticeNotEligible": {
+    "message": "Ce compte ne peut pas utiliser son forfait ChatGPT pour traduire"
+  },
+  "noticeModelUnavailable": {
+    "message": "Ce compte ne peut pas utiliser le modèle de traduction"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku a été mis à jour. Rechargez cet onglet."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT n'a pas accepté la demande de traduction ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Traduction Jimaku"
+  },
+  "passkey": {
+    "message": "clé d'accès"
+  }
+}

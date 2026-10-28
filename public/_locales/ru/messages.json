@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Показывает на видео перевод субтитров YouTube с помощью вашего плана ChatGPT. Включается кнопкой на панели плеера."
+  },
+  "appTagline": {
+    "message": "Перевод субтитров"
+  },
+  "continueWithChatGPT": {
+    "message": "Продолжить с ChatGPT"
+  },
+  "planNote": {
+    "message": "Использует ваш план ChatGPT. Без оплаты API."
+  },
+  "availabilityNote": {
+    "message": "Доступность может измениться после обновлений OpenAI."
+  },
+  "learnMore": {
+    "message": "Подробнее"
+  },
+  "lockedTitle": {
+    "message": "Заблокировано"
+  },
+  "lockedBody": {
+    "message": "Браузер был перезапущен. Откройте сохранённый вход, чтобы продолжить."
+  },
+  "unlockWith": {
+    "message": "Разблокировать с помощью $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Войти снова"
+  },
+  "usingPlan": {
+    "message": "Используется план ChatGPT"
+  },
+  "savedWith": {
+    "message": "Сохранено с помощью $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "При закрытии браузера вы выйдете из аккаунта"
+  },
+  "modelUnavailableWarning": {
+    "message": "Этот аккаунт не может использовать модель для перевода."
+  },
+  "manageUsage": {
+    "message": "Управление лимитами"
+  },
+  "signOut": {
+    "message": "Выйти"
+  },
+  "settingsTitle": {
+    "message": "Настройки перевода"
+  },
+  "targetLanguage": {
+    "message": "Перевод на"
+  },
+  "position": {
+    "message": "Положение субтитров"
+  },
+  "below": {
+    "message": "Под оригиналом"
+  },
+  "above": {
+    "message": "Над оригиналом"
+  },
+  "previewLabel": {
+    "message": "Предпросмотр"
+  },
+  "errSignInStart": {
+    "message": "Не удалось начать вход ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Не удалось выйти ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Не удалось сохранить язык ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Не удалось сохранить положение ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Не удалось прочитать состояние ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Выполняется вход…"
+  },
+  "saveQuestion": {
+    "message": "В следующий раз после перезапуска браузера продолжать только с помощью $NAME$?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Данные входа хранятся на этом компьютере в зашифрованном виде и открываются только с помощью $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Сохранить"
+  },
+  "saveNo": {
+    "message": "Только в этот раз"
+  },
+  "saveFresh": {
+    "message": "Сохранить с новым ключом доступа"
+  },
+  "savedCloseTab": {
+    "message": "Сохранено. Эту вкладку можно закрыть."
+  },
+  "signInFailed": {
+    "message": "Не удалось войти ($CODE$). Попробуйте снова через значок Jimaku.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Срок действия этого входа истёк. Войдите снова через значок Jimaku."
+  },
+  "signedInCloseTab": {
+    "message": "Вход выполнен. Эту вкладку можно закрыть."
+  },
+  "signedIn": {
+    "message": "Вход выполнен"
+  },
+  "unlockTitle": {
+    "message": "Разблокировка Jimaku"
+  },
+  "unlockBody": {
+    "message": "Откройте сохранённый вход с помощью $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Разблокировать"
+  },
+  "unlockedCloseTab": {
+    "message": "Разблокировано. Эту вкладку можно закрыть."
+  },
+  "passkeyCancelled": {
+    "message": "Отменено. Попробуйте ещё раз."
+  },
+  "prfUnsupported": {
+    "message": "Здесь нельзя сохранить вход с помощью $NAME$ (нужны Windows 11 или свежая macOS и свежий Chrome). После перезапуска браузера войдите снова.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Не удалось открыть сохранённый вход. Войдите снова через значок Jimaku."
+  },
+  "savedSignInExpired": {
+    "message": "Срок действия сохранённого входа истёк. Войдите снова через значок Jimaku."
+  },
+  "somethingWentWrong": {
+    "message": "Что-то пошло не так ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Войдите в ChatGPT через значок Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "Разблокируйте Jimaku через его значок"
+  },
+  "noticeUsageLimit": {
+    "message": "Достигнут лимит использования вашего плана ChatGPT (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Сейчас план ChatGPT недоступен. Через некоторое время выключите и снова включите Jimaku."
+  },
+  "noticeNotEligible": {
+    "message": "Этот аккаунт не может использовать план ChatGPT для перевода"
+  },
+  "noticeModelUnavailable": {
+    "message": "Этот аккаунт не может использовать модель для перевода"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku обновлён. Перезагрузите эту вкладку."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT не принял запрос на перевод ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Перевод Jimaku"
+  },
+  "passkey": {
+    "message": "ключ доступа"
+  }
+}

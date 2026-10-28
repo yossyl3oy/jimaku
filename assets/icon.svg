@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -2 83 83">
+  <!-- jimaku's icon: an orange speech bubble with two white caption lines, on a transparent background.
+       The same shape is inlined in the popup's header (public/popup.html). -->
+  <path fill="#F8AF32" d="M10 0 H65 A10 10 0 0 1 75 10 V52 A10 10 0 0 1 65 62 H35 L22.5 75.5 Q18 79.5 18 74 V62 H10 A10 10 0 0 1 0 52 V10 A10 10 0 0 1 10 0 Z"/>
+  <rect x="14" y="17" width="47" height="7.5" rx="3.75" fill="#fff"/>
+  <rect x="14" y="37" width="47" height="7.5" rx="3.75" fill="#fff"/>
+</svg>

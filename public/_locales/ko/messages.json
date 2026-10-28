@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "YouTube 자막을 선택한 언어로 번역해 영상 위에 표시합니다. ChatGPT 요금제로 번역하며, 플레이어의 버튼으로 켜고 끕니다."
+  },
+  "appTagline": {
+    "message": "자막 번역"
+  },
+  "continueWithChatGPT": {
+    "message": "ChatGPT로 계속하기"
+  },
+  "planNote": {
+    "message": "ChatGPT 요금제를 사용합니다. API 요금은 들지 않습니다."
+  },
+  "availabilityNote": {
+    "message": "OpenAI 업데이트에 따라 예고 없이 사용하지 못하게 될 수 있습니다."
+  },
+  "learnMore": {
+    "message": "자세히"
+  },
+  "lockedTitle": {
+    "message": "잠김"
+  },
+  "lockedBody": {
+    "message": "브라우저가 다시 시작되었습니다. 저장된 로그인을 열어 주세요."
+  },
+  "unlockWith": {
+    "message": "$NAME$(으)로 잠금 해제",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "다시 로그인"
+  },
+  "usingPlan": {
+    "message": "ChatGPT 요금제 사용 중"
+  },
+  "savedWith": {
+    "message": "$NAME$(으)로 저장됨",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "브라우저를 닫으면 로그아웃됩니다"
+  },
+  "modelUnavailableWarning": {
+    "message": "이 계정에서는 번역용 모델을 쓸 수 없습니다."
+  },
+  "manageUsage": {
+    "message": "사용량 관리"
+  },
+  "signOut": {
+    "message": "로그아웃"
+  },
+  "settingsTitle": {
+    "message": "번역 설정"
+  },
+  "targetLanguage": {
+    "message": "번역 언어"
+  },
+  "position": {
+    "message": "자막 위치"
+  },
+  "below": {
+    "message": "원문 아래"
+  },
+  "above": {
+    "message": "원문 위"
+  },
+  "previewLabel": {
+    "message": "미리보기"
+  },
+  "errSignInStart": {
+    "message": "로그인을 시작하지 못했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "로그아웃하지 못했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "번역 언어를 저장하지 못했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "번역 위치를 저장하지 못했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "상태를 읽지 못했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "로그인하는 중…"
+  },
+  "saveQuestion": {
+    "message": "다음부터는 브라우저를 다시 시작해도 $NAME$만으로 이어서 쓸 수 있게 할까요?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "로그인 정보는 이 컴퓨터에 암호화되어 저장되며, $NAME$ 없이는 열 수 없습니다.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "저장"
+  },
+  "saveNo": {
+    "message": "이번만"
+  },
+  "saveFresh": {
+    "message": "새 패스키로 저장"
+  },
+  "savedCloseTab": {
+    "message": "저장했습니다. 이 탭은 닫아도 됩니다."
+  },
+  "signInFailed": {
+    "message": "로그인하지 못했습니다($CODE$). Jimaku 아이콘에서 다시 시도해 주세요.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "이 로그인은 만료되었습니다. Jimaku 아이콘에서 다시 로그인해 주세요."
+  },
+  "signedInCloseTab": {
+    "message": "로그인했습니다. 이 탭은 닫아도 됩니다."
+  },
+  "signedIn": {
+    "message": "로그인했습니다"
+  },
+  "unlockTitle": {
+    "message": "Jimaku 잠금 해제"
+  },
+  "unlockBody": {
+    "message": "저장된 로그인을 $NAME$(으)로 엽니다.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "잠금 해제"
+  },
+  "unlockedCloseTab": {
+    "message": "잠금을 해제했습니다. 이 탭은 닫아도 됩니다."
+  },
+  "passkeyCancelled": {
+    "message": "취소되었습니다. 다시 시도해 주세요."
+  },
+  "prfUnsupported": {
+    "message": "이 환경에서는 $NAME$(으)로 저장할 수 없습니다(Windows 11 또는 최신 macOS와 최신 Chrome이 필요합니다). 브라우저를 다시 시작한 뒤 다시 로그인해 주세요.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "저장된 로그인을 열지 못했습니다. Jimaku 아이콘에서 다시 로그인해 주세요."
+  },
+  "savedSignInExpired": {
+    "message": "저장된 로그인이 만료되었습니다. Jimaku 아이콘에서 다시 로그인해 주세요."
+  },
+  "somethingWentWrong": {
+    "message": "문제가 발생했습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Jimaku 아이콘에서 ChatGPT에 로그인해 주세요"
+  },
+  "noticeUnlock": {
+    "message": "Jimaku 아이콘에서 잠금을 해제해 주세요"
+  },
+  "noticeUsageLimit": {
+    "message": "ChatGPT 요금제 사용 한도에 도달했습니다(chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "지금은 ChatGPT 요금제를 쓸 수 없습니다. 잠시 후 Jimaku를 껐다 켜 주세요."
+  },
+  "noticeNotEligible": {
+    "message": "이 계정에서는 ChatGPT 요금제를 번역에 쓸 수 없습니다"
+  },
+  "noticeModelUnavailable": {
+    "message": "이 계정에서는 번역용 모델을 쓸 수 없습니다"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku가 업데이트되었습니다. 이 탭을 새로고침해 주세요."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT가 번역 요청을 받아들이지 않았습니다($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Jimaku 번역 자막"
+  },
+  "passkey": {
+    "message": "패스키"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "videoDetails": { "videoId": "abc123", "title": "How Transformers Work" },
+  "captions": {
+    "playerCaptionsTracklistRenderer": {
+      "captionTracks": [
+        { "baseUrl": "https://www.youtube.com/api/timedtext?v=abc123&lang=ja&kind=asr", "languageCode": "ja", "kind": "asr" },
+        { "baseUrl": "https://www.youtube.com/api/timedtext?v=abc123&lang=en&kind=asr", "languageCode": "en", "kind": "asr" },
+        { "baseUrl": "https://www.youtube.com/api/timedtext?v=abc123&lang=en-GB&name=English", "languageCode": "en-GB" }
+      ]
+    }
+  }
+}

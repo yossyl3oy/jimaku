@@ -1,0 +1,14 @@
+:root { --fg: #1f1f1f; --muted: #6b6b6b; --bg: #fafafa; --line: #d9d9d9; --accent: #10a37f; --accent-fg: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root { --fg: #ececec; --muted: #9a9a9a; --bg: #1b1b1b; --line: #3a3a3a; --accent: #19c37d; --accent-fg: #0b0b0b; }
+}
+body { margin: 0; font: 15px system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif; color: var(--fg); background: var(--bg); }
+main { max-width: 440px; margin: 12vh auto 0; padding: 0 16px; }
+h1 { font-size: 18px; }
+p { line-height: 1.6; }
+.muted { color: var(--muted); font-size: 13px; }
+[hidden] { display: none !important; }
+button { display: block; width: 100%; padding: 10px 12px; margin: 0 0 8px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+button.link { border: none; color: var(--muted); font-size: 13px; }
+button:disabled { opacity: 0.5; cursor: default; }

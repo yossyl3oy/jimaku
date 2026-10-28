@@ -1,0 +1,53 @@
+jimaku contains code extracted and rewritten from rokrokss/shizue
+(https://github.com/rokrokss/shizue), commit c2ebc51 (v0.3.17).
+
+Sources:
+- src/core/captions.ts   … how json3 captions are read and how endTime is trimmed
+                           (src/lib/captionInjector.tsx)
+- src/core/tracks.ts     … the ytInitialPlayerResponse regex, how the caption track is chosen,
+                           and how the timedtext URL is built (src/lib/youtube.ts)
+- src/content/youtube.ts … how the player's timedtext request is caught, and how the CC button
+                           is used to make the player send one (src/lib/youtube.ts)
+- src/core/bridge.ts, src/page/player-bridge.ts
+                         … how to talk to a MAIN world script through CustomEvent (with the
+                           detail as a JSON string) (src/entrypoints/youtube-player-hook.content.ts,
+                           src/lib/youtubeCaption/hookProtocol.ts)
+- src/core/chatgpt-auth.ts
+                         … the Sign in with ChatGPT flow: authorize parameters, callback checks,
+                           token exchange and refresh, ID token checks, revocation
+                           (src/lib/chatgptAuth.ts)
+- src/core/chatgpt-responses.ts
+                         … error handling, the model catalog and the Responses API event stream
+                           parser (src/lib/chatgptResponses.ts)
+- src/background/main.ts … catching the loopback callback with a declarativeNetRequest session
+                           rule (src/services/background/chatgpt.ts)
+- src/callback/main.ts   … the callback page that hands the query string to the background
+                           (src/entrypoints/chatgpt-callback/main.ts)
+
+src/core/translate.ts used to use Shizue's approach of splitting in half and retrying when the
+line count doesn't match (src/services/background/translationHandler.ts). It now retries only
+the missing lines using numbered lines instead, and contains no Shizue code.
+
+Shizue's license:
+
+MIT License
+
+Copyright (c) 2025-2026 Hyungrok Kim and Shizue contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

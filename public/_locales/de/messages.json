@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Zeigt eine Übersetzung der YouTube-Untertitel im Video, übersetzt mit deinem ChatGPT-Abo. Ein- und Ausschalten in der Player-Leiste."
+  },
+  "appTagline": {
+    "message": "Untertitel-Übersetzung"
+  },
+  "continueWithChatGPT": {
+    "message": "Weiter mit ChatGPT"
+  },
+  "planNote": {
+    "message": "Nutzt dein ChatGPT-Abo. Keine API-Kosten."
+  },
+  "availabilityNote": {
+    "message": "Die Verfügbarkeit kann sich mit Änderungen bei OpenAI ändern."
+  },
+  "learnMore": {
+    "message": "Mehr erfahren"
+  },
+  "lockedTitle": {
+    "message": "Gesperrt"
+  },
+  "lockedBody": {
+    "message": "Der Browser wurde neu gestartet. Öffne deine gespeicherte Anmeldung, um fortzufahren."
+  },
+  "unlockWith": {
+    "message": "Mit $NAME$ entsperren",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Erneut anmelden"
+  },
+  "usingPlan": {
+    "message": "ChatGPT-Abo wird verwendet"
+  },
+  "savedWith": {
+    "message": "Mit $NAME$ gespeichert",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "Beim Schließen des Browsers wirst du abgemeldet"
+  },
+  "modelUnavailableWarning": {
+    "message": "Dieses Konto kann das Übersetzungsmodell nicht verwenden."
+  },
+  "manageUsage": {
+    "message": "Nutzung verwalten"
+  },
+  "signOut": {
+    "message": "Abmelden"
+  },
+  "settingsTitle": {
+    "message": "Übersetzungseinstellungen"
+  },
+  "targetLanguage": {
+    "message": "Übersetzen in"
+  },
+  "position": {
+    "message": "Untertitelposition"
+  },
+  "below": {
+    "message": "Unter Original"
+  },
+  "above": {
+    "message": "Über Original"
+  },
+  "previewLabel": {
+    "message": "Vorschau"
+  },
+  "errSignInStart": {
+    "message": "Anmeldung konnte nicht gestartet werden ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Abmelden fehlgeschlagen ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Sprache konnte nicht gespeichert werden ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Position konnte nicht gespeichert werden ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Status konnte nicht gelesen werden ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Anmeldung läuft…"
+  },
+  "saveQuestion": {
+    "message": "Künftig nach einem Browser-Neustart nur mit $NAME$ weitermachen?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Deine Anmeldung wird verschlüsselt auf diesem Computer gespeichert und lässt sich ohne $NAME$ nicht öffnen.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Speichern"
+  },
+  "saveNo": {
+    "message": "Nur dieses Mal"
+  },
+  "saveFresh": {
+    "message": "Mit neuem Passkey speichern"
+  },
+  "savedCloseTab": {
+    "message": "Gespeichert. Du kannst diesen Tab schließen."
+  },
+  "signInFailed": {
+    "message": "Anmeldung fehlgeschlagen ($CODE$). Versuche es erneut über das Jimaku-Symbol.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Diese Anmeldung ist abgelaufen. Melde dich über das Jimaku-Symbol erneut an."
+  },
+  "signedInCloseTab": {
+    "message": "Angemeldet. Du kannst diesen Tab schließen."
+  },
+  "signedIn": {
+    "message": "Angemeldet"
+  },
+  "unlockTitle": {
+    "message": "Jimaku entsperren"
+  },
+  "unlockBody": {
+    "message": "Öffne deine gespeicherte Anmeldung mit $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Entsperren"
+  },
+  "unlockedCloseTab": {
+    "message": "Entsperrt. Du kannst diesen Tab schließen."
+  },
+  "passkeyCancelled": {
+    "message": "Abgebrochen. Bitte versuche es erneut."
+  },
+  "prfUnsupported": {
+    "message": "Speichern mit $NAME$ ist hier nicht möglich (erfordert Windows 11 oder ein aktuelles macOS sowie ein aktuelles Chrome). Melde dich nach einem Browser-Neustart erneut an.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Die gespeicherte Anmeldung konnte nicht geöffnet werden. Melde dich über das Jimaku-Symbol erneut an."
+  },
+  "savedSignInExpired": {
+    "message": "Die gespeicherte Anmeldung ist abgelaufen. Melde dich über das Jimaku-Symbol erneut an."
+  },
+  "somethingWentWrong": {
+    "message": "Etwas ist schiefgelaufen ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Melde dich über das Jimaku-Symbol bei ChatGPT an"
+  },
+  "noticeUnlock": {
+    "message": "Entsperre Jimaku über sein Symbol"
+  },
+  "noticeUsageLimit": {
+    "message": "Das Nutzungslimit deines ChatGPT-Abos ist erreicht (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Dein ChatGPT-Abo ist gerade nicht nutzbar. Schalte Jimaku später aus und wieder ein."
+  },
+  "noticeNotEligible": {
+    "message": "Dieses Konto kann sein ChatGPT-Abo nicht zum Übersetzen nutzen"
+  },
+  "noticeModelUnavailable": {
+    "message": "Dieses Konto kann das Übersetzungsmodell nicht verwenden"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku wurde aktualisiert. Lade diesen Tab neu."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT hat die Übersetzungsanfrage nicht angenommen ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Jimaku-Übersetzung"
+  },
+  "passkey": {
+    "message": "Passkey"
+  }
+}

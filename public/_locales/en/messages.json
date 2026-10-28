@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Puts a translation of YouTube captions on the video, using your ChatGPT plan. Turn it on or off from the player's control bar."
+  },
+  "appTagline": {
+    "message": "Subtitle translation"
+  },
+  "continueWithChatGPT": {
+    "message": "Continue with ChatGPT"
+  },
+  "planNote": {
+    "message": "Uses your ChatGPT plan. No API charges."
+  },
+  "availabilityNote": {
+    "message": "Availability may change with OpenAI updates."
+  },
+  "learnMore": {
+    "message": "Learn more."
+  },
+  "lockedTitle": {
+    "message": "Locked"
+  },
+  "lockedBody": {
+    "message": "The browser was restarted. Open your saved sign-in to continue."
+  },
+  "unlockWith": {
+    "message": "Unlock with $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Sign in again"
+  },
+  "usingPlan": {
+    "message": "Using your ChatGPT plan"
+  },
+  "savedWith": {
+    "message": "Saved with $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "You'll be signed out when the browser closes"
+  },
+  "modelUnavailableWarning": {
+    "message": "This account can't use the translation model."
+  },
+  "manageUsage": {
+    "message": "Manage usage"
+  },
+  "signOut": {
+    "message": "Sign out"
+  },
+  "settingsTitle": {
+    "message": "Translation settings"
+  },
+  "targetLanguage": {
+    "message": "Translate into"
+  },
+  "position": {
+    "message": "Subtitle position"
+  },
+  "below": {
+    "message": "Below original"
+  },
+  "above": {
+    "message": "Above original"
+  },
+  "previewLabel": {
+    "message": "Preview"
+  },
+  "errSignInStart": {
+    "message": "Couldn't start signing in ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Couldn't sign out ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Couldn't save the language ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Couldn't save the position ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Couldn't read the status ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Signing in…"
+  },
+  "saveQuestion": {
+    "message": "From now on, pick up after a browser restart with just $NAME$?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Your sign-in is saved encrypted on this computer and can't be opened without $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Save"
+  },
+  "saveNo": {
+    "message": "Just this time"
+  },
+  "saveFresh": {
+    "message": "Save with a new passkey"
+  },
+  "savedCloseTab": {
+    "message": "Saved. You can close this tab."
+  },
+  "signInFailed": {
+    "message": "Couldn't sign in ($CODE$). Try again from the Jimaku icon.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "This sign-in has expired. Sign in again from the Jimaku icon."
+  },
+  "signedInCloseTab": {
+    "message": "Signed in. You can close this tab."
+  },
+  "signedIn": {
+    "message": "Signed in"
+  },
+  "unlockTitle": {
+    "message": "Unlock Jimaku"
+  },
+  "unlockBody": {
+    "message": "Open your saved sign-in with $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Unlock"
+  },
+  "unlockedCloseTab": {
+    "message": "Unlocked. You can close this tab."
+  },
+  "passkeyCancelled": {
+    "message": "Cancelled. Please try again."
+  },
+  "prfUnsupported": {
+    "message": "Saving with $NAME$ isn't available here (it needs Windows 11 or a recent macOS, and a recent Chrome). After restarting the browser, sign in again.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Couldn't open the saved sign-in. Sign in again from the Jimaku icon."
+  },
+  "savedSignInExpired": {
+    "message": "The saved sign-in has expired. Sign in again from the Jimaku icon."
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Sign in to ChatGPT from the Jimaku icon"
+  },
+  "noticeUnlock": {
+    "message": "Unlock Jimaku from its icon"
+  },
+  "noticeUsageLimit": {
+    "message": "You've reached your ChatGPT plan's usage limit (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Your ChatGPT plan can't be used right now. Turn Jimaku off and on again in a while."
+  },
+  "noticeNotEligible": {
+    "message": "This account can't use its ChatGPT plan for translation"
+  },
+  "noticeModelUnavailable": {
+    "message": "This account can't use the translation model"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku was updated. Reload this tab."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT didn't accept the translation request ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Jimaku translation"
+  },
+  "passkey": {
+    "message": "passkey"
+  }
+}

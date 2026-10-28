@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "將 YouTube 字幕翻譯成所選語言並顯示在影片上。使用 ChatGPT 方案翻譯，可用播放器中的按鈕開關。"
+  },
+  "appTagline": {
+    "message": "字幕翻譯"
+  },
+  "continueWithChatGPT": {
+    "message": "使用 ChatGPT 繼續"
+  },
+  "planNote": {
+    "message": "使用你的 ChatGPT 方案，不會產生 API 費用。"
+  },
+  "availabilityNote": {
+    "message": "OpenAI 的更新可能導致它無法使用。"
+  },
+  "learnMore": {
+    "message": "了解詳情"
+  },
+  "lockedTitle": {
+    "message": "已鎖定"
+  },
+  "lockedBody": {
+    "message": "瀏覽器已重新啟動，請開啟已儲存的登入。"
+  },
+  "unlockWith": {
+    "message": "使用 $NAME$ 解鎖",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "重新登入"
+  },
+  "usingPlan": {
+    "message": "正在使用 ChatGPT 方案"
+  },
+  "savedWith": {
+    "message": "已使用 $NAME$ 儲存",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "關閉瀏覽器後就會登出"
+  },
+  "modelUnavailableWarning": {
+    "message": "這個帳戶無法使用翻譯用的模型。"
+  },
+  "manageUsage": {
+    "message": "管理用量"
+  },
+  "signOut": {
+    "message": "登出"
+  },
+  "settingsTitle": {
+    "message": "翻譯設定"
+  },
+  "targetLanguage": {
+    "message": "翻譯成"
+  },
+  "position": {
+    "message": "字幕位置"
+  },
+  "below": {
+    "message": "原文下方"
+  },
+  "above": {
+    "message": "原文上方"
+  },
+  "previewLabel": {
+    "message": "預覽"
+  },
+  "errSignInStart": {
+    "message": "無法開始登入（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "無法登出（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "無法儲存翻譯語言（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "無法儲存譯文位置（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "無法讀取狀態（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "正在登入…"
+  },
+  "saveQuestion": {
+    "message": "之後重新啟動瀏覽器時，只要用 $NAME$ 就能繼續使用嗎？",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "登入資訊會加密儲存在這台電腦上，沒有 $NAME$ 就無法開啟。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "儲存"
+  },
+  "saveNo": {
+    "message": "僅限這次"
+  },
+  "saveFresh": {
+    "message": "使用新的密碼金鑰儲存"
+  },
+  "savedCloseTab": {
+    "message": "已儲存。可以關閉這個分頁了。"
+  },
+  "signInFailed": {
+    "message": "無法登入（$CODE$）。請從 Jimaku 圖示再試一次。",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "這次登入已過期。請從 Jimaku 圖示重新登入。"
+  },
+  "signedInCloseTab": {
+    "message": "已登入。可以關閉這個分頁了。"
+  },
+  "signedIn": {
+    "message": "已登入"
+  },
+  "unlockTitle": {
+    "message": "解鎖 Jimaku"
+  },
+  "unlockBody": {
+    "message": "使用 $NAME$ 開啟已儲存的登入。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "解鎖"
+  },
+  "unlockedCloseTab": {
+    "message": "已解鎖。可以關閉這個分頁了。"
+  },
+  "passkeyCancelled": {
+    "message": "已取消。請再試一次。"
+  },
+  "prfUnsupported": {
+    "message": "這個環境無法使用 $NAME$ 儲存（需要 Windows 11 或較新的 macOS，以及較新的 Chrome）。重新啟動瀏覽器後，請再次登入。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "無法開啟已儲存的登入。請從 Jimaku 圖示重新登入。"
+  },
+  "savedSignInExpired": {
+    "message": "已儲存的登入已過期。請從 Jimaku 圖示重新登入。"
+  },
+  "somethingWentWrong": {
+    "message": "發生問題（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "請從 Jimaku 圖示登入 ChatGPT"
+  },
+  "noticeUnlock": {
+    "message": "請從 Jimaku 圖示解鎖"
+  },
+  "noticeUsageLimit": {
+    "message": "已達到 ChatGPT 方案的用量上限（chatgpt.com/settings/usage）"
+  },
+  "noticePlanUnavailable": {
+    "message": "目前無法使用 ChatGPT 方案。請稍後關閉再開啟 Jimaku。"
+  },
+  "noticeNotEligible": {
+    "message": "這個帳戶無法將 ChatGPT 方案用於翻譯"
+  },
+  "noticeModelUnavailable": {
+    "message": "這個帳戶無法使用翻譯用的模型"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku 已更新。請重新載入這個分頁。"
+  },
+  "noticeRejected": {
+    "message": "ChatGPT 未接受翻譯要求（$CODE$）",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Jimaku 翻譯字幕"
+  },
+  "passkey": {
+    "message": "密碼金鑰"
+  }
+}

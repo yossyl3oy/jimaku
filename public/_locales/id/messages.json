@@ -1,0 +1,257 @@
+{
+  "extDescription": {
+    "message": "Menampilkan terjemahan teks YouTube di video dengan paket ChatGPT Anda. Nyalakan atau matikan dari bilah kontrol pemutar."
+  },
+  "appTagline": {
+    "message": "Terjemahan teks"
+  },
+  "continueWithChatGPT": {
+    "message": "Lanjutkan dengan ChatGPT"
+  },
+  "planNote": {
+    "message": "Memakai paket ChatGPT Anda. Tanpa biaya API."
+  },
+  "availabilityNote": {
+    "message": "Ketersediaan dapat berubah seiring pembaruan OpenAI."
+  },
+  "learnMore": {
+    "message": "Pelajari lebih lanjut"
+  },
+  "lockedTitle": {
+    "message": "Terkunci"
+  },
+  "lockedBody": {
+    "message": "Browser telah dimulai ulang. Buka info masuk yang tersimpan untuk melanjutkan."
+  },
+  "unlockWith": {
+    "message": "Buka kunci dengan $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signInAgain": {
+    "message": "Masuk lagi"
+  },
+  "usingPlan": {
+    "message": "Menggunakan paket ChatGPT"
+  },
+  "savedWith": {
+    "message": "Disimpan dengan $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "signedOutOnClose": {
+    "message": "Anda akan keluar saat browser ditutup"
+  },
+  "modelUnavailableWarning": {
+    "message": "Akun ini tidak dapat memakai model terjemahan."
+  },
+  "manageUsage": {
+    "message": "Kelola penggunaan"
+  },
+  "signOut": {
+    "message": "Keluar"
+  },
+  "settingsTitle": {
+    "message": "Pengaturan terjemahan"
+  },
+  "targetLanguage": {
+    "message": "Terjemahkan ke"
+  },
+  "position": {
+    "message": "Posisi teks"
+  },
+  "below": {
+    "message": "Di bawah asli"
+  },
+  "above": {
+    "message": "Di atas asli"
+  },
+  "previewLabel": {
+    "message": "Pratinjau"
+  },
+  "errSignInStart": {
+    "message": "Tidak dapat mulai masuk ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSignOut": {
+    "message": "Tidak dapat keluar ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSaveTarget": {
+    "message": "Tidak dapat menyimpan bahasa ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errSavePosition": {
+    "message": "Tidak dapat menyimpan posisi ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "errStatus": {
+    "message": "Tidak dapat membaca status ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signingIn": {
+    "message": "Sedang masuk…"
+  },
+  "saveQuestion": {
+    "message": "Mulai sekarang, lanjutkan setelah browser dimulai ulang hanya dengan $NAME$?",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveExplain": {
+    "message": "Info masuk Anda disimpan terenkripsi di komputer ini dan tidak dapat dibuka tanpa $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "saveYes": {
+    "message": "Simpan"
+  },
+  "saveNo": {
+    "message": "Kali ini saja"
+  },
+  "saveFresh": {
+    "message": "Simpan dengan kunci sandi baru"
+  },
+  "savedCloseTab": {
+    "message": "Tersimpan. Anda dapat menutup tab ini."
+  },
+  "signInFailed": {
+    "message": "Tidak dapat masuk ($CODE$). Coba lagi dari ikon Jimaku.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "signInExpired": {
+    "message": "Info masuk ini sudah kedaluwarsa. Masuk lagi dari ikon Jimaku."
+  },
+  "signedInCloseTab": {
+    "message": "Berhasil masuk. Anda dapat menutup tab ini."
+  },
+  "signedIn": {
+    "message": "Berhasil masuk"
+  },
+  "unlockTitle": {
+    "message": "Buka kunci Jimaku"
+  },
+  "unlockBody": {
+    "message": "Buka info masuk yang tersimpan dengan $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockButton": {
+    "message": "Buka kunci"
+  },
+  "unlockedCloseTab": {
+    "message": "Kunci terbuka. Anda dapat menutup tab ini."
+  },
+  "passkeyCancelled": {
+    "message": "Dibatalkan. Silakan coba lagi."
+  },
+  "prfUnsupported": {
+    "message": "Menyimpan dengan $NAME$ tidak tersedia di sini (perlu Windows 11 atau macOS terbaru, dan Chrome terbaru). Setelah browser dimulai ulang, masuk lagi.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Touch ID"
+      }
+    }
+  },
+  "unlockFailed": {
+    "message": "Tidak dapat membuka info masuk yang tersimpan. Masuk lagi dari ikon Jimaku."
+  },
+  "savedSignInExpired": {
+    "message": "Info masuk yang tersimpan sudah kedaluwarsa. Masuk lagi dari ikon Jimaku."
+  },
+  "somethingWentWrong": {
+    "message": "Terjadi kesalahan ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "noticeSignIn": {
+    "message": "Masuk ke ChatGPT dari ikon Jimaku"
+  },
+  "noticeUnlock": {
+    "message": "Buka kunci Jimaku dari ikonnya"
+  },
+  "noticeUsageLimit": {
+    "message": "Anda telah mencapai batas penggunaan paket ChatGPT (chatgpt.com/settings/usage)"
+  },
+  "noticePlanUnavailable": {
+    "message": "Paket ChatGPT Anda tidak dapat digunakan saat ini. Matikan lalu nyalakan lagi Jimaku nanti."
+  },
+  "noticeNotEligible": {
+    "message": "Akun ini tidak dapat memakai paket ChatGPT untuk menerjemahkan"
+  },
+  "noticeModelUnavailable": {
+    "message": "Akun ini tidak dapat memakai model terjemahan"
+  },
+  "noticeExtensionReloaded": {
+    "message": "Jimaku telah diperbarui. Muat ulang tab ini."
+  },
+  "noticeRejected": {
+    "message": "ChatGPT tidak menerima permintaan terjemahan ($CODE$)",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "invalid_grant"
+      }
+    }
+  },
+  "toggleLabel": {
+    "message": "Terjemahan Jimaku"
+  },
+  "passkey": {
+    "message": "kunci sandi"
+  }
+}
