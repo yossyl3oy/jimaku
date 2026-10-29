@@ -18,7 +18,9 @@ Translation runs on your ChatGPT plan through OpenAI's Sign in with ChatGPT (for
 
 ## Install
 
-You need Chrome, and [mise](https://mise.jdx.dev/) with pnpm (mise installs the Node version in `mise.toml`).
+From a release: download `jimaku-vX.Y.Z.zip` from the [Releases](https://github.com/yossyl3oy/jimaku/releases) page and unzip it. Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick the unzipped folder.
+
+From source: you need Chrome, and [mise](https://mise.jdx.dev/) with pnpm (mise installs the Node version in `mise.toml`; pnpm's version is `packageManager` in `package.json`).
 
 ```bash
 mise exec -- pnpm install
@@ -86,43 +88,7 @@ With just caption JSON (`tests/fixtures/`), everything from parsing to how trans
 
 ### Layout
 
-- `src/core/` … Pure code that touches neither the DOM nor `chrome.*`. This is what the tests cover (storage, `fetch` and the clock are passed in).
-  - `captions.ts` Parses json3 captions and finds the line at a playback time
-  - `tracks.ts` Picks the caption track to translate and builds the timedtext URL
-  - `caption-urls.ts` The caption URLs the player requested, and waiting for the next one
-  - `languages.ts` The target languages offered, and comparing and naming language codes
-  - `chunks.ts` The next range to translate (10 lines from the line being watched) and the surrounding lines used as context
-  - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
-  - `translate.ts` Asks again only for the lines missing from the response
-  - `session.ts` Translates one video in order, starting from the line being watched. On a jump, cuts off the chunk in flight
-  - `translation-cache.ts` Keeps the translations made in the tab, per video, track and target language
-  - `controller.ts` Decides whether to start or stop the translation from the open video and the on/off setting
-  - `layout.ts` The scale that fits a long line on one line, and where the translation goes next to YouTube's own captions
-  - `metrics.ts` Measures how long the "…" placeholder stayed on screen
-  - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
-  - `translator.ts` The pluggable translator interface `translate(lines, context, { onLine, signal }) → translations`
-  - `mock.ts` The mock translator (used by the tests and the benchmark)
-  - `errors.ts` Provider errors, and which ones stop the translation
-  - `chatgpt-auth.ts` Sign in with ChatGPT: sign-in, token refresh, sign-out
-  - `vault.ts` The passkey-encrypted copy of the refresh token
-  - `chatgpt-service.ts` Sign-in plus the vault, as the background uses them
-  - `chatgpt-responses.ts` The Responses API request and its event stream
-  - `port-stream.ts` Carries the translation stream from the background to the content script over a port
-  - `unlock-name.ts` The name of the unlock check on each OS
-  - `preview.ts` The popup's preview: a sample line and its translation in the chosen order
-  - `base64url.ts` base64url helpers
-- `src/background/main.ts` … The service worker: sign-in, tokens, translation requests
-- `src/popup/`, `src/callback/`, `src/unlock/`, `src/pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
-- `src/shared/chrome-store.ts` … `chrome.storage` in the shape the core code expects
-- `src/shared/i18n.ts` … The screens' text in the browser's language (`public/_locales/`)
-- `src/shared/settings.ts` … The on/off setting, the target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
-- `src/content/` … Code that touches the YouTube page
-  - `main.ts` Entry point; wires the pieces together
-  - `chatgpt.ts` The ChatGPT translator seen from the content script
-  - `youtube.ts` Fetches the captions
-  - `overlay.ts` The translation line
-  - `button.ts` The on/off button in the control bar
-- `src/page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script
+What each file under `src/` does is listed in [docs/layout.md](docs/layout.md).
 
 ### TTFT (time until the first translation is visible)
 
@@ -147,6 +113,15 @@ Calling a real API from the content script is blocked by CORS, so the ChatGPT tr
 ### Languages of the screens
 
 The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts`); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits Chrome's 132 characters. The prompt sent to ChatGPT is not UI text and stays in Japanese.
+
+### Releasing
+
+1. Set the new version in both `package.json` and `public/manifest.json` (`tests/version.test.ts` checks they match).
+2. Commit, then tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+
+The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs the typecheck and the tests, builds, zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with it and notes generated from the commits.
+
+Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions.
 
 ### Icon
 

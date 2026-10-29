@@ -1,0 +1,16 @@
+# Weekly pull requests that keep the dev dependencies (pnpm, through the npm ecosystem) and the GitHub Actions up to date
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # One pull request for all of them; they are all build and test tools
+    groups:
+      dev-dependencies:
+        patterns: ['*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

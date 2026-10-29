@@ -1,0 +1,45 @@
+# Builds the extension and publishes it as a GitHub release when a version tag (v0.1.0, ...) is pushed.
+# The tag must match the version in package.json and public/manifest.json.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Node from mise.toml, as locally; pnpm from packageManager in package.json
+      - uses: jdx/mise-action@v5
+      - uses: pnpm/action-setup@v6
+
+      - name: Check the tag matches the version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          for file in package.json public/manifest.json; do
+            actual="$(node -p "require('./$file').version")"
+            if [ "$actual" != "$version" ]; then
+              echo "::error file=$file::version is $actual, but the tag is $GITHUB_REF_NAME"
+              exit 1
+            fi
+          done
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+      - name: Package the extension
+        run: cd dist && zip -qr "../jimaku-${GITHUB_REF_NAME}.zip" .
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" "jimaku-${GITHUB_REF_NAME}.zip"
+          --verify-tag --title "Jimaku ${GITHUB_REF_NAME}" --generate-notes
