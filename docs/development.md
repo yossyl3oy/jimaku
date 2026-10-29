@@ -30,6 +30,10 @@ Calling a real API from the content script is blocked by CORS, so the ChatGPT tr
 
 The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts`); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits within Chrome's 132-character limit. The prompt sent to ChatGPT is not UI text and stays in Japanese.
 
+## CI and security
+
+The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and the build on every pull request, Dependabot's included, and on every push to `main`. Dependabot alerts and security updates are on for the repository.
+
 ## Releasing
 
 1. Set the new version in both `package.json` and `public/manifest.json` (`tests/version.test.ts` checks they match).
