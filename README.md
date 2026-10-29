@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/promo.webp" alt="Jimaku: A world of videos. In your language. Your favorite videos, with translated subtitles."></p>
+<p align="center"><img src="assets/promo.webp" alt="Jimaku: A world of videos. In your language. Your favorite videos, with translated subtitles. Sign in with ChatGPT."></p>
 
 <h1 align="center">Jimaku</h1>
 
