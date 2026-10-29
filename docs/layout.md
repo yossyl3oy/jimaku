@@ -1,40 +1,40 @@
 # Source layout
 
-What each part of the source does. See the [README](../README.md) for how Jimaku works and how to build it.
+An overview of the source code. See [How it works](how-it-works.md) for how jimaku behaves and [Development](development.md) for building it.
 
-- `src/core/` … Pure code that touches neither the DOM nor `chrome.*`. This is what the tests cover (storage, `fetch` and the clock are passed in).
+- `src/core/` … Core logic with no dependencies on the DOM or `chrome.*`. Storage, `fetch` and the clock are passed in so the logic can be tested in isolation.
   - `captions.ts` Parses json3 captions and finds the line at a playback time
   - `tracks.ts` Picks the caption track to translate and builds the timedtext URL
-  - `caption-urls.ts` The caption URLs the player requested, and waiting for the next one
-  - `languages.ts` The target languages offered, and comparing and naming language codes
+  - `caption-urls.ts` Tracks caption URLs requested by the player and waits for the next request
+  - `languages.ts` Defines the available target languages and provides helpers for comparing and naming language codes
   - `chunks.ts` The next range to translate (10 lines from the line being watched) and the surrounding lines used as context
   - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
-  - `translate.ts` Asks again only for the lines missing from the response
-  - `session.ts` Translates one video in order, starting from the line being watched. On a jump, cuts off the chunk in flight
+  - `translate.ts` Retries only the lines missing from the response
+  - `session.ts` Translates a video sequentially from the current caption line. Cancels the pending request when playback jumps
   - `translation-cache.ts` Keeps the translations made in the tab, per video, track and target language
   - `controller.ts` Decides whether to start or stop the translation from the open video and the on/off setting
-  - `layout.ts` The scale that fits a long line on one line, and where the translation goes next to YouTube's own captions
-  - `metrics.ts` Measures how long the "…" placeholder stayed on screen
+  - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions
+  - `metrics.ts` Measures how long the "…" placeholder remains on screen
   - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
   - `translator.ts` The pluggable translator interface `translate(lines, context, { onLine, signal }) → translations`
   - `mock.ts` The mock translator (used by the tests and the benchmark)
   - `errors.ts` Provider errors, and which ones stop the translation
   - `chatgpt-auth.ts` Sign in with ChatGPT: sign-in, token refresh, sign-out
   - `vault.ts` The passkey-encrypted copy of the refresh token
-  - `chatgpt-service.ts` Sign-in plus the vault, as the background uses them
+  - `chatgpt-service.ts` Combines sign-in and vault operations for the background service worker
   - `chatgpt-responses.ts` The Responses API request and its event stream
   - `port-stream.ts` Carries the translation stream from the background to the content script over a port
-  - `unlock-name.ts` The name of the unlock check on each OS
+  - `unlock-name.ts` Provides the name of the authentication method for each OS
   - `preview.ts` The popup's preview: a sample line and its translation in the chosen order
   - `base64url.ts` base64url helpers
 - `src/background/main.ts` … The service worker: sign-in, tokens, translation requests
 - `src/popup/`, `src/callback/`, `src/unlock/`, `src/pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
-- `src/shared/chrome-store.ts` … `chrome.storage` in the shape the core code expects
-- `src/shared/i18n.ts` … The screens' text in the browser's language (`public/_locales/`)
+- `src/shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code
+- `src/shared/i18n.ts` … Provides interface text in the browser's language (`public/_locales/`)
 - `src/shared/settings.ts` … The on/off setting, the target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
 - `src/content/` … Code that touches the YouTube page
   - `main.ts` Entry point; wires the pieces together
-  - `chatgpt.ts` The ChatGPT translator seen from the content script
+  - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
   - `youtube.ts` Fetches the captions
   - `overlay.ts` The translation line
   - `button.ts` The on/off button in the control bar

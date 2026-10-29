@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Puts a translation of YouTube captions on the video, using your ChatGPT plan. Turn it on or off from the player's control bar."
+    "message": "Translates YouTube captions using your ChatGPT plan. Turn translations on or off from the player's control bar."
   },
   "appTagline": {
     "message": "Subtitle translation"
@@ -21,7 +21,7 @@
     "message": "Locked"
   },
   "lockedBody": {
-    "message": "The browser was restarted. Open your saved sign-in to continue."
+    "message": "Your browser has restarted. Unlock your saved sign-in to continue."
   },
   "unlockWith": {
     "message": "Unlock with $NAME$",
@@ -69,16 +69,16 @@
     "message": "Subtitle position"
   },
   "below": {
-    "message": "Below original"
+    "message": "Below original captions"
   },
   "above": {
-    "message": "Above original"
+    "message": "Above original captions"
   },
   "previewLabel": {
     "message": "Preview"
   },
   "errSignInStart": {
-    "message": "Couldn't start signing in ($CODE$)",
+    "message": "Couldn't start the sign-in process ($CODE$)",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -96,7 +96,7 @@
     }
   },
   "errSaveTarget": {
-    "message": "Couldn't save the language ($CODE$)",
+    "message": "Couldn't save the target language ($CODE$)",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "errSavePosition": {
-    "message": "Couldn't save the position ($CODE$)",
+    "message": "Couldn't save the subtitle position ($CODE$)",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -114,7 +114,7 @@
     }
   },
   "errStatus": {
-    "message": "Couldn't read the status ($CODE$)",
+    "message": "Couldn't load the sign-in status ($CODE$)",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -126,7 +126,7 @@
     "message": "Signing in…"
   },
   "saveQuestion": {
-    "message": "From now on, pick up after a browser restart with just $NAME$?",
+    "message": "Use $NAME$ to unlock Jimaku after restarting your browser?",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -135,7 +135,7 @@
     }
   },
   "saveExplain": {
-    "message": "Your sign-in is saved encrypted on this computer and can't be opened without $NAME$.",
+    "message": "Your sign-in credentials are encrypted and saved on this computer. Unlocking them requires $NAME$.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -177,7 +177,7 @@
     "message": "Unlock Jimaku"
   },
   "unlockBody": {
-    "message": "Open your saved sign-in with $NAME$.",
+    "message": "Unlock your saved sign-in with $NAME$.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -195,7 +195,7 @@
     "message": "Cancelled. Please try again."
   },
   "prfUnsupported": {
-    "message": "Saving with $NAME$ isn't available here (it needs Windows 11 or a recent macOS, and a recent Chrome). After restarting the browser, sign in again.",
+    "message": "Saving your sign-in with $NAME$ isn't supported on this device. It requires Windows 11 or a recent version of macOS, and a recent version of Chrome. You'll need to sign in again after restarting your browser.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -204,7 +204,7 @@
     }
   },
   "unlockFailed": {
-    "message": "Couldn't open the saved sign-in. Sign in again from the Jimaku icon."
+    "message": "Couldn't unlock your saved sign-in. Click the Jimaku icon to sign in again."
   },
   "savedSignInExpired": {
     "message": "The saved sign-in has expired. Sign in again from the Jimaku icon."
@@ -228,7 +228,7 @@
     "message": "You've reached your ChatGPT plan's usage limit (chatgpt.com/settings/usage)"
   },
   "noticePlanUnavailable": {
-    "message": "Your ChatGPT plan can't be used right now. Turn Jimaku off and on again in a while."
+    "message": "Your ChatGPT plan is currently unavailable. Try turning Jimaku off and back on in a little while."
   },
   "noticeNotEligible": {
     "message": "This account can't use its ChatGPT plan for translation"
