@@ -39,7 +39,7 @@ The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and t
 1. Set the new version in both `package.json` and `public/manifest.json` (`tests/version.test.ts` checks they match).
 2. Commit, then tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
 
-The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds, zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file and release notes generated from the commits.
+The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds, zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file. The release notes list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
 
 Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions.
 
