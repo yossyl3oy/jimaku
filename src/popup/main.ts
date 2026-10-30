@@ -6,6 +6,7 @@ import { languageName, TARGET_LANGUAGES } from '../core/languages.ts';
 import { positionOf } from '../core/layout.ts';
 import { previewLines } from '../core/preview.ts';
 import { unlockName } from '../pages/unlock-name.ts';
+import { START_HASH } from '../pages/unlock-start.ts';
 import { localizePage, t, uiLanguage } from '../shared/i18n.ts';
 import { loadPosition, loadTargetLanguage, savePosition, saveTargetLanguage } from '../shared/settings.ts';
 
@@ -52,8 +53,11 @@ const signIn = async () => {
 };
 $('sign-in').addEventListener('click', signIn);
 $('sign-in-again').addEventListener('click', signIn);
-// The passkey prompt would close the popup, so unlocking happens in a tab
-$('unlock').addEventListener('click', () => void chrome.tabs.create({ url: chrome.runtime.getURL('unlock.html') }));
+// The passkey prompt would close the popup, so unlocking happens in a tab, which starts the prompt by itself
+$('unlock').addEventListener(
+  'click',
+  () => void chrome.tabs.create({ url: chrome.runtime.getURL(`unlock.html${START_HASH}`) })
+);
 
 $('sign-out').addEventListener('click', async () => {
   showError(null);
