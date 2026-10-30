@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Jimaku",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy8lj0+XweKxy35Y8Gg6iRb6RAZmlFujVqyZPhCsQ3OmJvV9+OAHubVMx3TE7riT/BtbQ0uv/evNAh9mo3BPGH0PpSBXtl8ZKBlGIuGcL+afI7dFJh8nq7ftX078or51mM2tE3anahcM4DgvCTrneSHnGbG3LQKArbhc2RpIgvuycYwEj341KJ27VF6Z+vZNqOBdC8xHUgEQhGY7swcL4AQTOLcDfJp/ThM1FHGjWE+fJJW36zTv0DtWEYXZC7CF0yW+RaRWoCe8lX3unJImUDwMxngk++lFmCqtIcCfjDV3N9zkxrdkSJsoWDvw3JIFgg5mEAio/N+9XW1cR4JDkzwIDAQAB",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
