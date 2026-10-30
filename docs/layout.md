@@ -29,7 +29,7 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `preview.ts` The popup's preview: a sample line and its translation in the chosen order
   - `model-bench.ts` The model benchmark's requests cut from real captions, and its summary of each model
   - `base64url.ts` base64url helpers
-- `src/bench/` … The model benchmark page and the prompts it compares, built only by `pnpm bench:models` (see [development.md](development.md#comparing-models))
+- `src/bench/` … The model benchmark page and the prompts it compares, included only in development builds (see [development.md](development.md#comparing-models))
 - `src/background/main.ts` … The service worker: sign-in, tokens, translation requests
 - `src/popup/`, `src/callback/`, `src/unlock/`, `src/pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
 - `src/shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code

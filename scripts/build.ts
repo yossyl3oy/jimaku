@@ -1,33 +1,10 @@
-import { build } from 'esbuild';
-import { cpSync, existsSync, rmSync } from 'node:fs';
+// mise exec -- pnpm build          The development build into dist/, with the model benchmark page when its captions are there
+// mise exec -- pnpm build:release  Only what the extension loads (the release workflow and CI use it)
 
-// --bench adds the model benchmark page (src/bench/) and its captions, which releases leave out
-const bench = process.argv.includes('--bench');
-const CAPTIONS = 'bench-data/captions.json';
-if (bench && !existsSync(CAPTIONS)) {
-  console.error(`${CAPTIONS} is missing: the benchmark needs real captions (see docs/development.md)`);
-  process.exit(1);
-}
+import { BENCH_CAPTIONS, buildExtension } from './extension-build.ts';
 
-rmSync('dist', { recursive: true, force: true });
-cpSync('public', 'dist', { recursive: true });
-if (bench) {
-  cpSync('src/bench/bench.html', 'dist/bench.html');
-  cpSync(CAPTIONS, 'dist/bench-captions.json');
+const release = process.argv.includes('--release');
+const { bench } = await buildExtension({ outdir: 'dist', release });
+if (!release) {
+  console.log(bench ? 'With the model benchmark page (bench.html)' : `No ${BENCH_CAPTIONS}, so no model benchmark page`);
 }
-await build({
-  entryPoints: {
-    content: 'src/content/main.ts',
-    page: 'src/page/player-bridge.ts',
-    background: 'src/background/main.ts',
-    popup: 'src/popup/main.ts',
-    callback: 'src/callback/main.ts',
-    unlock: 'src/unlock/main.ts',
-    ...(bench ? { bench: 'src/bench/main.ts' } : {}),
-  },
-  outdir: 'dist',
-  bundle: true,
-  format: 'iife',
-  target: 'chrome120',
-  logLevel: 'info',
-});

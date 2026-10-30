@@ -26,7 +26,7 @@ From source: you need Chrome, and [mise](https://mise.jdx.dev/) with pnpm (mise 
 
 ```bash
 mise exec -- pnpm install
-mise exec -- pnpm build
+mise exec -- pnpm build:release
 ```
 
 Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick `dist/`.

@@ -1,6 +1,7 @@
 // The model benchmark: translates the same real captions (bench-data/captions.json) with each model the signed-in
 // account can use, and measures the time to the first translated line, the tokens and the translations themselves.
-// Built only by `pnpm bench:models`, not for releases; open chrome-extension://<id>/bench.html after loading dist/.
+// Included in development builds (`pnpm build`) when bench-data/captions.json is there, never in release builds; open
+// chrome-extension://<id>/bench.html after loading dist/.
 
 import { STORAGE_KEYS, type Tokens } from '../core/chatgpt-auth.ts';
 import { API, responseDeltas, responseRequestBody, type ReasoningEffort, type Usage } from '../core/chatgpt-responses.ts';
