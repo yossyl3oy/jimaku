@@ -2,7 +2,7 @@
 // and shows their translation into the language chosen in the popup, translated with the ChatGPT plan.
 // The source captions are YouTube's own (the CC button); jimaku works independently of it.
 
-import { createController } from '../core/controller.ts';
+import { createController, DEFAULT_ENABLED } from '../core/controller.ts';
 import { fatalNotice, isFatalError, type Notice } from '../core/errors.ts';
 import { DEFAULT_POSITION, placeTranslation, type NativeCaptions, type Placement } from '../core/layout.ts';
 import { createWaitMeter } from '../core/metrics.ts';
@@ -213,19 +213,24 @@ const shutDown = () => {
 
 const init = async () => {
   watchPlayerCaptionRequests();
-  warmUpChatGPT();
   // Read the saved settings before watching videos (so it doesn't briefly start while off)
   position = await loadPosition().catch(() => DEFAULT_POSITION);
   watchPosition((value) => (position = value));
-  controller.setEnabled(await loadEnabled().catch(() => true));
+  controller.setEnabled(await loadEnabled().catch(() => DEFAULT_ENABLED));
   watchEnabled(setEnabled);
   watchSignIn(() => controller.restart());
   // A new language starts the open video over (fetching its captions again, since the track may change)
   watchTargetLanguage(() => controller.restart());
 
-  // YouTube is a SPA, so video changes are known from this event
-  window.addEventListener('yt-navigate-finish', () => controller.navigate(getVideoId()));
-  controller.navigate(getVideoId());
+  // YouTube is a SPA, so video changes are known from this event.
+  // The connection is warmed up for every video, even while off, so turning jimaku on starts quickly
+  const openVideo = () => {
+    const videoId = getVideoId();
+    if (videoId) warmUpChatGPT();
+    controller.navigate(videoId);
+  };
+  window.addEventListener('yt-navigate-finish', openVideo);
+  openVideo();
 
   // The control bar gets created later or rebuilt, so check the button periodically and put it back.
   // This is also where a reloaded extension is noticed

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createController, type StartFn } from '../src/core/controller.ts';
+import { createController, enabledOf, type StartFn } from '../src/core/controller.ts';
 
 // Records how start is called. finish(i) ends the i-th start.
 const recorder = () => {
@@ -170,4 +170,11 @@ test('restart: starts the current video again from scratch, and does nothing whi
   controller.setEnabled(false);
   controller.restart();
   assert.equal(calls.length, 2);
+});
+
+test('enabledOf: off until it is turned on; only a saved on/off counts', () => {
+  assert.equal(enabledOf(undefined), false);
+  assert.equal(enabledOf(true), true);
+  assert.equal(enabledOf(false), false);
+  assert.equal(enabledOf('true'), false);
 });

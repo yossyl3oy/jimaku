@@ -34,8 +34,8 @@ Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pi
 ## Use
 
 1. Click the Jimaku icon in the toolbar, click Continue with ChatGPT and sign in. You can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.
-2. Open a YouTube video that has captions. The translation of each caption line appears at the bottom of the video.
-3. Turn Jimaku on or off with the 訳 button in the player's control bar, just left of the CC button. The setting is remembered and shared across tabs. It works independently of CC: turn CC on to see the original captions.
+2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. Jimaku is off until you turn it on, so nothing counts toward your plan's usage until then. The translation of each caption line appears at the bottom of the video.
+3. Click the 訳 button again to turn Jimaku off. The setting is remembered and shared across tabs. It works independently of CC: turn CC on to see the original captions.
 
 In the popup (shown here in English; it follows the browser's language):
 

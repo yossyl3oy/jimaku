@@ -1,6 +1,10 @@
 // Decides whether the translated captions should run, from "the video open now" and "jimaku on/off".
 // The work itself (fetching captions, display, translation) comes in from outside as start, so it can be tested without a DOM.
 
+// Off until the user turns it on, since translating uses up the usage included in the ChatGPT plan
+export const DEFAULT_ENABLED = false;
+export const enabledOf = (value: unknown): boolean => (typeof value === 'boolean' ? value : DEFAULT_ENABLED);
+
 // onMounted is called once the display is up.
 // If start returns normally without mounting (no captions to translate, etc.), don't retry. It starts again the next time the same video opens or jimaku is turned on.
 // If start throws (a network failure, etc.), it retries automatically at the retryDelays intervals.
