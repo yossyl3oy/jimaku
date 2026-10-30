@@ -17,7 +17,8 @@ export const AUTH = 'https://auth.openai.com';
 const SCOPE = 'openid profile email offline_access resource.invoke chatgpt.tokens.use.direct';
 const PLAN_SCOPE = 'chatgpt.tokens.use.direct';
 const FIRST_CLIENT_ID = 'dynamic_agent_client';
-const APP_NAME = 'jimaku';
+// The name ChatGPT suggests for the app when it is first connected (the user can change it there)
+const APP_NAME = 'Jimaku';
 // A sign-in left open longer than this is not accepted
 const SIGN_IN_TTL_MS = 10 * 60_000;
 // Refresh this long before the access token expires

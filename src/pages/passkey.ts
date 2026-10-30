@@ -49,8 +49,8 @@ const create = (salt: Bytes) =>
   ceremony(async () => {
     const credential = await navigator.credentials.create({
       publicKey: {
-        rp: { name: 'jimaku' },
-        user: { id: random(16), name: 'jimaku', displayName: 'jimaku' },
+        rp: { name: 'Jimaku' },
+        user: { id: random(16), name: 'Jimaku', displayName: 'Jimaku' },
         challenge: random(32),
         pubKeyCredParams: [
           { type: 'public-key', alg: -7 },

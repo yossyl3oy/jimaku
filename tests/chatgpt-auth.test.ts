@@ -22,7 +22,7 @@ test('beginSignIn: the first sign-in registers with dynamic_agent_client and a P
   assert.equal(url.origin + url.pathname, `${AUTH}/api/accounts/authorize`);
   const p = url.searchParams;
   assert.equal(p.get('client_id'), 'dynamic_agent_client');
-  assert.equal(p.get('agent_name_hint'), 'jimaku');
+  assert.equal(p.get('agent_name_hint'), 'Jimaku');
   assert.equal(p.get('redirect_uri'), REDIRECT);
   assert.equal(p.get('resource'), 'https://api.openai.com/v1');
   assert.equal(p.get('scope'), 'openid profile email offline_access resource.invoke chatgpt.tokens.use.direct');

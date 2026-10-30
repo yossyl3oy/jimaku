@@ -31,6 +31,8 @@ mise exec -- pnpm build:release
 
 Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick `dist/`.
 
+To update, put the new version's files in the same folder (unzip over it, or build `dist/` again) and click the reload button on Jimaku in `chrome://extensions`. Don't remove the extension to update it: removing it deletes your saved sign-in, and signing in again adds another "Jimaku" to the app usage settings in ChatGPT.
+
 ## Use
 
 1. Click the Jimaku icon in the toolbar, click Continue with ChatGPT and sign in. You can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.

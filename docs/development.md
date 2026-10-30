@@ -22,7 +22,7 @@ See [ttft.md](ttft.md) for how jimaku reduces the wait for the first translation
 
 ## Comparing models
 
-The development build (`mise exec -- pnpm build`) adds a benchmark page (`src/bench/`) when `bench-data/captions.json` is there; the release build leaves it out. Load `dist/`, sign in, and open `chrome-extension://<id>/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
+The development build (`mise exec -- pnpm build`) adds a benchmark page (`src/bench/`) when `bench-data/captions.json` is there; the release build leaves it out. Load `dist/`, sign in, and open `chrome-extension://bineloccjadloiohooadhfclifcfdbai/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
 
 The last comparison (2026-10-31, English to Japanese, 6 chunks of a TED talk with human and auto-generated captions) measured all 10 models in the catalog. Translations were scored by whether speaker names were translated instead of left as "CA:" / "EM:", and whether lines stayed in place (each auto-generated line keeps its own key words and none of its neighbours'):
 
@@ -60,6 +60,10 @@ The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and t
 The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds with `pnpm build:release` (only the files the extension loads, which `tests/build.test.ts` lists), zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file. The release notes list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
 
 Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions.
+
+## Extension ID
+
+The `key` in `public/manifest.json` (a public key) fixes the extension ID to `bineloccjadloiohooadhfclifcfdbai`, whatever folder the extension is loaded from. The saved sign-in and the passkey belong to that ID, and so does the "Jimaku" entry in ChatGPT's app usage settings (one per sign-in client). Without the key, an unpacked extension gets its ID from its folder's path, so each new folder started over with a new sign-in, a new passkey and a new entry in ChatGPT. `tests/extension-id.test.ts` checks the ID. The private key is not kept: loading an unpacked extension doesn't need it. The Chrome Web Store assigns its own key, so `key` has to be removed from a package uploaded there.
 
 ## Icon
 
