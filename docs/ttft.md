@@ -4,7 +4,7 @@ How Jimaku reduces the wait for the first translation. See [How it works](how-it
 
 The goal is to keep the "…" placeholder on screen as briefly as possible:
 
-- The translation streams back as "number<TAB>translation" lines, and each line is shown as soon as it arrives (no waiting for a whole 10-line response)
+- The translation streams back as "number<TAB>source<TAB>translation" lines, and each line is shown as soon as it arrives (no waiting for a whole 10-line response). Copying the source line first delays the first translation by about 0.2s, which keeps gpt-6-luna's translations of auto-generated captions on their own lines
 - Each translation batch starts at the current caption line rather than a fixed 10-line boundary
 - When playback jumps to an untranslated section, the pending translation request is canceled and translation starts at the new position
 - Player info is read straight from the page's player, instead of fetching the ~2MB watch page HTML again (about 700ms)

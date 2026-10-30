@@ -64,6 +64,49 @@ test('createLineParser: waits for the newline when a chunk ends mid-line', () =>
   assert.deepEqual(parser.end(), ['こんにちは', 'さよなら']);
 });
 
+test('createLineParser: the translation is the last field, after the copied source line', () => {
+  const sources = ['Elon, hey, welcome back', 'to TED.'];
+  const seen: [number, string][] = [];
+  const parser = createLineParser(sources, (i, t) => seen.push([i, t]));
+  parser.feed('1\tElon, hey, welcome back\tイーロン、おかえりなさい\n2\tto TED.\tTEDへ\n');
+  assert.deepEqual(seen, [
+    [0, 'イーロン、おかえりなさい'],
+    [1, 'TEDへ'],
+  ]);
+  // Without the copy it reads the same
+  const plain = createLineParser(sources);
+  plain.feed('1\tイーロン、おかえりなさい\n');
+  assert.deepEqual(plain.end(), ['イーロン、おかえりなさい', undefined]);
+});
+
+test('createLineParser: a line holding only the copied source is missing, but a translation equal to it is kept', () => {
+  const parser = createLineParser(['Elon.', 'Thanks for  having me.', '2026']);
+  parser.feed('1\tElon.\tElon.\n2\tthanks for having me.\n3\t2026\n');
+  assert.deepEqual(parser.end(), ['Elon.', undefined, '2026']);
+});
+
+test('createLineParser: a TAB or "\\t" inside the translation stays, and a copy that differs a little still counts', () => {
+  const sources = ['Open the folder', 'so we said, hello', 'Type the path'];
+  const parser = createLineParser(sources);
+  parser.feed('1\tOpen the folder\tC:\\temp を開く\n');
+  parser.feed('2\tso we said hello\tそれで「こんにちは」\tと言いました\n');
+  // Without the copy, a "\t" in the translation isn't taken for one
+  parser.feed('3\tC:\\temp と入力\n');
+  assert.deepEqual(parser.end(), ['C:\\temp を開く', 'それで「こんにちは」\tと言いました', 'C:\\temp と入力']);
+});
+
+test('createLineParser: a TAB written out as "\\t" is a TAB too', () => {
+  const parser = createLineParser(2);
+  parser.feed('1\\tというのが狙いです\n2\\tand it\'s aligned on true north.\\t真北に向けてあります\n');
+  assert.deepEqual(parser.end(), ['というのが狙いです', '真北に向けてあります']);
+});
+
+test('createLineParser: drops characters no language uses (private use, unassigned planes), keeping new emoji and CJK', () => {
+  const parser = createLineParser(2);
+  parser.feed('1\t次は\u{4E7FF}\n2\tいいね👍\u{1FAE9}\u{E000}𠮷\u{3134A}\n');
+  assert.deepEqual(parser.end(), ['次は', 'いいね👍\u{1FAE9}𠮷\u{3134A}']);
+});
+
 test('createLineParser: accepts ": ", ". " and the like besides TAB, and ignores code fences and extra lines', () => {
   const parser = createLineParser(3);
   parser.feed('```\n1: あ\n2. い\n説明です\n3）う\n```\n');

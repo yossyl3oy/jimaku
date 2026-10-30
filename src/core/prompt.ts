@@ -1,11 +1,13 @@
 // The prompt that translates captions from the track's language into the chosen language, and parsing of its response.
-// The instructions are in English whatever the languages (they took about a third fewer tokens than the earlier
-// Japanese ones, with translations as good in the model benchmark); only the language names change.
-// Shizue's YouTube prompt passed no surrounding lines and said "don't merge lines into sentences",
+// The instructions are in English whatever the languages (they take fewer tokens than Japanese ones); only the language
+// names change. Shizue's YouTube prompt passed no surrounding lines and said "don't merge lines into sentences",
 // so translations of auto-generated captions came out fragmented. Here, as in its Netflix prompt, surrounding lines are passed as context.
 //
-// The response comes back as "number<TAB>translation" lines rather than JSON. JSON cannot be read until it closes,
-// but lines can be shown as each one arrives (shorter TTFT). The numbers also reveal missing lines.
+// The response comes back as "number<TAB>source<TAB>translation" lines rather than JSON. JSON cannot be read until it
+// closes, but lines can be shown as each one arrives (shorter TTFT), and the numbers reveal missing lines. Copying each
+// source line before its translation keeps gpt-6-luna's translations of auto-generated captions on their own lines: it
+// used to shift them to the line before (the model benchmark: 85% of the lines in place before, 97% with the copy).
+// The rules on speaker labels, tone and sentence fragments came out of the same benchmark (see docs/development.md).
 
 import { languageName, type Languages } from './languages.ts';
 import type { TranslateOptions, TranslationContext, Translator } from './translator.ts';
@@ -28,10 +30,12 @@ export const buildPrompt = (lines: readonly string[], context: TranslationContex
   const after = context.after.length ? context.after.map((line) => `- ${line}`).join('\n') : '(none)';
   return `Translate ${source} YouTube captions into ${target} subtitles.
 - Translate each of the ${lines.length} numbered lines on its own. Each is shown alone on screen: never merge lines or move words between them.
-- Auto-generated captions split sentences across lines: get the whole sentence from the nearby lines, then translate naturally the part this line carries.
+- Auto-generated captions split sentences across lines. Understand the whole sentence from the nearby lines, but translate only the words of this line: if it ends mid-sentence, end the translation mid-sentence too (with a comma or a connecting word) and leave the rest to the next line.
 - Before/After are context only: keep names, terms and tone consistent with them.
+- Speaker labels such as "CA:" are initials: write the speaker's name instead, as in the translations before or as the lines name them. Use the title and the context to translate names, terms and wordplay by their meaning.
+- Keep each speaker's register (polite or casual) the same as in the translations before; when there are none, use a polite spoken style.
 - Short, natural subtitles that read at a glance.
-Output only "number<TAB>translation" lines, in order.
+Output one line per numbered line, in order: the number, a TAB, the source line copied exactly, a TAB, then its translation. Nothing else.
 
 Title: ${context.title ?? '(unknown)'}
 Before (→ translation shown):
@@ -43,12 +47,47 @@ After:
 ${after}`;
 };
 
-// Reads "number<TAB>translation" lines as they arrive. A stream chunk can end mid-line,
-// so text is held until a newline arrives. After the number, ": ", ". " and the like are accepted besides TAB.
+// Reads "number<TAB>source<TAB>translation" lines as they arrive. A stream chunk can end mid-line,
+// so text is held until a newline arrives. After the number, ": ", ". " and the like are accepted besides TAB, and so is
+// a TAB written out as "\t" (gpt-6-luna does that now and then, which lost the whole chunk).
 // A TAB is always taken as the separator, and any symbols after it (".5 秒", "...", etc.) stay part of the translation.
-const LINE_RE = /^\s*(\d+)(?:\t|[ \u3000]*[:：.、)）][ \u3000]*|[ \u3000]+)(.*)$/;
+// The translation follows the copied source, and a line without the copy ("number<TAB>translation") reads the same.
+// A line that holds only the copied source has no translation, and is left missing (to be asked for again).
+const LINE_RE = /^\s*(\d+)(?:\t|\\t|[ \u3000]*[:：.、)）][ \u3000]*|[ \u3000]+)(.*)$/;
+// Characters no language uses: private use, and planes 4-13, where Unicode has assigned nothing (gpt-6-luna once left
+// one in a line). Unassigned code points in general are kept: a browser with older Unicode data counts new emoji as such.
+const NOT_TEXT = /[\p{Co}\u{40000}-\u{DFFFF}]/gu;
 
-export const createLineParser = (count: number, onLine?: (index: number, translation: string) => void) => {
+const SEPARATOR = /\t|\\t/;
+const normalize = (text: string) => text.replace(/\s+/g, ' ').trim().toLowerCase();
+const pairsOf = (text: string) => Array.from({ length: Math.max(0, text.length - 1) }, (_, i) => text.slice(i, i + 2));
+// Whether a field is the copied source line: the same text, or nearly (the model doesn't always copy it exactly)
+const isCopyOf = (field: string, source: string) => {
+  const [copy, line] = [normalize(field), normalize(source)];
+  if (copy === line) return true;
+  const left = new Map<string, number>();
+  for (const pair of pairsOf(line)) left.set(pair, (left.get(pair) ?? 0) + 1);
+  let common = 0;
+  for (const pair of pairsOf(copy)) {
+    const n = left.get(pair) ?? 0;
+    if (n) {
+      common++;
+      left.set(pair, n - 1);
+    }
+  }
+  const total = pairsOf(copy).length + pairsOf(line).length;
+  return total > 0 && (2 * common) / total >= 0.8;
+};
+// A line that comes back holding only the copied source has no translation. A short one can legitimately stay the
+// same ("2026", "Elon."), so only lines this long count
+const COPY_ONLY_LENGTH = 12;
+
+// sources: the lines asked for, to tell the copied source from the translation (a count when they aren't known)
+export const createLineParser = (
+  sources: readonly string[] | number,
+  onLine?: (index: number, translation: string) => void
+) => {
+  const count = typeof sources === 'number' ? sources : sources.length;
   const translations: (string | undefined)[] = new Array(count).fill(undefined);
   let buffer = '';
 
@@ -56,8 +95,20 @@ export const createLineParser = (count: number, onLine?: (index: number, transla
     const match = raw.match(LINE_RE);
     if (!match) return;
     const index = Number(match[1]) - 1;
-    const text = match[2].trim();
-    if (index < 0 || index >= count || translations[index] !== undefined || !text) return;
+    if (index < 0 || index >= count || translations[index] !== undefined) return;
+    const source = typeof sources === 'number' ? undefined : sources[index];
+    // Split at the first TAB only, and only when the field before it is the copied source, so a translation holding a
+    // TAB or a "\t" of its own stays whole
+    let rest = match[2];
+    let copied = false;
+    const separator = rest.match(SEPARATOR);
+    if (separator?.index !== undefined && (source === undefined || isCopyOf(rest.slice(0, separator.index), source))) {
+      rest = rest.slice(separator.index + separator[0].length);
+      copied = true;
+    }
+    const text = rest.replace(NOT_TEXT, '').trim();
+    if (!text) return;
+    if (!copied && source !== undefined && normalize(source).length >= COPY_ONLY_LENGTH && normalize(text) === normalize(source)) return;
     translations[index] = text;
     onLine?.(index, text);
   };
@@ -87,7 +138,7 @@ export type StreamFn = (prompt: string, signal?: AbortSignal) => AsyncIterable<s
 // Any stream becomes a Translator into one language pair. The ChatGPT plan implements this stream (and the mock does).
 export const createPromptTranslator = (stream: StreamFn, languages: Languages, warmup?: () => void): Translator => ({
   async translate(lines: string[], context: TranslationContext, options: TranslateOptions = {}) {
-    const parser = createLineParser(lines.length, options.onLine);
+    const parser = createLineParser(lines, options.onLine);
     for await (const chunk of stream(buildPrompt(lines, context, languages), options.signal)) {
       options.signal?.throwIfAborted();
       parser.feed(chunk);

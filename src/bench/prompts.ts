@@ -1,11 +1,11 @@
-// The prompts the benchmark compares. "current" is the one jimaku sends (src/core/prompt.ts); the others are
-// alternatives that ask for the same "number<TAB>translation" lines. One that wins moves into prompt.ts.
+// The prompts the benchmark compares. "current" is the one jimaku sends (src/core/prompt.ts); the others are earlier
+// ones, kept to compare against, and the place for new candidates. One that wins moves into prompt.ts.
 
 import { languageName, type Languages } from '../core/languages.ts';
 import { buildPrompt, LINES_CLOSE, LINES_OPEN, numberedLine } from '../core/prompt.ts';
 import type { TranslationContext } from '../core/translator.ts';
 
-// The earlier prompt, with its instructions in Japanese (about a third more input tokens than "current")
+// The prompt up to v0.2.0, with its instructions in Japanese
 const japanese = (lines: readonly string[], context: TranslationContext, languages: Languages): string => {
   const sourceName = languageName(languages.source, 'ja');
   const targetName = languageName(languages.target, 'ja');
@@ -47,12 +47,37 @@ ${after}
 2\t2行目の訳`;
 };
 
+// The prompt before the benchmark of 2026-10-31 for gpt-6-luna: the same layout with fewer rules, and
+// "number<TAB>translation" lines without the copied source
+const english = (lines: readonly string[], context: TranslationContext, languages: Languages): string => {
+  const source = languageName(languages.source, 'en');
+  const target = languageName(languages.target, 'en');
+  const before = context.before.length
+    ? context.before
+        .map(({ source: line, translation }) => (translation === undefined ? `- ${line}` : `- ${line} → ${translation}`))
+        .join('\n')
+    : '(none)';
+  const after = context.after.length ? context.after.map((line) => `- ${line}`).join('\n') : '(none)';
+  return `Translate ${source} YouTube captions into ${target} subtitles.
+- Translate each of the ${lines.length} numbered lines on its own. Each is shown alone on screen: never merge lines or move words between them.
+- Auto-generated captions split sentences across lines: get the whole sentence from the nearby lines, then translate naturally the part this line carries.
+- Before/After are context only: keep names, terms and tone consistent with them.
+- Short, natural subtitles that read at a glance.
+Output only "number<TAB>translation" lines, in order.
+
+Title: ${context.title ?? '(unknown)'}
+Before (→ translation shown):
+${before}
+${LINES_OPEN}
+${lines.map((line, i) => numberedLine(i, line)).join('\n')}
+${LINES_CLOSE}
+After:
+${after}`;
+};
+
 export const PROMPTS = {
   current: buildPrompt,
-  // Half the context: the 3 lines before and 2 after. It saved another 15% of the input tokens, but without the
-  // earlier lines the speaker names fell back to "CA:" / "EM:"
-  'compact-short': (lines: readonly string[], context: TranslationContext, languages: Languages) =>
-    buildPrompt(lines, { ...context, before: context.before.slice(-3), after: context.after.slice(0, 2) }, languages),
+  english,
   japanese,
 } satisfies Record<string, (lines: readonly string[], context: TranslationContext, languages: Languages) => string>;
 

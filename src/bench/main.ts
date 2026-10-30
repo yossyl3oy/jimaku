@@ -60,7 +60,7 @@ const runCase = async (token: string, { model, effort, prompt }: Config, benchCa
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   const start = performance.now();
   const since = () => Math.round(performance.now() - start);
-  const parser = createLineParser(benchCase.lines.length, () => (result.firstLineMs ??= since()));
+  const parser = createLineParser(benchCase.lines, () => (result.firstLineMs ??= since()));
   try {
     const response = await fetch(`${API}/responses`, {
       method: 'POST',
