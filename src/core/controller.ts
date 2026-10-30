@@ -1,9 +1,8 @@
 // Decides whether the translated captions should run, from "the video open now" and "jimaku on/off".
 // The work itself (fetching captions, display, translation) comes in from outside as start, so it can be tested without a DOM.
-
-// Off until the user turns it on, since translating uses up the usage included in the ChatGPT plan
-export const DEFAULT_ENABLED = false;
-export const enabledOf = (value: unknown): boolean => (typeof value === 'boolean' ? value : DEFAULT_ENABLED);
+//
+// Every video opens with jimaku off, and turning it on applies to the video open now only: translating uses up the
+// usage included in the ChatGPT plan, and a session translates the whole video, not only the part watched.
 
 // onMounted is called once the display is up.
 // If start returns normally without mounting (no captions to translate, etc.), don't retry. It starts again the next time the same video opens or jimaku is turned on.
@@ -35,7 +34,7 @@ const defaultWait = (ms: number, signal: AbortSignal) =>
 
 export const createController = (start: StartFn, options: ControllerOptions = {}) => {
   const { onError, retryDelays = [3000, 10000, 30000], wait = defaultWait } = options;
-  let enabled = true;
+  let enabled = false;
   let videoId: string | null = null;
   let running: Running | null = null;
 
@@ -73,8 +72,9 @@ export const createController = (start: StartFn, options: ControllerOptions = {}
   };
 
   return {
-    // A video was opened or changed (null when not on a video page)
+    // A video was opened or changed (null when not on a video page). Another video, or leaving the video, turns it off
     navigate(id: string | null) {
+      if (id !== videoId) enabled = false;
       videoId = id;
       sync();
     },

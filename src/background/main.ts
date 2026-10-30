@@ -5,9 +5,12 @@ import { API, chatGPTStream } from '../core/chatgpt-responses.ts';
 import { createChatGPTService } from '../core/chatgpt-service.ts';
 import { ProviderError } from '../core/errors.ts';
 import { servePort, TRANSLATE_PORT } from '../core/port-stream.ts';
+import { cacheLoadRequest, cacheSaveRequest, createTranslationStore } from '../core/translation-cache.ts';
 import { localStore, sessionStore } from '../shared/chrome-store.ts';
 
 const service = createChatGPTService({ local: localStore(), session: sessionStore() });
+// The translations every tab shares (see translation-cache.ts)
+const translations = createTranslationStore(sessionStore());
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === TRANSLATE_PORT) servePort(port, chatGPTStream(() => service.accessToken()));
@@ -67,9 +70,12 @@ const warmConnection = () => {
 
 type Message =
   | { type: 'status' | 'warmup' | 'signIn' | 'signOut' | 'saveToVault' | 'unlock' }
-  | { type: 'callback'; search: string };
+  | { type: 'callback'; search: string }
+  | { type: 'cacheLoad'; key?: unknown; sources?: unknown }
+  | { type: 'cacheSave'; key?: unknown; generation?: unknown; updates?: unknown };
 
-// Everything but warmup comes only from the extension's own pages (popup, callback, unlock), not from content scripts
+// Everything but warmup and the translation cache comes only from the extension's own pages (popup, callback, unlock),
+// not from content scripts
 const fromExtensionPage = (sender: chrome.runtime.MessageSender) =>
   sender.id === chrome.runtime.id && sender.url?.startsWith(chrome.runtime.getURL('')) === true;
 
@@ -77,6 +83,20 @@ const handle = async (message: Message, sender: chrome.runtime.MessageSender): P
   if (message.type === 'warmup') {
     warmConnection();
     await service.accessToken().catch(() => {});
+    return {};
+  }
+  // The content scripts read and add translations only through these, never the storage itself (it holds the tokens)
+  if (message.type === 'cacheLoad') {
+    const request = cacheLoadRequest(message);
+    if (!request) throw new ProviderError('invalid_message', 'Invalid cache request');
+    const { generation, translations: lines } = await translations.load(request.key, request.sources);
+    // Sent as null where there is none, since a message can't carry undefined in an array
+    return { generation, translations: lines.map((line) => line ?? null) };
+  }
+  if (message.type === 'cacheSave') {
+    const request = cacheSaveRequest(message);
+    if (!request) throw new ProviderError('invalid_message', 'Invalid cache request');
+    await translations.save(request.key, request.generation, request.updates);
     return {};
   }
   if (!fromExtensionPage(sender)) throw new ProviderError('forbidden', 'Not allowed from this page');

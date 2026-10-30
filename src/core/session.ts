@@ -26,6 +26,8 @@ export type SessionOptions = {
   // The translations made earlier for these captions (one slot per caption), which the session fills in place, so the
   // caller can keep them for next time. Only the missing lines are requested; ones that failed before ('') are tried again.
   translations?: (string | undefined)[];
+  // Called after each chunk ends (translated, failed or cut off), so the caller can keep the new lines
+  onChunkEnd?: () => void;
 };
 
 export type DisplayLines = {
@@ -97,6 +99,7 @@ export const createCaptionSession = (options: SessionOptions) => {
       } finally {
         signal?.removeEventListener('abort', abortRequest);
         inFlight = null;
+        options.onChunkEnd?.();
       }
     }
   };

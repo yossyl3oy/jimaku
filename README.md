@@ -13,7 +13,7 @@ Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for op
 - A single line of translation below or above YouTube's captions; with CC off, only the translation is shown
 - 14 target languages, with Japanese as the default
 - Translation starts at the current playback position and streams in line by line
-- Translations are cached in the tab, so toggling Jimaku or returning to a video reuses existing translations
+- Translations are cached and shared by every tab until the browser closes, so turning Jimaku on again, returning to a video or opening it in another tab reuses existing translations
 - No API key and no API charges: requests count toward the usage included in your ChatGPT plan
 - Sign-in credentials are kept in memory, with the option to save them securely using Windows Hello / Touch ID
 - The interface supports the same 14 languages and follows your browser's language setting, falling back to English for other languages
@@ -36,8 +36,8 @@ To update, put the new version's files in the same folder (unzip over it, or bui
 ## Use
 
 1. Click the Jimaku icon in the toolbar, click Continue with ChatGPT and sign in. You can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.
-2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. Jimaku is off until you turn it on, so nothing counts toward your plan's usage until then. The translation of each caption line appears at the bottom of the video.
-3. Click the 訳 button again to turn Jimaku off. The setting is remembered and shared across tabs. It works independently of CC: turn CC on to see the original captions.
+2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. The translation of each caption line appears at the bottom of the video.
+3. Click the 訳 button again to turn Jimaku off. Every video opens with Jimaku off, and turning it on applies only to the video you're watching, so only the videos you choose count toward your plan's usage. It works independently of CC: turn CC on to see the original captions.
 
 In the popup (shown here in English; it follows the browser's language):
 

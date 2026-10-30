@@ -2,27 +2,20 @@
 // and shows their translation into the language chosen in the popup, translated with the ChatGPT plan.
 // The source captions are YouTube's own (the CC button); jimaku works independently of it.
 
-import { createController, DEFAULT_ENABLED } from '../core/controller.ts';
+import { createController } from '../core/controller.ts';
 import { fatalNotice, isFatalError, type Notice } from '../core/errors.ts';
 import { DEFAULT_TARGET } from '../core/languages.ts';
 import { DEFAULT_POSITION, placeTranslation, type NativeCaptions, type Placement } from '../core/layout.ts';
 import { createWaitMeter } from '../core/metrics.ts';
 import { createCaptionSession } from '../core/session.ts';
 import { buildCaptionUrl, pickSourceTrack } from '../core/tracks.ts';
-import { createTranslationCache, translationKey } from '../core/translation-cache.ts';
+import { translationKey } from '../core/translation-cache.ts';
 import { t, uiLanguage } from '../shared/i18n.ts';
-import {
-  loadEnabled,
-  loadPosition,
-  loadTargetLanguage,
-  saveEnabled,
-  watchEnabled,
-  watchPosition,
-  watchTargetLanguage,
-} from '../shared/settings.ts';
+import { loadPosition, loadTargetLanguage, watchPosition, watchTargetLanguage } from '../shared/settings.ts';
 import { createToggleButton } from './button.ts';
 import { createChatGPTTranslator, extensionAlive, warmUpChatGPT, watchSignIn } from './chatgpt.ts';
 import { mountOverlay, SHIFTED_CAPTIONS } from './overlay.ts';
+import { loadTranslations, translationSaver } from './translation-cache.ts';
 import {
   fetchCaptions,
   fetchPlayerResponse,
@@ -48,9 +41,6 @@ let position = DEFAULT_POSITION;
 
 // The language chosen in the popup, for the button's character (each video reads it again when it starts)
 let targetLanguage = DEFAULT_TARGET;
-
-// Translations made in this tab, so turning jimaku off and on or coming back to a video doesn't translate again
-const translationCache = createTranslationCache();
 
 // The current state of YouTube's own captions (whether the CC button is on, and the caption windows on screen)
 const readNativeCaptions = (playerEl: HTMLElement): NativeCaptions => {
@@ -109,11 +99,13 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
   const waitMeter = createWaitMeter(() => performance.now());
   let firstShown = false;
 
-  const translations = translationCache.linesFor(
-    translationKey(videoId, track, target),
-    captions.map((caption) => caption.text)
-  );
+  // Lines translated before, in this tab or another, are shown at once and not requested again
+  const key = translationKey(videoId, track, target);
+  const kept = await loadTranslations(key, captions.map((caption) => caption.text));
+  if (signal.aborted) return;
+  const { translations } = kept;
   const cached = translations.filter((translation) => translation).length;
+  const saveTranslations = translationSaver(key, kept);
 
   const overlay = mountOverlay(playerEl, target, UI_LANGUAGE);
   const session = createCaptionSession({
@@ -131,6 +123,7 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
       if (isFatalError(error)) overlay.setNotice(noticeText(fatalNotice(error.code)));
     },
     isFatal: isFatalError,
+    onChunkEnd: saveTranslations,
   });
   // When playback jumps, translate the new position first
   const onSeeking = () => {
@@ -144,6 +137,8 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
     () => {
       video.removeEventListener('seeking', onSeeking);
       overlay.destroy();
+      // Keeps what arrived from the chunk cut off by turning jimaku off or leaving the video
+      saveTranslations();
     },
     { once: true }
   );
@@ -182,23 +177,18 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
 
   log(
     `${captions.length} lines (${track.languageCode}${track.kind === 'asr' ? ', auto-generated' : ''} → ${target}),`,
-    `${cached} already translated in this tab`
+    `${cached} already translated`
   );
   await session.run(signal);
 };
 
 const controller = createController(start, { onError: (error) => log('failed to start (will retry)', error) });
 
-const setEnabled = (enabled: boolean) => {
-  controller.setEnabled(enabled);
-  button.sync(enabled, targetLanguage);
-};
-
+// Turns jimaku on or off for the video open now (each video opens with it off)
 const button = createToggleButton(() => {
   if (!extensionAlive()) return shutDown();
-  const enabled = !controller.isEnabled();
-  setEnabled(enabled);
-  saveEnabled(enabled).catch((error) => log('could not save the setting', error));
+  controller.setEnabled(!controller.isEnabled());
+  button.sync(controller.isEnabled(), targetLanguage);
 });
 
 let buttonTimer: ReturnType<typeof setInterval> | undefined;
@@ -217,7 +207,7 @@ const shutDown = () => {
 
 const init = async () => {
   watchPlayerCaptionRequests();
-  // Read the saved settings before watching videos (so it doesn't briefly start while off)
+  // Read the saved settings before watching videos
   position = await loadPosition().catch(() => DEFAULT_POSITION);
   watchPosition((value) => (position = value));
   targetLanguage = await loadTargetLanguage().catch(() => DEFAULT_TARGET);
@@ -229,16 +219,17 @@ const init = async () => {
     button.sync(controller.isEnabled(), code);
     controller.restart();
   });
-  controller.setEnabled(await loadEnabled().catch(() => DEFAULT_ENABLED));
-  watchEnabled(setEnabled);
   watchSignIn(() => controller.restart());
 
-  // YouTube is a SPA, so video changes are known from this event.
-  // The connection is warmed up for every video, even while off, so turning jimaku on starts quickly
+  // YouTube is a SPA, so video changes are known from this event. Another video turns jimaku off, and the button
+  // shows it at once. The connection is warmed up for every video, even while off, so turning jimaku on starts quickly
   const openVideo = () => {
+    // A script cut off by a reloaded extension keeps getting this event: stay shut down instead of putting the button back
+    if (!extensionAlive()) return shutDown();
     const videoId = getVideoId();
     if (videoId) warmUpChatGPT();
     controller.navigate(videoId);
+    button.sync(controller.isEnabled(), targetLanguage);
   };
   window.addEventListener('yt-navigate-finish', openVideo);
   openVideo();

@@ -12,8 +12,8 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
   - `translate.ts` Retries only the lines missing from the response
   - `session.ts` Translates a video sequentially from the current caption line. Cancels the pending request when playback jumps
-  - `translation-cache.ts` Keeps the translations made in the tab, per video, track and target language
-  - `controller.ts` Decides whether to start or stop the translation from the open video and the on/off setting
+  - `translation-cache.ts` The translation cache every tab shares, per video, track and target language (kept by the background)
+  - `controller.ts` Decides whether to start or stop the translation from the open video and jimaku's on/off, which every video opens with off
   - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions
   - `metrics.ts` Measures how long the "…" placeholder remains on screen
   - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
@@ -34,11 +34,12 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
 - `src/popup/`, `src/callback/`, `src/unlock/`, `src/pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
 - `src/shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code
 - `src/shared/i18n.ts` … Provides interface text in the browser's language (`public/_locales/`)
-- `src/shared/settings.ts` … The on/off setting, the target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
+- `src/shared/settings.ts` … The target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
 - `src/content/` … Code that touches the YouTube page
   - `main.ts` Entry point; wires the pieces together
   - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
   - `youtube.ts` Fetches the captions
   - `overlay.ts` The translation line
   - `button.ts` The on/off button in the control bar
+  - `translation-cache.ts` Asks the background for cached translations and sends it new ones
 - `src/page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script

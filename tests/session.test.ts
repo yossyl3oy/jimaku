@@ -271,3 +271,18 @@ test('run: a session stopped partway leaves what arrived for the next one (turni
   assert.equal(second.requested.flat().length, captions.length - arrived);
   for (let i = 0; i < 30; i++) assert.equal(translations[i], `【訳】line ${i}`);
 });
+
+test('run: onChunkEnd is called after each chunk, with its lines already filled in', async () => {
+  const translations: (string | undefined)[] = new Array(captions.length).fill(undefined);
+  const filled: number[] = [];
+  const session = createCaptionSession({
+    captions,
+    translations,
+    translator: createMockTranslator(),
+    getCurrentTime: () => 0,
+    chunkSize: 10,
+    onChunkEnd: () => filled.push(translations.filter((line) => line).length),
+  });
+  await session.run();
+  assert.deepEqual(filled, [10, 20, 30]);
+});

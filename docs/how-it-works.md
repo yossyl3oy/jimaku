@@ -15,7 +15,7 @@ With CC off, the translation sits near the bottom of the video either way. Capti
 
 ## Translation caching
 
-Translated lines are cached in the content script's memory for the 20 most recently used combinations of video, caption track and target language. Returning to a cached combination in the same tab displays its translations immediately and requests only missing lines, including any that previously failed. Nothing is written to disk, so closing or reloading the tab clears the cache. `chrome.storage.session` would keep them across reloads, but it stores authentication tokens and is kept inaccessible to content scripts, and `chrome.storage.local` would leave a record of the videos watched.
+Translated lines are cached for the 20 most recently used combinations of video, caption track and target language, up to 5 MB in all, and every tab shares them. Turning jimaku on again, returning to a video or opening it in another tab displays the cached translations immediately and requests only missing lines, including any that previously failed. Lines are added after each chunk of 10 and when translation stops. The background keeps the cache in `chrome.storage.session`, which stays in memory and is never written to disk, so closing the browser clears it and no record of the videos watched is left (`chrome.storage.local` would leave one). That storage also holds the authentication tokens, so the cache leaves half of its 10 MB free for them. It is kept inaccessible to content scripts, so they only ask the background to load and add translations, and it checks what they send.
 
 ## Sign-in and tokens
 

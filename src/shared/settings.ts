@@ -1,25 +1,12 @@
-// Remembers jimaku's on/off, the language to translate into and where the translation goes. They live in the extension's
-// chrome.storage, so YouTube's own storage stays untouched. The content script reads them; the popup sets the last two.
+// Remembers the language to translate into and where the translation goes. They live in the extension's
+// chrome.storage, so YouTube's own storage stays untouched. The content script reads them; the popup sets them.
+// jimaku's on/off is not kept: every video opens with it off (src/core/controller.ts).
 
-import { enabledOf } from '../core/controller.ts';
 import { targetLanguageOf } from '../core/languages.ts';
 import { positionOf, type Position } from '../core/layout.ts';
 
-const KEY = 'enabled';
 const TARGET_KEY = 'targetLanguage';
 const POSITION_KEY = 'translationPosition';
-
-// Off until it is turned on (see DEFAULT_ENABLED)
-export const loadEnabled = async (): Promise<boolean> => enabledOf((await chrome.storage.local.get(KEY))[KEY]);
-
-export const saveEnabled = (enabled: boolean): Promise<void> => chrome.storage.local.set({ [KEY]: enabled });
-
-// Stay in sync when it is switched in another tab
-export const watchEnabled = (onChange: (enabled: boolean) => void) => {
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && KEY in changes) onChange(enabledOf(changes[KEY].newValue));
-  });
-};
 
 export const loadTargetLanguage = async (): Promise<string> =>
   targetLanguageOf((await chrome.storage.local.get(TARGET_KEY))[TARGET_KEY]);

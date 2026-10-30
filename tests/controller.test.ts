@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createController, enabledOf, type StartFn } from '../src/core/controller.ts';
+import { createController, type StartFn } from '../src/core/controller.ts';
 
 // Records how start is called. finish(i) ends the i-th start.
 const recorder = () => {
@@ -25,40 +25,61 @@ const manualWait = () => {
 
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
-test('navigate: starts when a video opens, and does not restart for the same video', () => {
+// Opens a video and turns jimaku on for it
+const watch = (controller: ReturnType<typeof createController>, videoId: string) => {
+  controller.navigate(videoId);
+  controller.setEnabled(true);
+};
+
+test('navigate: a video opens off, and turning it on starts it', () => {
   const { calls, start } = recorder();
   const controller = createController(start);
   controller.navigate('a');
-  controller.navigate('a');
+  assert.equal(controller.isEnabled(), false);
+  assert.equal(calls.length, 0);
+  controller.setEnabled(true);
   assert.deepEqual(calls.map((c) => c.videoId), ['a']);
 });
 
-test('navigate: moving to another video stops the previous one and starts; a non-video page only stops', () => {
+test('navigate: the same video again (the page notifying twice, say) stays on without restarting', () => {
   const { calls, start } = recorder();
   const controller = createController(start);
+  watch(controller, 'a');
   controller.navigate('a');
+  assert.equal(controller.isEnabled(), true);
+  assert.deepEqual(calls.map((c) => c.videoId), ['a']);
+});
+
+test('navigate: another video, or a page without one, stops the translation and turns jimaku off', () => {
+  const { calls, start } = recorder();
+  const controller = createController(start);
+  watch(controller, 'a');
   controller.navigate('b');
   assert.equal(calls[0].signal.aborted, true);
-  assert.deepEqual(calls.map((c) => c.videoId), ['a', 'b']);
+  assert.equal(controller.isEnabled(), false);
+  assert.equal(calls.length, 1);
+
+  watch(controller, 'b');
   controller.navigate(null);
   assert.equal(calls[1].signal.aborted, true);
+  assert.equal(controller.isEnabled(), false);
+
+  // Coming back to a video it was on for still opens off
+  controller.navigate('b');
+  assert.equal(controller.isEnabled(), false);
   assert.equal(calls.length, 2);
 });
 
 test('setEnabled: off stops, on starts the current video again', () => {
   const { calls, start } = recorder();
   const controller = createController(start);
-  controller.navigate('a');
+  watch(controller, 'a');
   controller.setEnabled(false);
   assert.equal(calls[0].signal.aborted, true);
   assert.equal(controller.isEnabled(), false);
 
-  // Moving to another video while off doesn't start it
-  controller.navigate('b');
-  assert.equal(calls.length, 1);
-
   controller.setEnabled(true);
-  assert.deepEqual(calls.map((c) => c.videoId), ['a', 'b']);
+  assert.deepEqual(calls.map((c) => c.videoId), ['a', 'a']);
   assert.equal(calls[1].signal.aborted, false);
 });
 
@@ -67,7 +88,7 @@ test('retries automatically at the set intervals after a failure, and gives up w
   const { waits, wait } = manualWait();
   const errors: unknown[] = [];
   const controller = createController(start, { onError: (e) => errors.push(e), retryDelays: [100, 500], wait });
-  controller.navigate('a');
+  watch(controller, 'a');
 
   calls[0].finish(new Error('timedtext returned an empty body'));
   await tick();
@@ -96,21 +117,21 @@ test('does not retry after moving to another video while waiting to retry', asyn
   const { calls, start } = recorder();
   const { waits, wait } = manualWait();
   const controller = createController(start, { retryDelays: [100], wait });
-  controller.navigate('a');
+  watch(controller, 'a');
   calls[0].finish(new Error('boom'));
   await tick();
 
   controller.navigate('b');
   assert.equal(waits[0].signal.aborted, true);
   await tick();
-  assert.deepEqual(calls.map((c) => c.videoId), ['a', 'b']);
+  assert.deepEqual(calls.map((c) => c.videoId), ['a']);
 });
 
 test('does not start twice when the same video reopens while waiting to retry', async () => {
   const { calls, start } = recorder();
   const { waits, wait } = manualWait();
   const controller = createController(start, { retryDelays: [100], wait });
-  controller.navigate('a');
+  watch(controller, 'a');
   calls[0].finish(new Error('boom'));
   await tick();
 
@@ -125,7 +146,7 @@ test('does not retry after a normal return without mounting (no English captions
   const { calls, start } = recorder();
   const { waits, wait } = manualWait();
   const controller = createController(start, { retryDelays: [100], wait });
-  controller.navigate('a');
+  watch(controller, 'a');
   calls[0].finish();
   await tick();
   assert.equal(waits.length, 0);
@@ -137,7 +158,7 @@ test('does not retry after a normal return without mounting (no English captions
 test('once mounted, does not restart for the same video even after it ends', async () => {
   const { calls, start } = recorder();
   const controller = createController(start);
-  controller.navigate('a');
+  watch(controller, 'a');
   calls[0].mount();
   calls[0].finish();
   await tick();
@@ -151,7 +172,7 @@ test('a failure after stopping neither calls onError nor retries', async () => {
   const { waits, wait } = manualWait();
   const errors: unknown[] = [];
   const controller = createController(start, { onError: (e) => errors.push(e), retryDelays: [100], wait });
-  controller.navigate('a');
+  watch(controller, 'a');
   controller.setEnabled(false);
   calls[0].finish(new Error('aborted'));
   await tick();
@@ -162,7 +183,7 @@ test('a failure after stopping neither calls onError nor retries', async () => {
 test('restart: starts the current video again from scratch, and does nothing while off', () => {
   const { calls, start } = recorder();
   const controller = createController(start);
-  controller.navigate('a');
+  watch(controller, 'a');
   calls[0].mount();
   controller.restart();
   assert.equal(calls[0].signal.aborted, true);
@@ -170,11 +191,4 @@ test('restart: starts the current video again from scratch, and does nothing whi
   controller.setEnabled(false);
   controller.restart();
   assert.equal(calls.length, 2);
-});
-
-test('enabledOf: off until it is turned on; only a saved on/off counts', () => {
-  assert.equal(enabledOf(undefined), false);
-  assert.equal(enabledOf(true), true);
-  assert.equal(enabledOf(false), false);
-  assert.equal(enabledOf('true'), false);
 });
