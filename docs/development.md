@@ -24,17 +24,19 @@ See [ttft.md](ttft.md) for how jimaku reduces the wait for the first translation
 
 The development build (`mise exec -- pnpm build`) adds a benchmark page (`src/bench/`) when `bench-data/captions.json` is there; the release build leaves it out. Load `dist/`, sign in, and open `chrome-extension://bineloccjadloiohooadhfclifcfdbai/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
 
-The last comparison (2026-10-31, English to Japanese, 6 chunks of a TED talk with human and auto-generated captions) measured all 10 models in the catalog. Translations were scored by whether speaker names were translated instead of left as "CA:" / "EM:", and whether lines stayed in place (each auto-generated line keeps its own key words and none of its neighbours'):
+The last comparisons (2026-10-31, English to Japanese, 6 chunks of a TED talk with human and auto-generated captions) measured all 10 models in the catalog. Translations were scored by whether speaker names were translated instead of left as "CA:" / "EM:", and whether lines stayed in place (each auto-generated line keeps its own key words and none of its neighbours'). Plan usage is in credits per hour of captions, from the measured tokens and the credit rates per model on [OpenAI's pricing page](https://learn.chatgpt.com/docs/pricing); the ChatGPT plan's included usage isn't published in tokens, but it is weighted by model in a similar way.
 
-| Model, prompt | Tokens / line | First line after the headers | Speaker names | Lines in place |
-|---|---|---|---|---|
-| gpt-6-luna, Japanese instructions (before) | 81.9 | 0.88s | 48% | 100% |
-| gpt-6-luna, English instructions | 61.1 | 0.93s | 33% | 86% |
-| gpt-5.6-sol, English instructions | 58.9 | 0.95s | 78% | 95% |
-| **gpt-6-sol, English instructions (now)** | **59.0** | **1.11s** | **93%** | **98%** |
-| gpt-6-sol, English, half the context | 52.4 | 1.31s | 22% | 100% |
+| Model, prompt | Tokens / line | Plan credits / hour | First line after the headers | Speaker names | Lines in place |
+|---|---|---|---|---|---|
+| **gpt-6-luna, English instructions (now)** | **61** | **0.33** | **0.92s** | **73%** | **89%** |
+| gpt-6-luna, Japanese instructions (up to v0.2.0) | 82 | 0.38 | 0.85s | 65% | 98% |
+| gpt-6-luna, English with stricter rules | 73 | 0.36 | 0.86s | 59% | 94% |
+| gpt-6.1-terra, Japanese instructions | 81 | 3.9 | 1.18s | 100% | 95% |
+| gpt-6-sol, English instructions (v0.3.0 and v0.4.0) | 59 | 6.4 | 1.11s | 93% | 98% |
+| gpt-6-sol, English, half the context | 52 | 6.0 | 1.31s | 22% | 100% |
+| gpt-5.6-sol, English instructions | 59 | 13 | 0.95s | 78% | 95% |
 
-The English instructions took about a third fewer input tokens. Among the models that accept reasoning effort "none", gpt-6-sol kept speaker names and lines in place most often. The others were slightly quicker to write the first line, or used slightly fewer tokens, but moved lines or left names untranslated more often. The server took 1.4-2.3s to start answering in every case, varying between runs, so the whole first-line time stayed about the same as before (a median of 3.25s against 3.15s, run side by side). Models that need reasoning (gpt-6.1-sol, gpt-6-astra) were 0.7-1.2s slower with more tokens. The line check looks at 22 places, so it misses some moves that reading the translations found (gpt-6-luna with the Japanese instructions moved phrases between lines in two chunks).
+gpt-6-sol translated most faithfully, but its tokens weigh 20 times gpt-6-luna's, so it took about 6.4 credits for each hour of captions against 0.33, and half of a Pro plan's usage within days. gpt-6-luna is back, with the English instructions, which take about a third fewer input tokens. Its translations are slightly less steady: now and then it moves a phrase to the neighbouring line (Japanese puts the verb last, so a sentence split over lines doesn't always split cleanly), once it shifted a whole chunk of auto-generated captions by a line, and at the start of a video, with no earlier translations to follow, it may leave a speaker label as "CA:". Rules spelling this out ("stricter rules") made no difference. The server took 1.4-2.3s to start answering in every case, varying between runs, so the first-line times differ by less than that. Models that need reasoning (gpt-6.1-sol, gpt-6-astra) were 0.7-1.2s slower, with more tokens. The line check looks at 22 places, so it misses some moves that reading the translations found.
 
 The captions come from `bench-data/captions.json`, which is not committed because captions belong to the video's owner. It holds windows of real captions: `{ video, title, windows: [{ track, start, offset, lines: [{ s, t, ref? }] }] }`, where each window has the 6 lines before the 10-line chunk (`start` is the chunk's first line in the track, `offset` the window's), the chunk and 4 lines after it, and `ref` is the human translation of a line where the tracks line up.
 

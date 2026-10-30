@@ -9,10 +9,9 @@ export const API = 'https://api.openai.com/v1';
 
 // The model is fixed so that no catalog request is needed per translation. It is checked against the catalog once at sign-in.
 // It supports reasoning effort "none", which keeps TTFT short. Chosen with the model benchmark (src/bench/, 2026-10-31):
-// it had the fewest output tokens and the most faithful translations (consistent speaker names, puns translated by
-// meaning, lines kept in place). Its first line comes about 0.3s after gpt-6-luna's, which moved lines out of place,
-// within the 2-3s the server takes to start answering.
-export const MODEL = 'gpt-6-sol';
+// it uses about a twentieth of the plan's usage that gpt-6-sol does for the same captions, at the cost of slightly less
+// steady translations (see the comparison in docs/development.md).
+export const MODEL = 'gpt-6-luna';
 
 export const requireOK = async (response: Response): Promise<Response> => {
   if (response.ok) return response;
