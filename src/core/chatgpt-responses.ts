@@ -8,10 +8,10 @@ import type { StreamFn } from './prompt.ts';
 export const API = 'https://api.openai.com/v1';
 
 // The model is fixed so that no catalog request is needed per translation. It is checked against the catalog once at sign-in.
-// It supports reasoning effort "none", which keeps TTFT short. Chosen with the model benchmark (src/bench/, 2026-10-31):
-// it uses about a twentieth of the plan's usage that gpt-6-sol does for the same captions, at the cost of slightly less
-// steady translations (see the comparison in docs/development.md).
-export const MODEL = 'gpt-6-luna';
+// It supports reasoning effort "none", which keeps TTFT short. Chosen with the model benchmark (src/bench/, 2026-10-31),
+// where its translations read as naturally as gpt-6-sol's in a blind review, at about half of gpt-6-sol's plan usage;
+// gpt-6-luna's read word for word (see the comparison in docs/development.md).
+export const MODEL = 'gpt-6.1-terra';
 
 export const requireOK = async (response: Response): Promise<Response> => {
   if (response.ok) return response;

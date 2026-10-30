@@ -1,13 +1,12 @@
 // The prompt that translates captions from the track's language into the chosen language, and parsing of its response.
-// The instructions are in English whatever the languages (they take fewer tokens than Japanese ones); only the language
-// names change. Shizue's YouTube prompt passed no surrounding lines and said "don't merge lines into sentences",
+// The prompt itself is written in Japanese whatever the languages; only the language names change. In a blind review
+// of the model benchmark (2026-10-31), it read the most naturally with gpt-6.1-terra and gpt-6-sol, ahead of shorter
+// English instructions and of asking for the source line to be copied first (see docs/development.md).
+// Shizue's YouTube prompt passed no surrounding lines and said "don't merge lines into sentences",
 // so translations of auto-generated captions came out fragmented. Here, as in its Netflix prompt, surrounding lines are passed as context.
 //
-// The response comes back as "number<TAB>source<TAB>translation" lines rather than JSON. JSON cannot be read until it
-// closes, but lines can be shown as each one arrives (shorter TTFT), and the numbers reveal missing lines. Copying each
-// source line before its translation keeps gpt-6-luna's translations of auto-generated captions on their own lines: it
-// used to shift them to the line before (the model benchmark: 85% of the lines in place before, 97% with the copy).
-// The rules on speaker labels, tone and sentence fragments came out of the same benchmark (see docs/development.md).
+// The response comes back as "number<TAB>translation" lines rather than JSON. JSON cannot be read until it closes,
+// but lines can be shown as each one arrives (shorter TTFT). The numbers also reveal missing lines.
 
 import { languageName, type Languages } from './languages.ts';
 import type { TranslateOptions, TranslationContext, Translator } from './translator.ts';
@@ -20,34 +19,48 @@ export const LINES_CLOSE = '</lines>';
 export const numberedLine = (index: number, text: string) => `${index + 1}\t${text}`;
 
 export const buildPrompt = (lines: readonly string[], context: TranslationContext, languages: Languages): string => {
-  const source = languageName(languages.source, 'en');
-  const target = languageName(languages.target, 'en');
+  const sourceName = languageName(languages.source, 'ja');
+  const targetName = languageName(languages.target, 'ja');
   const before = context.before.length
     ? context.before
-        .map(({ source: line, translation }) => (translation === undefined ? `- ${line}` : `- ${line} → ${translation}`))
+        .map(({ source, translation }) =>
+          translation === undefined ? `- ${source}` : `- ${source}\n  → ${translation}`
+        )
         .join('\n')
-    : '(none)';
-  const after = context.after.length ? context.after.map((line) => `- ${line}`).join('\n') : '(none)';
-  return `Translate ${source} YouTube captions into ${target} subtitles.
-- Translate each of the ${lines.length} numbered lines on its own. Each is shown alone on screen: never merge lines or move words between them.
-- Auto-generated captions split sentences across lines. Understand the whole sentence from the nearby lines, but translate only the words of this line: if it ends mid-sentence, end the translation mid-sentence too (with a comma or a connecting word) and leave the rest to the next line.
-- Before/After are context only: keep names, terms and tone consistent with them.
-- Speaker labels such as "CA:" are initials: write the speaker's name instead, as in the translations before or as the lines name them. Use the title and the context to translate names, terms and wordplay by their meaning.
-- Keep each speaker's register (polite or casual) the same as in the translations before; when there are none, use a polite spoken style.
-- Short, natural subtitles that read at a glance.
-Output one line per numbered line, in order: the number, a TAB, the source line copied exactly, a TAB, then its translation. Nothing else.
+    : '(なし)';
+  const after = context.after.length ? context.after.map((line) => `- ${line}`).join('\n') : '(なし)';
 
-Title: ${context.title ?? '(unknown)'}
-Before (→ translation shown):
+  return `あなたは YouTube 動画の${sourceName}字幕を${targetName}字幕に訳す翻訳者です。
+
+## ルール
+1. 「訳す行」の各行を${targetName}に訳す。行数は ${lines.length}。
+2. 1行は画面に1つずつ出る字幕。行をまとめたり、別の行に言葉を移したりしない。
+3. 自動生成字幕では1つの文が複数の行にまたがる。前後の行から文全体の意味をつかみ、その行が担う部分を自然な${targetName}にする。語順の都合で訳しにくければ、意味の切れ目で分けてよい。
+4. 「直前の行」「直後の行」は文脈にだけ使う。人名・呼び方・口調をそろえる。直前の行の訳は変えない。
+5. 字幕としてひと目で読める、短く自然な${targetName}にする。
+
+## 動画タイトル
+${context.title ?? '(不明)'}
+
+## 直前の行（→ のあとは表示済みの訳）
 ${before}
+
+## 訳す行（番号<TAB>${sourceName}）
 ${LINES_OPEN}
 ${lines.map((line, i) => numberedLine(i, line)).join('\n')}
 ${LINES_CLOSE}
-After:
-${after}`;
+
+## 直後の行
+${after}
+
+## 出力
+訳す行と同じ番号を付け、「番号<TAB>訳」を1行ずつ、番号順に出す。説明やコードブロックは付けない。
+1\t1行目の訳
+2\t2行目の訳`;
 };
 
-// Reads "number<TAB>source<TAB>translation" lines as they arrive. A stream chunk can end mid-line,
+// Reads "number<TAB>translation" lines as they arrive (or "number<TAB>source<TAB>translation", which an earlier prompt
+// asked for). A stream chunk can end mid-line,
 // so text is held until a newline arrives. After the number, ": ", ". " and the like are accepted besides TAB, and so is
 // a TAB written out as "\t" (gpt-6-luna does that now and then, which lost the whole chunk).
 // A TAB is always taken as the separator, and any symbols after it (".5 秒", "...", etc.) stay part of the translation.
