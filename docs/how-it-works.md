@@ -13,6 +13,10 @@ Tracks already in the target language are skipped. Among the remaining tracks, j
 
 With CC off, the translation sits near the bottom of the video either way. Caption windows in the upper half of the video are ignored, such as the "Click ⚙ for settings" hint YouTube shows at the top for a few seconds after CC is turned on.
 
+## How far ahead it translates
+
+Translation starts at the caption line being watched and asks for 10 lines at a time while the next of them starts within 5 minutes of playback (the 10 lines go together, so the last of them can run past the 5 minutes). Further lines are requested as playback gets near them, and the lines before the playback position only if playback goes back there, so a video closed after a few minutes uses the ChatGPT plan's usage for those minutes and about 5 more. While the video is paused, the 5 minutes ahead are still filled, then nothing more is requested until playback moves. A jump to a part not translated yet cuts off the request in flight and translates the new position first.
+
 ## Translation caching
 
 Translated lines are cached for the 20 most recently used combinations of video, caption track and target language, up to 5 MB in all, and every tab shares them. Turning jimaku on again, returning to a video or opening it in another tab displays the cached translations immediately and requests only missing lines, including any that previously failed. Lines are added after each chunk of 10 and when translation stops. The background keeps the cache in `chrome.storage.session`, which stays in memory and is never written to disk, so closing the browser clears it and no record of the videos watched is left (`chrome.storage.local` would leave one). That storage also holds the authentication tokens, so the cache leaves half of its 10 MB free for them. It is kept inaccessible to content scripts, so they only ask the background to load and add translations, and it checks what they send.

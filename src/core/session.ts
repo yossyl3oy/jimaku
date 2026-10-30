@@ -1,5 +1,7 @@
-// Translates the captions of one video in order, starting from the line being watched. It does not touch the DOM,
-// and it reads the playback position through getCurrentTime, so tests can drive it by swapping the time.
+// Translates the captions of one video in order, starting from the line being watched and staying about 5 minutes
+// ahead of playback: the part before the playback position is translated only if playback goes back there, and the
+// part further on as playback gets near it. It does not touch the DOM, and it reads the playback position through
+// getCurrentTime, so tests can drive it by swapping the time.
 //
 // Rules for keeping TTFT short:
 // - Each translated line goes into translations as soon as it arrives (no waiting for the whole chunk)
@@ -28,6 +30,13 @@ export type SessionOptions = {
   translations?: (string | undefined)[];
   // Called after each chunk ends (translated, failed or cut off), so the caller can keep the new lines
   onChunkEnd?: () => void;
+  // How far ahead of playback to translate, in seconds (5 minutes by default): a chunk is requested while its first
+  // line starts within it, so its last lines can run past it. Lines further on wait until playback gets near them, and
+  // lines before the playback position until it goes back there, so a video watched for a few minutes uses the plan's
+  // usage for about those minutes only
+  aheadSeconds?: number;
+  // How long to wait before looking again while there is nothing to translate yet (or until seek)
+  idleMs?: number;
 };
 
 export type DisplayLines = {
@@ -47,15 +56,45 @@ export const createCaptionSession = (options: SessionOptions) => {
   const chunkSize = options.chunkSize ?? 10;
   let inFlight: { range: Chunk; controller: AbortController } | null = null;
 
+  const aheadSeconds = options.aheadSeconds ?? 300;
   const currentIndex = () => findCaptionIndexAtOrBefore(captions, getCurrentTime());
 
-  // Translates chunk by chunk until every line is done or signal is aborted.
-  // A failed chunk gets no translation (empty strings) and the session moves on, except on a fatal error, which stops it.
+  // Waits idleMs, or less when playback jumps (seek) or the session stops
+  let wake: (() => void) | null = null;
+  const idle = (signal?: AbortSignal) =>
+    new Promise<void>((resolve) => {
+      const done = () => {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', done);
+        wake = null;
+        resolve();
+      };
+      const timer = setTimeout(done, options.idleMs ?? 1000);
+      wake = done;
+      signal?.addEventListener('abort', done, { once: true });
+    });
+
+  // The next chunk to translate: from the line being watched, while it starts within aheadSeconds of playback.
+  // null when the next lines are further on, or when everything from here on is requested (nextRange would go back)
+  const nextChunk = (): Chunk | null => {
+    const from = currentIndex();
+    const range = nextRange(requested, from, chunkSize);
+    if (!range || range.start < from) return null;
+    return captions[range.start].startTime <= getCurrentTime() + aheadSeconds ? range : null;
+  };
+
+  // Translates chunk by chunk, keeping aheadSeconds of playback translated, until every line is done or signal is
+  // aborted. A failed chunk gets no translation (empty strings) and the session moves on, except on a fatal error,
+  // which stops it.
   const run = async (signal?: AbortSignal) => {
     for (;;) {
       if (signal?.aborted) return;
-      const range = nextRange(requested, currentIndex(), chunkSize);
-      if (!range) return;
+      if (requested.every(Boolean)) return;
+      const range = nextChunk();
+      if (!range) {
+        await idle(signal);
+        continue;
+      }
       for (let i = range.start; i < range.end; i++) requested[i] = true;
 
       // Each chunk has its own abort controller so that seek can cut it off
@@ -105,8 +144,9 @@ export const createCaptionSession = (options: SessionOptions) => {
   };
 
   // Call when playback jumps. If the target line is untranslated and not in the chunk being translated,
-  // cut that chunk off (run requests again from the new position).
+  // cut that chunk off (run requests again from the new position). A session waiting for playback looks again at once.
   const seek = () => {
+    wake?.();
     if (!inFlight) return;
     const index = currentIndex();
     if (translations[index] !== undefined) return;

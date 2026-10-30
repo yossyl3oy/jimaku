@@ -12,7 +12,7 @@ Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for op
 
 - A single line of translation below or above YouTube's captions; with CC off, only the translation is shown
 - 14 target languages, with Japanese as the default
-- Translation starts at the current playback position and streams in line by line
+- Translation starts at the current playback position, streams in line by line, and stays about 5 minutes ahead of playback, so mostly the part you watch counts toward your plan's usage
 - Translations are cached and shared by every tab until the browser closes, so turning Jimaku on again, returning to a video or opening it in another tab reuses existing translations
 - No API key and no API charges: requests count toward the usage included in your ChatGPT plan
 - Sign-in credentials are kept in memory, with the option to save them securely using Windows Hello / Touch ID

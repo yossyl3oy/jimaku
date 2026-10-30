@@ -11,7 +11,7 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `chunks.ts` The next range to translate (10 lines from the line being watched) and the surrounding lines used as context
   - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
   - `translate.ts` Retries only the lines missing from the response
-  - `session.ts` Translates a video sequentially from the current caption line. Cancels the pending request when playback jumps
+  - `session.ts` Translates a video sequentially from the current caption line, about 5 minutes ahead of playback. Cancels the pending request when playback jumps
   - `translation-cache.ts` The translation cache every tab shares, per video, track and target language (kept by the background)
   - `controller.ts` Decides whether to start or stop the translation from the open video and jimaku's on/off, which every video opens with off
   - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions

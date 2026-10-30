@@ -25,20 +25,49 @@ const recording = (inner: Translator) => {
   return { translator, requested };
 };
 
-test('run: translates from the line being watched, then goes back once the rest is done', async () => {
+test('run: translates from the line being watched to the end; the lines before wait until playback goes back', async () => {
+  let time = 15.5;
   const { translator, requested } = recording(createMockTranslator());
-  const session = createCaptionSession({ captions, translator, getCurrentTime: () => 15.5, chunkSize: 10 });
-  await session.run();
+  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time, chunkSize: 10, idleMs: 5 });
+  const run = session.run();
+  await sleep(30);
   assert.deepEqual(
     requested.map((lines) => [lines[0], lines.at(-1)]),
     [
       ['line 15', 'line 24'],
       ['line 25', 'line 29'],
+    ]
+  );
+  assert.equal(session.linesAt(3.2)?.translation, undefined);
+
+  // Going back to the start translates the rest, and then the session ends
+  time = 0;
+  session.seek();
+  await run;
+  assert.deepEqual(
+    requested.slice(2).map((lines) => [lines[0], lines.at(-1)]),
+    [
       ['line 0', 'line 9'],
       ['line 10', 'line 14'],
     ]
   );
   assert.deepEqual(session.linesAt(3.2), { index: 3, source: 'line 3', translation: '【訳】line 3' });
+});
+
+test('run: keeps only aheadSeconds of playback translated, and goes on as playback gets near', async () => {
+  let time = 0;
+  const { translator, requested } = recording(createMockTranslator());
+  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time, chunkSize: 5, aheadSeconds: 12, idleMs: 5 });
+  const controller = new AbortController();
+  void session.run(controller.signal);
+  await sleep(30);
+  // Lines starting within 12 seconds: chunks from 0, 5 and 10; the one from 15 waits
+  assert.deepEqual(requested.map((lines) => lines[0]), ['line 0', 'line 5', 'line 10']);
+
+  time = 4;
+  await sleep(30);
+  assert.deepEqual(requested.map((lines) => lines[0]), ['line 0', 'line 5', 'line 10', 'line 15']);
+  controller.abort();
 });
 
 test('linesAt: translation is undefined until translated, null at a time with no caption', () => {
@@ -93,16 +122,19 @@ test('seek: does not cut off when the jump lands inside the chunk being translat
   controller.abort();
 });
 
-test('seek: lines that never arrived after a cut-off are requested again later', async () => {
+test('seek: lines that never arrived after a cut-off are requested again when playback goes back there', async () => {
   let time = 0;
   const { translator, requested } = recording(createMockTranslator({ ttftMs: 20, perLineMs: 20 }));
-  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time });
+  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time, idleMs: 5 });
   const run = session.run();
   await sleep(30);
   time = 20.5;
   session.seek();
+  await sleep(500);
+  time = 0;
+  session.seek();
   await run;
-  // The rest of the 0s are requested again at the end, and every line gets a translation
+  // The rest of the 0s are requested again, and every line gets a translation
   assert.ok(requested.slice(1).some((lines) => lines.includes('line 9')));
   for (let i = 0; i < 30; i++) assert.equal(session.linesAt(i + 0.5)?.translation, `【訳】line ${i}`);
 });
@@ -199,10 +231,13 @@ test('seek: ignores lines and normal results that arrive after a cut-off, and re
       return lines.map((line) => `訳:${line}`);
     },
   };
-  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time });
+  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time, idleMs: 5 });
   const run = session.run();
   await sleep(10);
   time = 20.5;
+  session.seek();
+  await sleep(30);
+  time = 0;
   session.seek();
   await run;
   assert.equal(session.linesAt(0.5)?.translation, '訳:line 0');
@@ -285,4 +320,22 @@ test('run: onChunkEnd is called after each chunk, with its lines already filled 
   });
   await session.run();
   assert.deepEqual(filled, [10, 20, 30]);
+});
+
+test('run: cached lines are never requested, and the window starts after them', async () => {
+  let time = 0;
+  const { translator, requested } = recording(createMockTranslator());
+  // Lines 0-14 came from the cache (this tab or another)
+  const translations: (string | undefined)[] = captions.map((_, i) => (i < 15 ? `前の訳 ${i}` : undefined));
+  const session = createCaptionSession({ captions, translator, getCurrentTime: () => time, translations, chunkSize: 5, aheadSeconds: 12, idleMs: 5 });
+  const controller = new AbortController();
+  void session.run(controller.signal);
+  await sleep(30);
+  // Line 15 starts more than 12 seconds ahead, so nothing is requested yet
+  assert.deepEqual(requested, []);
+  time = 4;
+  await sleep(30);
+  assert.deepEqual(requested.map((lines) => lines[0]), ['line 15']);
+  assert.equal(session.linesAt(3.5)?.translation, '前の訳 3');
+  controller.abort();
 });
