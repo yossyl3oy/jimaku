@@ -84,7 +84,7 @@ export const createLineParser = (count: number, onLine?: (index: number, transla
 // A stream that sends the prompt and returns the response text a little at a time
 export type StreamFn = (prompt: string, signal?: AbortSignal) => AsyncIterable<string>;
 
-// Any stream becomes a Translator into one language pair. The ChatGPT plan / Claude API implement this stream.
+// Any stream becomes a Translator into one language pair. The ChatGPT plan implements this stream (and the mock does).
 export const createPromptTranslator = (stream: StreamFn, languages: Languages, warmup?: () => void): Translator => ({
   async translate(lines: string[], context: TranslationContext, options: TranslateOptions = {}) {
     const parser = createLineParser(lines.length, options.onLine);

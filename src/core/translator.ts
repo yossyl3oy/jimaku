@@ -1,4 +1,5 @@
-// The pluggable translator interface. The main one (ChatGPT plan / SIWC), the fallback (Claude API) and the mock all implement this shape.
+// The pluggable translator interface. The ChatGPT plan one (SIWC) and the mock implement this shape, and so would
+// another provider (Claude API support is planned).
 // Calling a real API from the content script is blocked by CORS, so an implementation lives in the background
 // service worker and streams to the content script over a port (port-stream.ts).
 //
