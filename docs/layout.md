@@ -7,6 +7,7 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `tracks.ts` Picks the caption track to translate and builds the timedtext URL
   - `caption-urls.ts` Tracks caption URLs requested by the player and waits for the next request
   - `languages.ts` Defines the available target languages and provides helpers for comparing and naming language codes
+  - `button-glyph.ts` The character on the on/off button for each target language (訳, 역, 中, П or the language code)
   - `chunks.ts` The next range to translate (10 lines from the line being watched) and the surrounding lines used as context
   - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
   - `translate.ts` Retries only the lines missing from the response

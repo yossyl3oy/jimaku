@@ -39,7 +39,7 @@ Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pi
 
 In the popup (shown here in English; it follows the browser's language):
 
-- **Translate into** — the language to translate into. Changing it restarts translation for open videos in the new language.
+- **Translate into** — the language to translate into. Changing it restarts translation for open videos in the new language. The button's character follows it: 訳 for Japanese, 역 for Korean, 中 for Chinese, П for Russian and the language code (EN, ES, …) for the others.
 - **Subtitle position** — Below original captions (the default) or Above original captions. Changes take effect immediately, and the preview shows the selected order.
 - **Manage usage** — opens your ChatGPT usage settings. Jimaku doesn't display usage statistics, because Sign in with ChatGPT offers no way to read them.
 

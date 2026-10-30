@@ -4,6 +4,7 @@
 
 import { createController, DEFAULT_ENABLED } from '../core/controller.ts';
 import { fatalNotice, isFatalError, type Notice } from '../core/errors.ts';
+import { DEFAULT_TARGET } from '../core/languages.ts';
 import { DEFAULT_POSITION, placeTranslation, type NativeCaptions, type Placement } from '../core/layout.ts';
 import { createWaitMeter } from '../core/metrics.ts';
 import { createCaptionSession } from '../core/session.ts';
@@ -44,6 +45,9 @@ const RELOADED_NOTICE = noticeText(fatalNotice('extension_reloaded'));
 
 // Under or over YouTube's captions, as chosen in the popup (it applies on the next frame)
 let position = DEFAULT_POSITION;
+
+// The language chosen in the popup, for the button's character (each video reads it again when it starts)
+let targetLanguage = DEFAULT_TARGET;
 
 // Translations made in this tab, so turning jimaku off and on or coming back to a video doesn't translate again
 const translationCache = createTranslationCache();
@@ -187,7 +191,7 @@ const controller = createController(start, { onError: (error) => log('failed to 
 
 const setEnabled = (enabled: boolean) => {
   controller.setEnabled(enabled);
-  button.sync(enabled);
+  button.sync(enabled, targetLanguage);
 };
 
 const button = createToggleButton(() => {
@@ -216,11 +220,18 @@ const init = async () => {
   // Read the saved settings before watching videos (so it doesn't briefly start while off)
   position = await loadPosition().catch(() => DEFAULT_POSITION);
   watchPosition((value) => (position = value));
+  targetLanguage = await loadTargetLanguage().catch(() => DEFAULT_TARGET);
+  // Watched right after it is read, so a change made meanwhile isn't missed.
+  // A new language changes the button's character and starts the open video over (fetching its captions again,
+  // since the track may change)
+  watchTargetLanguage((code) => {
+    targetLanguage = code;
+    button.sync(controller.isEnabled(), code);
+    controller.restart();
+  });
   controller.setEnabled(await loadEnabled().catch(() => DEFAULT_ENABLED));
   watchEnabled(setEnabled);
   watchSignIn(() => controller.restart());
-  // A new language starts the open video over (fetching its captions again, since the track may change)
-  watchTargetLanguage(() => controller.restart());
 
   // YouTube is a SPA, so video changes are known from this event.
   // The connection is warmed up for every video, even while off, so turning jimaku on starts quickly
@@ -234,7 +245,7 @@ const init = async () => {
 
   // The control bar gets created later or rebuilt, so check the button periodically and put it back.
   // This is also where a reloaded extension is noticed
-  const syncButton = () => (extensionAlive() ? button.sync(controller.isEnabled()) : shutDown());
+  const syncButton = () => (extensionAlive() ? button.sync(controller.isEnabled(), targetLanguage) : shutDown());
   buttonTimer = setInterval(syncButton, 1000);
   syncButton();
 };
