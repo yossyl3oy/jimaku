@@ -20,6 +20,24 @@ What each file under `src/` does is listed in [layout.md](layout.md).
 
 See [ttft.md](ttft.md) for how jimaku reduces the wait for the first translation and how to measure it.
 
+## Comparing models
+
+`mise exec -- pnpm bench:models` builds `dist/` with a benchmark page (`src/bench/`), which release builds leave out. Load `dist/`, sign in, and open `chrome-extension://<id>/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
+
+The last comparison (2026-10-31, English to Japanese, 6 chunks of a TED talk with human and auto-generated captions) measured all 10 models in the catalog. Translations were scored by whether speaker names were translated instead of left as "CA:" / "EM:", and whether lines stayed in place (each auto-generated line keeps its own key words and none of its neighbours'):
+
+| Model, prompt | Tokens / line | First line after the headers | Speaker names | Lines in place |
+|---|---|---|---|---|
+| gpt-6-luna, Japanese instructions (before) | 81.9 | 0.88s | 48% | 100% |
+| gpt-6-luna, English instructions | 61.1 | 0.93s | 33% | 86% |
+| gpt-5.6-sol, English instructions | 58.9 | 0.95s | 78% | 95% |
+| **gpt-6-sol, English instructions (now)** | **59.0** | **1.11s** | **93%** | **98%** |
+| gpt-6-sol, English, half the context | 52.4 | 1.31s | 22% | 100% |
+
+The English instructions took about a third fewer input tokens. Among the models that accept reasoning effort "none", gpt-6-sol kept speaker names and lines in place most often. The others were slightly quicker to write the first line, or used slightly fewer tokens, but moved lines or left names untranslated more often. The server took 1.4-2.3s to start answering in every case, varying between runs, so the whole first-line time stayed about the same as before (a median of 3.25s against 3.15s, run side by side). Models that need reasoning (gpt-6.1-sol, gpt-6-astra) were 0.7-1.2s slower with more tokens. The line check looks at 22 places, so it misses some moves that reading the translations found (gpt-6-luna with the Japanese instructions moved phrases between lines in two chunks).
+
+The captions come from `bench-data/captions.json`, which is not committed because captions belong to the video's owner. It holds windows of real captions: `{ video, title, windows: [{ track, start, offset, lines: [{ s, t, ref? }] }] }`, where each window has the 6 lines before the 10-line chunk (`start` is the chunk's first line in the track, `offset` the window's), the chunk and 4 lines after it, and `ref` is the human translation of a line where the tracks line up.
+
 ## Adding another translator
 
 Pass `createPromptTranslator(stream, languages, warmup)` a function that sends the prompt and returns the response text bit by bit as it arrives (`AsyncIterable<string>`), and you get a `Translator` for that language pair (`{ source, target }`, BCP 47 codes). For `warmup`, pass something that sets up the connection ahead of time. Pick a model with a short time to first token and turn reasoning off (none / minimal).
@@ -28,7 +46,7 @@ Calling a real API from the content script is blocked by CORS, so the ChatGPT tr
 
 ## Interface localization
 
-The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts`); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits within Chrome's 132-character limit. The prompt sent to ChatGPT is not UI text and stays in Japanese.
+The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts`); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits within Chrome's 132-character limit. The prompt sent to ChatGPT is not UI text: its instructions are in English for every language.
 
 ## CI and security
 

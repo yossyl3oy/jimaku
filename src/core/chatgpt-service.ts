@@ -1,7 +1,14 @@
 // What the background service worker offers: ChatGPT sign-in (chatgpt-auth.ts) plus the passkey-encrypted copy of
 // the refresh token (vault.ts). Without chrome.*, so the combination is testable.
 
-import { createChatGPTAuth, STORAGE_KEYS, type Account, type AuthOptions, type AuthStatus } from './chatgpt-auth.ts';
+import {
+  createChatGPTAuth,
+  modelAvailableNow,
+  STORAGE_KEYS,
+  type Account,
+  type AuthOptions,
+  type AuthStatus,
+} from './chatgpt-auth.ts';
 import { ProviderError } from './errors.ts';
 import { createVault, type VaultState } from './vault.ts';
 
@@ -36,7 +43,7 @@ export const createChatGPTService = (options: Omit<AuthOptions, 'onTokens'>) => 
     // Throws locked (instead of login_required) when a saved sign-in only needs Windows Hello / Touch ID,
     // and model_unavailable when the sign-in found the fixed model missing from the account's catalog
     async accessToken(): Promise<string> {
-      if ((await local.get<Account>(STORAGE_KEYS.account))?.modelAvailable === false) {
+      if (modelAvailableNow(await local.get<Account>(STORAGE_KEYS.account)) === false) {
         throw new ProviderError('model_unavailable', 'The translation model is not available for this account');
       }
       try {

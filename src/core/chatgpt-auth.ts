@@ -46,9 +46,15 @@ export type Account = {
   clientId?: string;
   subject?: string;
   label?: string;
-  // Whether MODEL was in the account's catalog at the last sign-in (undefined when the catalog could not be read)
+  // Whether checkedModel was in the account's catalog at the last sign-in (undefined when the catalog could not be read)
   modelAvailable?: boolean;
+  checkedModel?: string;
 };
+
+// What the last sign-in found out about MODEL. A check made for another model (before an update changed MODEL, or
+// before the checked model was recorded) says nothing about it, so it counts as unknown until the next sign-in.
+export const modelAvailableNow = (account: Account | undefined): boolean | undefined =>
+  account?.checkedModel === MODEL ? account.modelAvailable : undefined;
 
 export type Tokens = {
   accessToken: string;
@@ -346,7 +352,7 @@ export const createChatGPTAuth = (options: AuthOptions) => {
         await saveTokens(tokens);
       });
       const modelAvailable = await hasModel(tokens.accessToken);
-      await local.set(STORAGE_KEYS.account, { ...(await loadAccount()), modelAvailable } satisfies Account);
+      await local.set(STORAGE_KEYS.account, { ...(await loadAccount()), modelAvailable, checkedModel: MODEL } satisfies Account);
       return true;
     },
 
@@ -387,7 +393,7 @@ export const createChatGPTAuth = (options: AuthOptions) => {
         session.get<Tokens>(STORAGE_KEYS.tokens),
       ]);
       if (!tokens) return { signedIn: false };
-      return { signedIn: true, label: account?.label, modelAvailable: account?.modelAvailable };
+      return { signedIn: true, label: account?.label, modelAvailable: modelAvailableNow(account) };
     },
 
     // Forgets the tokens (and any sign-in in progress) and asks the server to revoke the refresh token (best effort).

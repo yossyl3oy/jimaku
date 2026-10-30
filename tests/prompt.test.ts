@@ -21,28 +21,26 @@ const streamOf =
 
 test('buildPrompt: includes the title, surrounding lines and the numbered lines to translate', () => {
   const prompt = buildPrompt(['transformers actually work', 'right?'], context, enJa);
-  assert.match(prompt, /How Transformers Work/);
-  assert.match(prompt, /- so today we're going\n {2}→ 今日は/);
+  assert.match(prompt, /Title: How Transformers Work/);
+  assert.match(prompt, /- so today we're going → 今日は\n/);
   assert.match(prompt, /- to talk about how\n/);
   assert.match(prompt, /<lines>\n1\ttransformers actually work\n2\tright\?\n<\/lines>/);
-  assert.match(prompt, /## 直後の行\n- \[Music\]/);
-  assert.match(prompt, /行数は 2。/);
+  assert.match(prompt, /After:\n- \[Music\]$/);
+  assert.match(prompt, /each of the 2 numbered lines/);
 });
 
-test('buildPrompt: (なし) when there is no context', () => {
+test('buildPrompt: (none) when there is no context', () => {
   const prompt = buildPrompt(['a'], { before: [], after: [] }, enJa);
-  assert.match(prompt, /## 直前の行（→ のあとは表示済みの訳）\n\(なし\)/);
-  assert.match(prompt, /## 直後の行\n\(なし\)/);
-  assert.match(prompt, /## 動画タイトル\n\(不明\)/);
+  assert.match(prompt, /Before \(→ translation shown\):\n\(none\)\n/);
+  assert.match(prompt, /After:\n\(none\)$/);
+  assert.match(prompt, /Title: \(unknown\)/);
 });
 
-test('buildPrompt: names the source and target languages in Japanese', () => {
+test('buildPrompt: names the source and target languages in English', () => {
   const prompt = buildPrompt(['안녕하세요'], { before: [], after: [] }, { source: 'ko', target: 'en' });
-  assert.match(prompt, /韓国語字幕を英語字幕に訳す/);
-  assert.match(prompt, /各行を英語に訳す/);
-  assert.match(prompt, /短く自然な英語にする/);
-  assert.match(prompt, /## 訳す行（番号<TAB>韓国語）/);
-  assert.doesNotMatch(prompt, /日本語/);
+  assert.match(prompt, /^Translate Korean YouTube captions into English subtitles\./);
+  assert.doesNotMatch(prompt, /Japanese/);
+  assert.match(buildPrompt(['a'], { before: [], after: [] }, enJa), /^Translate English YouTube captions into Japanese subtitles\./);
 });
 
 test('createLineParser: reports each line as it arrives', () => {

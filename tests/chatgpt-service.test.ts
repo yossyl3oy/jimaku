@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { STORAGE_KEYS } from '../src/core/chatgpt-auth.ts';
+import { STORAGE_KEYS, type Account } from '../src/core/chatgpt-auth.ts';
 import { createChatGPTService } from '../src/core/chatgpt-service.ts';
 import { isFatalError, ProviderError } from '../src/core/errors.ts';
 import { createVault } from '../src/core/vault.ts';
@@ -130,4 +130,17 @@ test('service: when the sign-in found the fixed model missing, translation stops
   t.openai.state.models = [{ slug: 'other', visibility: 'list' }];
   await t.signIn();
   await assert.rejects(t.service().accessToken(), (e: ProviderError) => e.code === 'model_unavailable' && isFatalError(e));
+});
+
+test('service: a model check made for another model (before an update changed it) is not used', async () => {
+  const t = setup();
+  await t.signIn();
+  const account = (await t.local.store.get<Account>(STORAGE_KEYS.account))!;
+  // Signed in when an older version checked another model, which was missing
+  await t.local.store.set(STORAGE_KEYS.account, { ...account, modelAvailable: false, checkedModel: 'old-model' } satisfies Account);
+  assert.equal(await t.service().accessToken(), 'access-1');
+  assert.equal((await t.service().status()).modelAvailable, undefined);
+  // The same without a recorded model (a sign-in from before it was recorded)
+  await t.local.store.set(STORAGE_KEYS.account, { ...account, modelAvailable: false, checkedModel: undefined } satisfies Account);
+  assert.equal(await t.service().accessToken(), 'access-1');
 });

@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { chatGPTStream, MODEL, requireOK, responseDeltas, visibleModels } from '../src/core/chatgpt-responses.ts';
+import {
+  chatGPTStream,
+  MODEL,
+  requireOK,
+  responseDeltas,
+  responseRequestBody,
+  visibleModels,
+} from '../src/core/chatgpt-responses.ts';
 import { ProviderError } from '../src/core/errors.ts';
 
 // A response body that arrives in the given pieces
@@ -43,6 +50,30 @@ test('responseDeltas: yields the text deltas even when events are split across c
     },
   });
   assert.deepEqual(await collect(responseDeltas(pieces)), ['1\tこんにちは\n', '2\tさようなら']);
+});
+
+test('responseDeltas: reports the token counts of the completed response', async () => {
+  const usage = { input_tokens: 812, output_tokens: 96, output_tokens_details: { reasoning_tokens: 0 } };
+  const seen: object[] = [];
+  const body = bodyOf(
+    event({ type: 'response.output_text.delta', delta: '1\tやあ' }),
+    // The last event may come without the trailing blank line
+    `data: ${JSON.stringify({ type: 'response.completed', response: { usage } })}`
+  );
+  assert.deepEqual(await collect(responseDeltas(body, (u) => seen.push(u))), ['1\tやあ']);
+  assert.deepEqual(seen, [usage]);
+});
+
+test('responseRequestBody: the model and reasoning effort can be chosen; the defaults are the fixed ones', () => {
+  assert.deepEqual(responseRequestBody('P', { model: 'other-model', effort: 'low' }), {
+    model: 'other-model',
+    input: [{ role: 'user', content: 'P' }],
+    reasoning: { effort: 'low' },
+    store: false,
+    stream: true,
+  });
+  assert.equal(responseRequestBody('P').model, MODEL);
+  assert.deepEqual(responseRequestBody('P').reasoning, { effort: 'none' });
 });
 
 test('responseDeltas: a failed response throws its error code', async () => {

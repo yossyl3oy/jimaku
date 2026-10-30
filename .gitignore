@@ -1,3 +1,5 @@
 node_modules/
 dist/
 !mise.toml
+# Real captions for the model benchmark (they belong to the video's owner, so they stay local)
+bench-data/

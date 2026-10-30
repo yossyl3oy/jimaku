@@ -10,6 +10,7 @@
     "test": "node --test 'tests/**/*.test.ts'",
     "typecheck": "tsc --noEmit",
     "bench": "node scripts/bench-ttft.ts",
+    "bench:models": "node scripts/build.ts --bench",
     "icons": "for size in 16 32 48 128; do rsvg-convert -w $size -h $size assets/icon.svg -o public/icons/icon-$size.png; done"
   },
   "devDependencies": {

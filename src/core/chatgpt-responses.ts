@@ -8,8 +8,11 @@ import type { StreamFn } from './prompt.ts';
 export const API = 'https://api.openai.com/v1';
 
 // The model is fixed so that no catalog request is needed per translation. It is checked against the catalog once at sign-in.
-// It supports reasoning effort "none", which keeps TTFT short.
-export const MODEL = 'gpt-6-luna';
+// It supports reasoning effort "none", which keeps TTFT short. Chosen with the model benchmark (src/bench/, 2026-10-31):
+// it had the fewest output tokens and the most faithful translations (consistent speaker names, puns translated by
+// meaning, lines kept in place). Its first line comes about 0.3s after gpt-6-luna's, which moved lines out of place,
+// within the 2-3s the server takes to start answering.
+export const MODEL = 'gpt-6-sol';
 
 export const requireOK = async (response: Response): Promise<Response> => {
   if (response.ok) return response;
@@ -34,17 +37,34 @@ export const visibleModels = (body: unknown): string[] => {
   return models.filter((model) => model?.visibility === 'list' && typeof model.slug === 'string').map((model) => model.slug);
 };
 
+export type ReasoningEffort = 'none' | 'minimal' | 'low' | 'medium' | 'high';
+export type RequestOptions = { model?: string; effort?: ReasoningEffort };
+
 // Only these fields are sent. SIWC rejects many Responses API options (temperature, max_output_tokens, ...).
-export const responseRequestBody = (prompt: string) => ({
-  model: MODEL,
+// The model and effort can be changed for the model benchmark (src/bench/); translation uses the defaults.
+export const responseRequestBody = (prompt: string, { model = MODEL, effort = 'none' }: RequestOptions = {}) => ({
+  model,
   input: [{ role: 'user', content: prompt }],
-  reasoning: { effort: 'none' },
+  reasoning: { effort },
   store: false,
   stream: true,
 });
 
+// The token counts of a completed response (response.completed → response.usage)
+export type Usage = {
+  input_tokens?: number;
+  input_tokens_details?: { cached_tokens?: number };
+  output_tokens?: number;
+  output_tokens_details?: { reasoning_tokens?: number };
+  total_tokens?: number;
+};
+
 // Reads the server-sent events and yields the text deltas. Throws when the response fails or ends before completing.
-export async function* responseDeltas(body: ReadableStream<Uint8Array> | null): AsyncGenerator<string> {
+// onUsage gets the token counts once the response completes.
+export async function* responseDeltas(
+  body: ReadableStream<Uint8Array> | null,
+  onUsage?: (usage: Usage) => void
+): AsyncGenerator<string> {
   if (!body) throw new ProviderError('invalid_provider_response', 'ChatGPT returned no response stream');
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -80,14 +100,14 @@ export async function* responseDeltas(body: ReadableStream<Uint8Array> | null): 
           );
         }
         if (event.type === 'response.incomplete') throw new ProviderError('response_incomplete', 'ChatGPT returned an incomplete response');
-        if (event.type === 'response.completed') return;
+        if (event.type === 'response.completed') return onUsage?.(event.response?.usage ?? {});
       }
       if (pending.length > 1024 * 1024) throw new ProviderError('invalid_stream_event', 'ChatGPT stream event is too large');
       if (done) break;
     }
     // A last event without the trailing blank line
     const last = parse(pending);
-    if (last?.type === 'response.completed') return;
+    if (last?.type === 'response.completed') return onUsage?.(last.response?.usage ?? {});
     throw new ProviderError('stream_interrupted', 'ChatGPT stream ended before completion');
   } finally {
     await reader.cancel().catch(() => {});

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Jimaku model benchmark</title>
+<link rel="stylesheet" href="page.css">
+<style>
+  main { max-width: 1100px; }
+  label { display: block; margin: 4px 0; }
+  button { width: auto; display: inline-block; margin-right: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 12px 0; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .ref { color: var(--muted); }
+  .missing { color: #d33; }
+  h2 { font-size: 15px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Jimaku model benchmark</h1>
+  <p id="status">Loading…</p>
+  <section id="setup" hidden>
+    <p class="muted">Every request below counts toward your ChatGPT plan's usage.</p>
+    <h2>Models</h2>
+    <div id="models"></div>
+    <h2>Prompts</h2>
+    <div id="prompts"></div>
+    <h2>Options</h2>
+    <label><input type="checkbox" id="higher"> Also measure the efforts above the lowest one each model accepts</label>
+    <label>Rounds over the captions <input type="number" id="rounds" value="1" min="1" max="5"></label>
+    <p id="estimate"></p>
+    <button id="run" class="primary">Run</button>
+  </section>
+  <section id="results" hidden>
+    <button id="download">Download JSON</button>
+    <button id="copy">Copy JSON</button>
+    <table id="summary"></table>
+    <div id="failures"></div>
+    <div id="cases"></div>
+  </section>
+</main>
+<script src="bench.js"></script>
+</body>
+</html>
