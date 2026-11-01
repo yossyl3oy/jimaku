@@ -1,5 +1,5 @@
-// Puts jimaku's on/off button in the player's control bar (just left of the CC button).
-// YouTube's own CC button is left alone. Like the CC button, the icon shows the state itself:
+// Puts jimaku's on/off button in the player's control bar (just left of the CC button), or in Shorts in the controls
+// over the video (just left of their CC button). YouTube's own CC button is left alone. Like the CC button, the icon shows the state itself:
 // a white plate while on and a transparent frame while off (YouTube's current player no longer
 // draws the red underline under pressed buttons). The character on it follows the language translated into.
 
@@ -38,8 +38,10 @@ const createGlyph = ({ text, fontSize, y, fontFamily }: ButtonGlyph, fill: strin
 // On: a white plate with the character cut out. Off: a 2px white frame on a transparent background with the
 // character in white, the frame drawn like the CC button's (rounded outside, square inside).
 // Sized 24x24 like the CC button. YouTube enforces Trusted Types, so innerHTML isn't used.
-const createIcon = (pressed: boolean, glyph: ButtonGlyph) => {
+const createIcon = (pressed: boolean, glyph: ButtonGlyph, shadow: boolean) => {
   const svg = createSvgElement('svg', { viewBox: '0 0 24 24', width: '24', height: '24' });
+  // The shadow of the icons in Shorts' controls (measured)
+  if (shadow) svg.style.filter = 'drop-shadow(rgba(0, 0, 0, 0.8) 0px 0px 1px)';
   if (pressed) {
     const mask = createSvgElement('mask', { id: 'jimaku-toggle-mask' });
     mask.append(createSvgElement('rect', { ...BOARD, fill: '#fff' }), createGlyph(glyph, '#000'));
@@ -60,9 +62,13 @@ const createIcon = (pressed: boolean, glyph: ButtonGlyph) => {
   return svg;
 };
 
-const createButton = (onClick: () => void) => {
+export type ButtonSlot = { before: string; className: string; shadow: boolean };
+
+const createButton = (onClick: () => void, className: string) => {
   const button = document.createElement('button');
-  button.className = `ytp-button ${BUTTON_CLASS}`;
+  button.className = `${className} ${BUTTON_CLASS}`;
+  // Shorts' controls let the pointer through to the video except on their buttons
+  button.style.pointerEvents = 'all';
   button.setAttribute('aria-label', LABEL);
   button.title = LABEL;
   button.addEventListener('click', (event) => {
@@ -74,30 +80,30 @@ const createButton = (onClick: () => void) => {
 };
 
 // Swaps the icon only when the state or the language changes, since sync runs again and again
-const render = (button: HTMLButtonElement, pressed: boolean, language: string) => {
+const render = (button: HTMLButtonElement, pressed: boolean, language: string, shadow: boolean) => {
   const state = String(pressed);
   if (button.getAttribute('aria-pressed') === state && button.dataset.language === language) return;
   button.setAttribute('aria-pressed', state);
   button.dataset.language = language;
-  button.replaceChildren(createIcon(pressed, buttonGlyphOf(language)));
+  button.replaceChildren(createIcon(pressed, buttonGlyphOf(language), shadow));
 };
 
-// Each sync(pressed, language) call checks the button is in the current control bar and syncs its pressed state
-// and its character (language is the one translated into).
+// Each sync(pressed, language, slot) call checks the button is in the slot's controls and syncs its pressed state
+// and its character (language is the one translated into). The slot is the watch page's or the Shorts' one.
 // YouTube sometimes rebuilds the control bar, so put the button back if it's missing.
 export const createToggleButton = (onClick: () => void) => {
   let button: HTMLButtonElement | null = null;
 
   return {
-    sync(pressed: boolean, language: string) {
-      const subtitles = document.querySelector<HTMLElement>('#movie_player .ytp-subtitles-button');
-      if (!subtitles?.parentElement) return;
-      if (!button || button.nextElementSibling !== subtitles) {
+    sync(pressed: boolean, language: string, slot: ButtonSlot) {
+      const before = document.querySelector<HTMLElement>(slot.before);
+      if (!before?.parentElement) return;
+      if (!button || button.nextElementSibling !== before) {
         button?.remove();
-        button = createButton(onClick);
-        subtitles.parentElement.insertBefore(button, subtitles);
+        button = createButton(onClick, slot.className);
+        before.parentElement.insertBefore(button, before);
       }
-      render(button, pressed, language);
+      render(button, pressed, language, slot.shadow);
     },
     remove() {
       button?.remove();

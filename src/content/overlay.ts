@@ -1,16 +1,23 @@
 // Shows the translation over the video. The source is left to YouTube's own captions (the CC button); while they are
-// shown, the translation goes under them (raising them to make room) or over them.
+// shown, the translation goes under them or over them, moving them to make room when it takes their place.
 
-import { fitScale, type Placement } from '../core/layout.ts';
+import { fitScale, type Edge, type Placement } from '../core/layout.ts';
 
 const HOST_ID = 'jimaku-overlay';
 const SHIFT_STYLE_ID = 'jimaku-caption-shift';
-const SHIFT_VAR = '--jimaku-caption-shift';
 
-// YouTube's bottom-anchored caption windows, which the shift raises. They are placed with bottom: 2% and no transform,
-// so the separate translate property moves them without touching YouTube's own positioning
-export const SHIFTED_CAPTIONS = '.ytp-caption-window-container .ytp-caption-window-bottom';
-const SHIFT_STYLE = `${SHIFTED_CAPTIONS} { translate: 0 calc(-1 * var(${SHIFT_VAR}, 0px)); }`;
+// YouTube's caption windows anchored to each edge, which the shift moves away from it: raised on a watch page, lowered
+// in Shorts. They are placed with bottom: 2% (top: 2%) and no transform, so the separate translate property moves them
+// without touching YouTube's own positioning. Each edge has its own variable, so windows at the other edge stay put
+export const SHIFTED_CAPTIONS: Record<Edge, string> = {
+  bottom: '.ytp-caption-window-container .ytp-caption-window-bottom',
+  top: '.ytp-caption-window-container .ytp-caption-window-top',
+};
+const SHIFT_VARS: Record<Edge, string> = { bottom: '--jimaku-caption-raise', top: '--jimaku-caption-lower' };
+const SHIFT_STYLE = `
+${SHIFTED_CAPTIONS.bottom} { translate: 0 calc(-1 * var(${SHIFT_VARS.bottom}, 0px)); }
+${SHIFTED_CAPTIONS.top} { translate: 0 var(${SHIFT_VARS.top}, 0px); }
+`;
 
 const STYLE = `
 :host {
@@ -23,8 +30,8 @@ const STYLE = `
 .box {
   position: absolute;
   left: 50%;
-  /* --bottom is set by place(); until then, the spot used with CC off */
-  bottom: var(--bottom, 8%);
+  /* --offset is set by place(); until then, the spot used with CC off */
+  bottom: var(--offset, 8%);
   transform: translateX(-50%);
   /* The box is transparent. A fixed width keeps lines at the same width after scaling as when measured */
   width: 90%;
@@ -35,6 +42,8 @@ const STYLE = `
 /* The line carries its language (lang), so Chinese and Korean get the browser's font for that script.
    Japanese fonts are named only for Japanese, so Chinese is not drawn with Japanese glyph shapes */
 .line:lang(ja) { font-family: "YouTube Noto", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+/* In Shorts, from the top edge, where YouTube puts the captions there */
+.box.top { bottom: auto; top: var(--offset, 10%); }
 .box[hidden] { display: none; }
 .line {
   display: block;
@@ -62,13 +71,15 @@ const STYLE = `
   color: #fff;
   font: 14px "YouTube Noto", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
 }
+/* In Shorts the top is taken by the controls and the translation */
+.notice.top { top: 30%; }
 .notice[hidden] { display: none; }
 `;
 
 export type Overlay = {
   // The caption line at the playback position (null when there is none); its translation is undefined until translated
   render(line: { translation: string | undefined } | null): void;
-  // Puts the translation at placement.bottom and raises YouTube's bottom captions by placement.shift
+  // Puts the translation placement.offset away from the edge and moves YouTube's captions there by placement.shift
   place(placement: Placement): void;
   // The translation's height on screen (0 while hidden)
   boxHeight(): number;
@@ -77,8 +88,9 @@ export type Overlay = {
   destroy(): void;
 };
 
-// target is the language of the translation and noticeLanguage that of the notices (BCP 47 codes)
-export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage: string): Overlay => {
+// target is the language of the translation and noticeLanguage that of the notices (BCP 47 codes). edge is the one
+// YouTube's captions sit at, which the translation is placed from
+export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage: string, edge: Edge = 'bottom'): Overlay => {
   document.getElementById(HOST_ID)?.remove();
   document.getElementById(SHIFT_STYLE_ID)?.remove();
 
@@ -90,6 +102,7 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
   style.textContent = STYLE;
   const box = document.createElement('div');
   box.className = 'box';
+  box.classList.toggle('top', edge === 'top');
   box.hidden = true;
   const translationEl = document.createElement('span');
   translationEl.className = 'line translation';
@@ -99,6 +112,7 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
   box.append(translationEl);
   const noticeEl = document.createElement('div');
   noticeEl.className = 'notice';
+  noticeEl.classList.toggle('top', edge === 'top');
   noticeEl.lang = noticeLanguage;
   noticeEl.hidden = true;
   shadow.append(style, box, noticeEl);
@@ -144,10 +158,10 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
       noticeEl.textContent = text ?? '';
     },
     place(placement) {
-      if (placed?.bottom === placement.bottom && placed.shift === placement.shift) return;
+      if (placed?.offset === placement.offset && placed.shift === placement.shift) return;
       placed = placement;
-      box.style.setProperty('--bottom', `${placement.bottom}px`);
-      player.style.setProperty(SHIFT_VAR, `${placement.shift}px`);
+      box.style.setProperty('--offset', `${placement.offset}px`);
+      player.style.setProperty(SHIFT_VARS[edge], `${placement.shift}px`);
     },
     boxHeight: () => (box.hidden ? 0 : box.getBoundingClientRect().height),
     destroy() {
@@ -155,7 +169,7 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
       host.remove();
       // Put YouTube's captions back where they were
       shiftStyle.remove();
-      player.style.removeProperty(SHIFT_VAR);
+      player.style.removeProperty(SHIFT_VARS[edge]);
     },
   };
 };

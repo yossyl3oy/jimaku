@@ -14,7 +14,8 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `session.ts` Translates a video sequentially from the current caption line, about 5 minutes ahead of playback. Cancels the pending request when playback jumps
   - `translation-cache.ts` The translation cache every tab shares, per video, track and target language (kept by the background)
   - `controller.ts` Decides whether to start or stop the translation from the open video and jimaku's on/off, which every video opens with off
-  - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions
+  - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions (from the bottom edge, or from the top in Shorts)
+  - `video-page.ts` Which video the page shows, from its URL: a watch page or a Short
   - `metrics.ts` Measures how long the "…" placeholder remains on screen
   - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
   - `translator.ts` The pluggable translator interface `translate(lines, context, { onLine, signal }) → translations`
@@ -38,8 +39,8 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
 - `src/content/` … Code that touches the YouTube page
   - `main.ts` Entry point; wires the pieces together
   - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
-  - `youtube.ts` Fetches the captions
+  - `youtube.ts` Fetches the captions, and says where the player and its buttons are on a watch page and in Shorts
   - `overlay.ts` The translation line
-  - `button.ts` The on/off button in the control bar
+  - `button.ts` The on/off button in the control bar (in Shorts, in the controls over the video)
   - `translation-cache.ts` Asks the background for cached translations and sends it new ones
-- `src/page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script
+- `src/page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script (from the watch page's player or the Shorts' one)

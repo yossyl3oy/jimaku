@@ -2,7 +2,7 @@
 // The work itself (fetching captions, display, translation) comes in from outside as start, so it can be tested without a DOM.
 //
 // Every video opens with jimaku off, and turning it on applies to the video open now only: translating uses up the
-// usage included in the ChatGPT plan, and a session translates the whole video, not only the part watched.
+// usage included in the ChatGPT plan, and a session keeps translating about 5 minutes ahead of playback.
 
 // onMounted is called once the display is up.
 // If start returns normally without mounting (no captions to translate, etc.), don't retry. It starts again the next time the same video opens or jimaku is turned on.

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { parseMessage, pickPlayerFields } from '../src/core/bridge.ts';
+import { isPlayerId, parseMessage, pickPlayerFields } from '../src/core/bridge.ts';
 
 const player = JSON.parse(readFileSync(new URL('./fixtures/player-response.json', import.meta.url), 'utf8'));
 
@@ -57,4 +57,10 @@ test('pickPlayerFields: picking the result again gives the same result (the cont
   const picked = pickPlayerFields(player, 'abc123');
   assert.equal(picked?.videoDetails?.videoId, 'abc123');
   assert.deepEqual(pickPlayerFields(picked, 'abc123'), picked);
+});
+
+test('isPlayerId: only the watch page player and the Shorts player can be asked for', () => {
+  assert.equal(isPlayerId('movie_player'), true);
+  assert.equal(isPlayerId('shorts-player'), true);
+  for (const value of ['masthead', '', undefined, null, 1]) assert.equal(isPlayerId(value), false, String(value));
 });

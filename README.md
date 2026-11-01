@@ -11,6 +11,7 @@ Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for op
 ## Features
 
 - A single line of translation below or above YouTube's captions; with CC off, only the translation is shown
+- Works on regular videos and on Shorts
 - 14 target languages, with Japanese as the default
 - Translation starts at the current playback position, streams in line by line, and stays about 5 minutes ahead of playback, so mostly the part you watch counts toward your plan's usage
 - Translations are cached and shared by every tab until the browser closes, so turning Jimaku on again, returning to a video or opening it in another tab reuses existing translations
@@ -36,8 +37,8 @@ To update, put the new version's files in the same folder (unzip over it, or bui
 ## Use
 
 1. Click the Jimaku icon in the toolbar, click Continue with ChatGPT and sign in. You can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.
-2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. The translation of each caption line appears at the bottom of the video.
-3. Click the 訳 button again to turn Jimaku off. Every video opens with Jimaku off, and turning it on applies only to the video you're watching, so only the videos you choose count toward your plan's usage. It works independently of CC: turn CC on to see the original captions.
+2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. The translation of each caption line appears at the bottom of the video. In Shorts, the 訳 button is in the controls at the top right of the video, also just left of the CC button, and the translation appears near the top, where YouTube shows captions in Shorts.
+3. Click the 訳 button again to turn Jimaku off. Every video opens with Jimaku off, each Short you swipe to included, and turning it on applies only to the video you're watching, so only the videos you choose count toward your plan's usage. It works independently of CC: turn CC on to see the original captions.
 
 In the popup (shown here in English; it follows the browser's language):
 
@@ -45,7 +46,7 @@ In the popup (shown here in English; it follows the browser's language):
 - **Subtitle position** — Below original captions (the default) or Above original captions. Changes take effect immediately, and the preview shows the selected order.
 - **Manage usage** — opens your ChatGPT usage settings. Jimaku doesn't display usage statistics, because Sign in with ChatGPT offers no way to read them.
 
-When translation can't continue (for example: not signed in, locked after a browser restart, usage limit reached, or the extension was updated while the tab was open), it stops and says why at the top of the video. Translation resumes automatically after you sign in or unlock; after an update, reload the tab.
+When translation can't continue (for example: not signed in, locked after a browser restart, usage limit reached, or the extension was updated while the tab was open), it stops and says why near the top of the video. Translation resumes automatically after you sign in or unlock; after an update, reload the tab.
 
 ## Going forward
 

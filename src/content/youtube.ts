@@ -2,13 +2,59 @@
 // Catching the player's timedtext request, and pressing the CC button twice to make it send one, come from
 // src/lib/youtube.ts in rokrokss/shizue@c2ebc51.
 
-import { PLAYER_REPLY_EVENT, REQUEST_PLAYER_EVENT, parseMessage, pickPlayerFields, type PlayerReply } from '../core/bridge.ts';
+import {
+  PLAYER_REPLY_EVENT,
+  REQUEST_PLAYER_EVENT,
+  parseMessage,
+  pickPlayerFields,
+  type PlayerId,
+  type PlayerReply,
+  type PlayerRequest,
+} from '../core/bridge.ts';
 import { createCaptionUrls } from '../core/caption-urls.ts';
 import { parseJson3, type Caption } from '../core/captions.ts';
+import type { Edge } from '../core/layout.ts';
 import { extractPlayerResponse, type PlayerResponse } from '../core/tracks.ts';
+import type { VideoView } from '../core/video-page.ts';
+import type { ButtonSlot } from './button.ts';
 
-export const getVideoId = (): string | null =>
-  location.pathname === '/watch' ? new URLSearchParams(location.search).get('v') : null;
+// Where the player and its buttons are on a watch page and on a Short. Shorts play in a player of their own
+// (#movie_player stays in the page, hidden, and so does #shorts-player after a Short), with their own controls over it
+// and YouTube's captions at the top
+export type PlayerView = {
+  // The player element's id
+  player: PlayerId;
+  // YouTube's CC button
+  captionsButton: string;
+  // jimaku's button goes just before `before`, with the class YouTube's buttons there have. In Shorts its icon also
+  // gets the shadow YouTube's icons there have, since it sits over the video
+  toggle: ButtonSlot;
+  // The edge YouTube's captions sit at, and how far from it the translation sits with CC off (a share of the player's
+  // height; the layout's default on a watch page)
+  edge: Edge;
+  floor?: number;
+};
+
+export const PLAYER_VIEWS: Record<VideoView, PlayerView> = {
+  watch: {
+    player: 'movie_player',
+    captionsButton: '#movie_player .ytp-subtitles-button',
+    toggle: { before: '#movie_player .ytp-subtitles-button', className: 'ytp-button', shadow: false },
+    edge: 'bottom',
+  },
+  // Measured: the controls take the top 10% of the player, and YouTube's captions start just under them
+  shorts: {
+    player: 'shorts-player',
+    captionsButton: 'ytd-shorts-player-controls ytm-closed-captioning-button button',
+    toggle: {
+      before: 'ytd-shorts-player-controls #closed-captioning-button-container',
+      className: 'ytmClosedCaptioningButtonButton',
+      shadow: true,
+    },
+    edge: 'top',
+    floor: 0.1,
+  },
+};
 
 // The player's own timedtext requests carry the pot token and more, so remember the whole URL.
 const playerCaptionUrls = createCaptionUrls();
@@ -64,16 +110,21 @@ export const waitWhileAdShowing = (playerEl: HTMLElement, signal: AbortSignal) =
     signal.addEventListener('abort', onAbort, { once: true });
   });
 
-// If there's no request yet, press the CC button so the player sends one, and wait up to 5 seconds.
+// If there's no request yet, press the CC button (found with captionsButton) so the player sends one, and wait up to 5 seconds.
 // The player opens the request inside the click handler, and pressing the button back ends it at once; the ended
 // request still shows up in the resource timing with its whole URL (measured: about 10-20ms after the presses).
 // So both presses go back to back and the native captions keep their on/off. If nothing shows up, try once more the
 // old way, holding the captions on for 200ms. If we move to another video meanwhile (signal aborted), stop.
-export const getPlayerCaptionUrl = async (videoId: string, signal: AbortSignal): Promise<string | null> => {
+// Shorts' own CC button works the same way.
+export const getPlayerCaptionUrl = async (
+  videoId: string,
+  captionsButton: string,
+  signal: AbortSignal
+): Promise<string | null> => {
   const known = freshCaptionUrl(videoId);
   if (known) return known;
 
-  const button = document.querySelector<HTMLElement>('.ytp-subtitles-button');
+  const button = document.querySelector<HTMLElement>(captionsButton);
   if (button) {
     // Moved to another video already: don't touch the button (it may be the new video's)
     signal.throwIfAborted();
@@ -94,7 +145,7 @@ export const getPlayerCaptionUrl = async (videoId: string, signal: AbortSignal):
 
 // Asks the page-side script (src/page/player-bridge.ts) for the player info, once.
 // null if there's no answer (not loaded yet) or it belongs to another video.
-const askPage = (videoId: string, timeoutMs: number, signal: AbortSignal) =>
+const askPage = (videoId: string, player: PlayerId, timeoutMs: number, signal: AbortSignal) =>
   new Promise<PlayerResponse | null>((resolve, reject) => {
     const id = Math.random().toString(36).slice(2);
     const onReply = (event: Event) => {
@@ -119,18 +170,20 @@ const askPage = (videoId: string, timeoutMs: number, signal: AbortSignal) =>
     };
     window.addEventListener(PLAYER_REPLY_EVENT, onReply);
     signal.addEventListener('abort', onAbort, { once: true });
-    window.dispatchEvent(new CustomEvent(REQUEST_PLAYER_EVENT, { detail: JSON.stringify({ id, videoId }) }));
+    const request: PlayerRequest = { id, videoId, player };
+    window.dispatchEvent(new CustomEvent(REQUEST_PLAYER_EVENT, { detail: JSON.stringify(request) }));
   });
 
-// Gets the player info. First read it straight from the page's player (nearly instant);
+// Gets the player info. First read it straight from the page's player (the one shown, nearly instant);
 // if that still fails after 2 seconds, read it from the watch page HTML (about 2MB, about 700ms).
 export const fetchPlayerResponse = async (
   videoId: string,
+  playerId: PlayerId,
   signal: AbortSignal
 ): Promise<PlayerResponse | null> => {
   const deadline = performance.now() + 2000;
   while (performance.now() < deadline) {
-    const player = await askPage(videoId, 100, signal);
+    const player = await askPage(videoId, playerId, 100, signal);
     if (player) return player;
     await sleep(100, signal);
   }
