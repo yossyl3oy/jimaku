@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { buildCaptionUrl, extractPlayerResponse, isCaptionUrlFresh, pickSourceTrack } from '../src/core/tracks.ts';
+import { buildCaptionUrl, extractPlayerResponse, isCaptionUrlFresh, isTimedtextUrl, pickSourceTrack } from '../src/core/tracks.ts';
 
 const player = JSON.parse(readFileSync(new URL('./fixtures/player-response.json', import.meta.url), 'utf8'));
 
@@ -86,4 +86,21 @@ test('isCaptionUrlFresh: treats the URL as expired a little before expire', () =
   assert.equal(isCaptionUrlFresh(url, 940_000), false);
   assert.equal(isCaptionUrlFresh(url, 2_000_000), false);
   assert.equal(isCaptionUrlFresh('https://www.youtube.com/api/timedtext?v=abc123', 2_000_000), true);
+});
+
+test('isTimedtextUrl: only https://www.youtube.com/api/timedtext', () => {
+  assert.equal(isTimedtextUrl('https://www.youtube.com/api/timedtext?v=a&lang=en'), true);
+  for (const other of [
+    'https://evil.example/api/timedtext',
+    'https://www.youtube.com.evil.example/api/timedtext',
+    'https://www.youtube.com@evil.example/api/timedtext',
+    'https://www.youtube.com/api/timedtext/../../redirect',
+    'http://www.youtube.com/api/timedtext',
+    'https://www.youtube.com/api/timedtext2',
+    'javascript:alert(1)',
+    'not a url',
+    undefined,
+  ]) {
+    assert.equal(isTimedtextUrl(other), false, String(other));
+  }
 });

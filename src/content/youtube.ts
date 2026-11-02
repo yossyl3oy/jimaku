@@ -14,7 +14,7 @@ import {
 import { createCaptionUrls } from '../core/caption-urls.ts';
 import { parseJson3, type Caption } from '../core/captions.ts';
 import type { Edge } from '../core/layout.ts';
-import { extractPlayerResponse, type PlayerResponse } from '../core/tracks.ts';
+import { extractPlayerResponse, isTimedtextUrl, type PlayerResponse } from '../core/tracks.ts';
 import type { VideoView } from '../core/video-page.ts';
 import type { ButtonSlot } from './button.ts';
 
@@ -197,6 +197,8 @@ export const fetchPlayerResponse = async (
 };
 
 export const fetchCaptions = async (url: string, signal: AbortSignal): Promise<Caption[]> => {
+  // Checked again here, whichever way the URL came (the watch page HTML is not checked before)
+  if (!isTimedtextUrl(url)) throw new Error('not a timedtext URL');
   const response = await fetch(url, { signal });
   if (!response.ok) throw new Error(`timedtext ${response.status}`);
   const text = await response.text();

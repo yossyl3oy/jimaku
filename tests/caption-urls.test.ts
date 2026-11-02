@@ -58,3 +58,18 @@ test('record: a URL about to expire is neither kept nor handed to whoever waits'
   urls.record(url('a', 5000));
   assert.equal(urls.fresh('a'), url('a', 5000));
 });
+
+test('record: a request anywhere but the timedtext of YouTube is ignored, as any script on the page can make one', () => {
+  const urls = createCaptionUrls(() => 0);
+  for (const other of [
+    'https://evil.example/api/timedtext?v=a&pot=x',
+    'https://www.youtube.com.evil.example/api/timedtext?v=a',
+    'http://www.youtube.com/api/timedtext?v=a',
+    'https://www.youtube.com/redirect?q=/api/timedtext&v=a',
+  ]) {
+    urls.record(other);
+    assert.equal(urls.fresh('a'), null, other);
+  }
+  urls.record(url('a'));
+  assert.equal(urls.fresh('a'), url('a'));
+});

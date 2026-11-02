@@ -74,6 +74,9 @@ const createButton = (onClick: () => void, className: string) => {
   button.addEventListener('click', (event) => {
     // So the click doesn't reach the player (play/pause)
     event.stopPropagation();
+    // Only the user turns jimaku on, since it spends the ChatGPT plan's usage: a script on the page can call click()
+    // on the button too. A click or Enter / Space from the user is trusted
+    if (!event.isTrusted) return;
     onClick();
   });
   return button;

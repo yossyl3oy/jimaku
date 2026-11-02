@@ -4,7 +4,7 @@
 // A CustomEvent's detail can't cross worlds as an object, so it is passed as a JSON string.
 // Same approach as src/entrypoints/youtube-player-hook.content.ts in rokrokss/shizue@c2ebc51.
 
-import type { CaptionTrack, PlayerResponse } from './tracks.ts';
+import { isTimedtextUrl, type CaptionTrack, type PlayerResponse } from './tracks.ts';
 
 export const REQUEST_PLAYER_EVENT = 'jimaku:request-player';
 export const PLAYER_REPLY_EVENT = 'jimaku:player-reply';
@@ -28,17 +28,6 @@ export const parseMessage = <T>(detail: unknown): T | null => {
   }
 };
 
-// Accept only timedtext URLs for caption tracks (so the page side can't point somewhere else)
-const isTimedtextUrl = (url: unknown) => {
-  if (typeof url !== 'string') return false;
-  try {
-    const parsed = new URL(url);
-    return parsed.origin === 'https://www.youtube.com' && parsed.pathname === '/api/timedtext';
-  } catch {
-    return false;
-  }
-};
-
 // Keeps only the needed fields of the player info. null if it belongs to another video (mid-navigation or an ad).
 export const pickPlayerFields = (raw: unknown, videoId: string): PlayerResponse | null => {
   const response = raw as {
@@ -49,6 +38,7 @@ export const pickPlayerFields = (raw: unknown, videoId: string): PlayerResponse 
 
   const rawTracks = response.captions?.playerCaptionsTracklistRenderer?.captionTracks;
   const tracks: CaptionTrack[] = (Array.isArray(rawTracks) ? rawTracks : [])
+    // Only timedtext URLs for caption tracks, so the page side can't point somewhere else
     .filter((t) => isTimedtextUrl(t?.baseUrl) && typeof t?.languageCode === 'string')
     .map((t) => ({ baseUrl: t.baseUrl, languageCode: t.languageCode, ...(typeof t.kind === 'string' ? { kind: t.kind } : {}) }));
 

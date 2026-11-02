@@ -1,7 +1,7 @@
 // The caption (timedtext) URLs the player requested, by video. They carry per-session parameters such as the pot token,
 // which our own caption request needs. Whoever waits for a video's URL gets it as soon as the player's request is seen.
 
-import { isCaptionUrlFresh } from './tracks.ts';
+import { isCaptionUrlFresh, isTimedtextUrl } from './tracks.ts';
 
 export const createCaptionUrls = (now: () => number = Date.now) => {
   const urls = new Map<string, string>();
@@ -16,8 +16,10 @@ export const createCaptionUrls = (now: () => number = Date.now) => {
   };
 
   return {
-    // A timedtext URL the player requested (one without a video, or one about to expire, is ignored)
+    // A timedtext URL the player requested (one without a video, or one about to expire, is ignored). Any script on
+    // the page can make a request that looks like it, so one anywhere but YouTube's timedtext is ignored too
     record(url: string) {
+      if (!isTimedtextUrl(url)) return;
       const videoId = new URL(url).searchParams.get('v');
       if (!videoId || !isCaptionUrlFresh(url, now())) return;
       urls.set(videoId, url);

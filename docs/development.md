@@ -78,7 +78,7 @@ The popup, the sign-in and unlock pages, the notices on the video, the player bu
 
 ## CI and security
 
-The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and the release build on every pull request, Dependabot's included, and on every push to `main`. Dependabot alerts and security updates are on for the repository.
+The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and the release build on every pull request, Dependabot's included, and on every push to `main`. Dependabot alerts and security updates are on for the repository. Both workflows pin each action to a commit, with its version in a comment: a tag can be moved to other code, and the release job can publish what it builds.
 
 ## Releasing
 
@@ -87,7 +87,7 @@ The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and t
 
 The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds with `pnpm build:release` (only the files the extension loads, which `tests/build.test.ts` lists), zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file. The release notes list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
 
-Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions.
+Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions, which updates both the pinned commit and the version in the comment.
 
 ## Extension ID
 

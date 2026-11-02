@@ -44,6 +44,18 @@ export const pickSourceTrack = (player: PlayerResponse, target: string): Caption
   return human.find(spoken) ?? human.find(isEnglish) ?? generated[0] ?? human[0] ?? null;
 };
 
+// Whether a URL is YouTube's timedtext endpoint. Caption URLs come from the page (the player's info and the requests
+// it sends), so anything pointing elsewhere is refused before it is fetched.
+export const isTimedtextUrl = (url: unknown): url is string => {
+  if (typeof url !== 'string') return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.origin === 'https://www.youtube.com' && parsed.pathname === '/api/timedtext';
+  } catch {
+    return false;
+  }
+};
+
 // timedtext URLs are signed and stop working after expire (UNIX seconds). Drop them a little before they expire.
 export const isCaptionUrlFresh = (url: string, nowMs: number, marginSec = 60): boolean => {
   const expire = Number(new URL(url).searchParams.get('expire'));
