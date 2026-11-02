@@ -48,7 +48,18 @@ let page: VideoPage | null = null;
 // Off a video page, the watch page's player is the one left (the miniplayer)
 const currentView = () => PLAYER_VIEWS[page?.view ?? 'watch'];
 
-// The current state of YouTube's own captions (whether the CC button is on, and the caption windows on screen)
+// The control bar while it shows (null while it is hidden)
+const readControls = (playerEl: HTMLElement, view: PlayerView) => {
+  if (!view.controls || playerEl.classList.contains(view.controls.hiddenClass)) return null;
+  const rects = [...playerEl.querySelectorAll<HTMLElement>(view.controls.selector)]
+    .map((el) => el.getBoundingClientRect())
+    .filter((rect) => rect.height > 0);
+  if (rects.length === 0) return null;
+  return { top: Math.min(...rects.map((rect) => rect.top)), bottom: Math.max(...rects.map((rect) => rect.bottom)) };
+};
+
+// The current state of YouTube's own captions (whether the CC button is on, and the caption windows on screen),
+// and the control bar they make room for
 const readNativeCaptions = (playerEl: HTMLElement, view: PlayerView): NativeCaptions => {
   const player = playerEl.getBoundingClientRect();
   return {
@@ -59,6 +70,7 @@ const readNativeCaptions = (playerEl: HTMLElement, view: PlayerView): NativeCapt
       const rect = el.getBoundingClientRect();
       return rect.height > 0 ? [{ top: rect.top, bottom: rect.bottom, shifted: el.matches(SHIFTED_CAPTIONS[view.edge]) }] : [];
     }),
+    controls: readControls(playerEl, view),
   };
 };
 

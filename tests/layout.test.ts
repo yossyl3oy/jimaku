@@ -31,7 +31,8 @@ test('liftAbove: places it gap above the topmost native caption', () => {
   assert.equal(liftAbove(600, [520], 0), 80);
 });
 
-// Player 0-600, so the floor is 48px; one caption line 540-578, where YouTube puts it (22px above the bottom)
+// Player 0-600, so the floor is 12px (2%, where YouTube's captions sit); one caption line 540-578, a little higher
+// (22px above the bottom)
 const player = { playerTop: 0, playerBottom: 600 };
 const line = { top: 540, bottom: 578, shifted: true };
 const cc = (captions: { top: number; bottom: number; shifted: boolean }[]) => ({ enabled: true, ...player, captions });
@@ -40,7 +41,7 @@ test('placeTranslation: with CC off, sits at the floor and raises nothing', () =
   const off = { enabled: false, ...player, captions: [] };
   for (const position of ['below', 'above'] as const) {
     assert.deepEqual(placeTranslation(off, { position, boxHeight: 40, previous: { offset: 100, shift: 50 } }), {
-      offset: 48,
+      offset: 12,
       shift: 0,
     });
   }
@@ -53,12 +54,18 @@ test('placeTranslation above: stacks over the native captions', () => {
   });
 });
 
-test('placeTranslation below: takes the floor and raises the captions over it by its height plus the gap', () => {
-  // The translation spans 512-552; the captions are raised by 48 + 40 + 8 - 22 = 74 to 466-504
+test('placeTranslation below: takes the place of the captions and raises them over it by its height plus the gap', () => {
+  // The translation spans 538-578; the captions are raised by 22 + 40 + 8 - 22 = 48 to 492-530
   assert.deepEqual(placeTranslation(cc([line]), { position: 'below', boxHeight: 40, previous: null }), {
-    offset: 48,
-    shift: 74,
+    offset: 22,
+    shift: 48,
   });
+});
+
+test('placeTranslation below: no lower than the floor', () => {
+  // A caption line 4px above the bottom: the translation stays at 12px, and the captions go over it (12 + 40 + 8 - 4)
+  const low = { top: 558, bottom: 596, shifted: true };
+  assert.deepEqual(placeTranslation(cc([low]), { position: 'below', boxHeight: 40, previous: null }), { offset: 12, shift: 56 });
 });
 
 test('placeTranslation below: measuring the raised captions next frame gives the same placement (no drift)', () => {
@@ -77,31 +84,31 @@ test('placeTranslation below: follows the captions up when the control bar shows
 });
 
 test('placeTranslation below: while the translation is hidden, the captions stay raised', () => {
-  const previous = { offset: 48, shift: 74 };
-  const raised = { top: line.top - 74, bottom: line.bottom - 74, shifted: true };
+  const previous = { offset: 22, shift: 48 };
+  const raised = { top: line.top - 48, bottom: line.bottom - 48, shifted: true };
   assert.deepEqual(placeTranslation(cc([raised]), { position: 'below', boxHeight: 0, previous }), previous);
 });
 
 test('placeTranslation: keeps the last placement when the native captions vanish between lines', () => {
-  const previous = { offset: 48, shift: 74 };
+  const previous = { offset: 22, shift: 48 };
   assert.deepEqual(placeTranslation(cc([]), { position: 'below', boxHeight: 40, previous }), previous);
-  assert.deepEqual(placeTranslation(cc([]), { position: 'above', boxHeight: 40, previous: null }), { offset: 48, shift: 0 });
+  assert.deepEqual(placeTranslation(cc([]), { position: 'above', boxHeight: 40, previous: null }), { offset: 12, shift: 0 });
 });
 
 test('placeTranslation: switching to above lowers the captions back and stacks over where YouTube put them', () => {
-  const raised = { top: line.top - 74, bottom: line.bottom - 74, shifted: true };
-  assert.deepEqual(placeTranslation(cc([raised]), { position: 'above', boxHeight: 40, previous: { offset: 48, shift: 74 } }), {
+  const raised = { top: line.top - 48, bottom: line.bottom - 48, shifted: true };
+  assert.deepEqual(placeTranslation(cc([raised]), { position: 'above', boxHeight: 40, previous: { offset: 22, shift: 48 } }), {
     offset: 68,
     shift: 0,
   });
 });
 
 test('placeTranslation: a kept placement stays at or above the floor after the player grows', () => {
-  // Fullscreen between two caption lines: 600px tall → 1080px tall, so the floor goes from 48 to 86.4
+  // Fullscreen between two caption lines: 600px tall → 1080px tall, so the floor goes from 12 to 21.6
   const tall = { enabled: true, playerTop: 0, playerBottom: 1080, captions: [] };
-  assert.deepEqual(placeTranslation(tall, { position: 'below', boxHeight: 40, previous: { offset: 48, shift: 74 } }), {
-    offset: 86.4,
-    shift: 74,
+  assert.deepEqual(placeTranslation(tall, { position: 'below', boxHeight: 40, previous: { offset: 12, shift: 56 } }), {
+    offset: 1080 * 0.02,
+    shift: 56,
   });
 });
 
@@ -112,8 +119,8 @@ test('placeTranslation below: goes over the captions when one of them cannot be 
     offset: 128,
     shift: 0,
   });
-  const raised = { top: line.top - 74, bottom: line.bottom - 74, shifted: true };
-  assert.deepEqual(placeTranslation(cc([raised, placed]), { position: 'below', boxHeight: 40, previous: { offset: 48, shift: 74 } }), {
+  const raised = { top: line.top - 48, bottom: line.bottom - 48, shifted: true };
+  assert.deepEqual(placeTranslation(cc([raised, placed]), { position: 'below', boxHeight: 40, previous: { offset: 22, shift: 48 } }), {
     offset: 128,
     shift: 0,
   });
@@ -124,11 +131,59 @@ test('placeTranslation: ignores windows in the upper half, like the "Click ⚙ f
   const measured = { enabled: true, playerTop: 68, playerBottom: 428 };
   const hint = { top: 92, bottom: 130, shifted: false };
   assert.deepEqual(placeTranslation({ ...measured, captions: [hint] }, { position: 'above', boxHeight: 30, previous: null }), {
-    offset: 360 * 0.08,
+    offset: 360 * 0.02,
     shift: 0,
   });
   const withLine = { ...measured, captions: [hint, { top: 385, bottom: 423, shifted: true }] };
   assert.deepEqual(placeTranslation(withLine, { position: 'above', boxHeight: 30, previous: null }), { offset: 51, shift: 0 });
+});
+
+// A 500px tall player whose control bar, progress bar included, takes the bottom 62px while it shows (measured on a
+// watch page). YouTube's captions sit 10px above the bottom (2%, the floor), and 80px while the bar shows (70px more)
+const small = { playerTop: 0, playerBottom: 500 };
+const controls = { top: 438, bottom: 500 };
+
+test('placeTranslation: with CC off, goes where YouTube raises its captions while the control bar shows, and back to the floor when it hides', () => {
+  const off = { enabled: false, ...small, captions: [] };
+  for (const position of ['below', 'above'] as const) {
+    assert.deepEqual(placeTranslation({ ...off, controls }, { position, boxHeight: 30, previous: null }), { offset: 80, shift: 0 });
+    assert.deepEqual(placeTranslation({ ...off, controls: null }, { position, boxHeight: 30, previous: { offset: 80, shift: 0 } }), {
+      offset: 10,
+      shift: 0,
+    });
+  }
+});
+
+test('placeTranslation: with CC off, sits as high as next to the native captions with CC on while the control bar is hidden', () => {
+  const options = { position: 'below', boxHeight: 30, previous: null } as const;
+  const atRest = { top: 452, bottom: 490, shifted: true };
+  const on = placeTranslation({ enabled: true, ...small, captions: [atRest] }, options);
+  assert.equal(placeTranslation({ enabled: false, ...small, captions: [] }, options).offset, on.offset);
+});
+
+test('placeTranslation: while the control bar shows, sits as high with CC off as next to the raised captions with CC on', () => {
+  const raisedLine = { top: 382, bottom: 420, shifted: true };
+  const options = { position: 'below', boxHeight: 30, previous: null } as const;
+  const on = placeTranslation({ enabled: true, ...small, captions: [raisedLine], controls }, options);
+  const off = placeTranslation({ enabled: false, ...small, captions: [], controls }, options);
+  assert.equal(off.offset, on.offset);
+});
+
+test('placeTranslation: between caption lines, the kept placement still clears the control bar', () => {
+  const native = { enabled: true, ...small, captions: [], controls };
+  assert.deepEqual(placeTranslation(native, { position: 'below', boxHeight: 30, previous: { offset: 40, shift: 60 } }), {
+    offset: 80,
+    shift: 60,
+  });
+});
+
+test('placeTranslation: next to the native captions, follows them over the control bar instead of jumping ahead', () => {
+  // The control bar has just shown, and YouTube has yet to move its caption line (10px above the bottom) over it
+  const native = { enabled: true, ...small, captions: [{ top: 452, bottom: 490, shifted: true }] };
+  for (const position of ['below', 'above'] as const) {
+    const options = { position, boxHeight: 30, previous: null };
+    assert.deepEqual(placeTranslation({ ...native, controls }, options), placeTranslation(native, options), position);
+  }
 });
 
 // Shorts, with the player made 0-1000 (measured: 944px tall, the caption window 88px below its top and 40px tall),
@@ -158,6 +213,12 @@ test('placeTranslation at the top, above: takes the floor and lowers the caption
   // Measuring the lowered captions next frame gives the same placement
   const lowered = { top: topLine.top + 50, bottom: topLine.bottom + 50, shifted: true };
   assert.deepEqual(placeTranslation({ ...shorts, captions: [lowered] }, { ...atTop, position: 'above', boxHeight: 30, previous: first }), first);
+});
+
+test('placeTranslation at the top: stays under controls at the top edge while they show', () => {
+  // 2% of 1000, the bar's 120px and 8px
+  const native = { ...shorts, enabled: false, captions: [], controls: { top: 0, bottom: 120 } };
+  assert.deepEqual(placeTranslation(native, { ...atTop, position: 'below', boxHeight: 30, previous: null }), { offset: 148, shift: 0 });
 });
 
 test('placeTranslation at the top: ignores windows in the lower half', () => {

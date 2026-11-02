@@ -30,9 +30,12 @@ export type PlayerView = {
   // gets the shadow YouTube's icons there have, since it sits over the video
   toggle: ButtonSlot;
   // The edge YouTube's captions sit at, and how far from it the translation sits with CC off (a share of the player's
-  // height; the layout's default on a watch page)
+  // height; on a watch page, the layout's default, where YouTube's captions sit)
   edge: Edge;
   floor?: number;
+  // The control bar at that edge (its elements), which YouTube hides by giving the player hiddenClass. Shorts' controls
+  // stay within the floor, so they aren't measured
+  controls?: { selector: string; hiddenClass: string };
 };
 
 export const PLAYER_VIEWS: Record<VideoView, PlayerView> = {
@@ -41,6 +44,8 @@ export const PLAYER_VIEWS: Record<VideoView, PlayerView> = {
     captionsButton: '#movie_player .ytp-subtitles-button',
     toggle: { before: '#movie_player .ytp-subtitles-button', className: 'ytp-button', shadow: false },
     edge: 'bottom',
+    // The progress bar reaches a little above the rest of the bar
+    controls: { selector: '.ytp-chrome-bottom, .ytp-progress-bar-container', hiddenClass: 'ytp-autohide' },
   },
   // Measured: the controls take the top 10% of the player, and YouTube's captions start just under them
   shorts: {

@@ -22,6 +22,8 @@ export type NativeCaptions = {
   playerBottom: number;
   // The native caption windows on screen, as measured (page coordinates). shifted: one that the shift moves
   captions: readonly { top: number; bottom: number; shifted: boolean }[];
+  // The control bar while it shows, as measured (page coordinates); absent or null while it is hidden
+  controls?: { top: number; bottom: number } | null;
 };
 
 // The edge of the player YouTube's captions sit at: the bottom on a watch page, the top in Shorts (under the controls)
@@ -52,25 +54,38 @@ export type PlaceOptions = {
   // What the last frame applied (null on the first)
   previous: Placement | null;
   gap?: number;
-  // The lowest the translation goes, as a share of the player's height (in Shorts, the highest)
+  // The lowest the translation goes, as a share of the player's height (in Shorts, the highest). By default where
+  // YouTube's captions sit
   floor?: number;
   edge?: Edge;
 };
 
-// Where the translation goes next to the native captions. With CC off it sits at the floor.
+// YouTube's bottom caption windows sit 2% of the player's height above its bottom edge (bottom: 2%), and while the
+// control bar shows, they move up by the bar's height plus 8px (measured: a 70px margin, with the progress bar's top
+// 62px above the bottom, on players 509px and 924px tall)
+const CAPTIONS_AT = 0.02;
+
+// Where the translation goes next to the native captions. With CC off it sits where YouTube's own captions would: at
+// the floor, or while the control bar shows, where YouTube raises them to, so it sits as high as next to them with CC on. Next to them, it
+// follows them over the bar instead (YouTube moves them there with a short transition, and jumping ahead would jerk
+// them along with it).
 // Only windows reaching into the lower half of the player count. Ones above it never meet the translation at the bottom,
 // such as the "English / Click ⚙ for settings" hint YouTube shows at the top for a few seconds after CC is turned on.
 // The native captions vanish briefly between lines, so keep the previous placement then and nothing bounces
 // (only kept at or above the floor, which grows when the player does, say for fullscreen).
 // In Shorts all of this is measured from the top edge instead, where only windows in the upper half count.
 export const placeTranslation = (native: NativeCaptions, options: PlaceOptions): Placement => {
-  const { position, boxHeight, previous, gap = 8, floor = 0.08, edge = 'bottom' } = options;
+  const { position, boxHeight, previous, gap = 8, floor = CAPTIONS_AT, edge = 'bottom' } = options;
   // At the top, the same placement upside down, where "below" and "above" swap
   if (edge === 'top') {
     return placeTranslation(upsideDown(native), { ...options, edge: 'bottom', position: position === 'below' ? 'above' : 'below' });
   }
-  const base = (native.playerBottom - native.playerTop) * floor;
-  if (!native.enabled) return { offset: base, shift: 0 };
+  const height = native.playerBottom - native.playerTop;
+  const base = height * floor;
+  // Where the translation goes on its own: the floor, or where YouTube's captions go while the control bar shows
+  const overBar = native.controls ? height * CAPTIONS_AT + (native.playerBottom - native.controls.top) + gap : 0;
+  const alone = Math.max(base, overBar);
+  if (!native.enabled) return { offset: alone, shift: 0 };
   // Back to where YouTube put them, before the last shift
   const middle = (native.playerTop + native.playerBottom) / 2;
   const captions = native.captions
@@ -79,7 +94,7 @@ export const placeTranslation = (native: NativeCaptions, options: PlaceOptions):
       return { top: caption.top + raised, bottom: caption.bottom + raised, shifted: caption.shifted };
     })
     .filter((caption) => caption.bottom > middle);
-  if (captions.length === 0) return { offset: Math.max(base, previous?.offset ?? 0), shift: previous?.shift ?? 0 };
+  if (captions.length === 0) return { offset: Math.max(alone, previous?.offset ?? 0), shift: previous?.shift ?? 0 };
 
   // A window the shift cannot raise (one YouTube placed somewhere else) would end up under the translation, so then it
   // goes over the captions instead
@@ -101,4 +116,5 @@ const upsideDown = (native: NativeCaptions): NativeCaptions => ({
   playerTop: -native.playerBottom,
   playerBottom: -native.playerTop,
   captions: native.captions.map(({ top, bottom, shifted }) => ({ top: -bottom, bottom: -top, shifted })),
+  controls: native.controls && { top: -native.controls.bottom, bottom: -native.controls.top },
 });

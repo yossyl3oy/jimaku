@@ -30,8 +30,8 @@ const STYLE = `
 .box {
   position: absolute;
   left: 50%;
-  /* --offset is set by place(); until then, the spot used with CC off */
-  bottom: var(--offset, 8%);
+  /* --offset is set by place(); until then, the spot used with CC off (where YouTube's captions sit) */
+  bottom: var(--offset, 2%);
   transform: translateX(-50%);
   /* The box is transparent. A fixed width keeps lines at the same width after scaling as when measured */
   width: 90%;
