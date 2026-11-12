@@ -3,13 +3,15 @@
 // Watch pages and Shorts work the same way, each in its own player (PLAYER_VIEWS).
 // The source captions are YouTube's own (the CC button); jimaku works independently of it.
 
+import type { Caption } from '../core/captions.ts';
 import { createController } from '../core/controller.ts';
 import { fatalNotice, isFatalError, type Notice } from '../core/errors.ts';
+import { createHeadStart } from '../core/head-start.ts';
 import { DEFAULT_TARGET } from '../core/languages.ts';
 import { DEFAULT_POSITION, placeTranslation, type NativeCaptions, type Placement } from '../core/layout.ts';
 import { createWaitMeter } from '../core/metrics.ts';
 import { createCaptionSession } from '../core/session.ts';
-import { buildCaptionUrl, pickSourceTrack } from '../core/tracks.ts';
+import { buildCaptionUrl, pickSourceTrack, type CaptionTrack } from '../core/tracks.ts';
 import { translationKey } from '../core/translation-cache.ts';
 import { videoPageOf, type VideoPage } from '../core/video-page.ts';
 import { t, uiLanguage } from '../shared/i18n.ts';
@@ -74,40 +76,66 @@ const readNativeCaptions = (playerEl: HTMLElement, view: PlayerView): NativeCapt
   };
 };
 
-const start = async (videoId: string, signal: AbortSignal, onMounted: () => void) => {
+// What a video's translation needs before its first request: the captions to translate, and what they are
+type Prepared = { title?: string; track: CaptionTrack; target: string; captions: Caption[] };
+
+// Picks the video's caption track for the chosen language and fetches its captions. null when there is nothing to
+// translate. early is a head start (the pointer went down on the button, the click hasn't come yet): it then gives up
+// instead of waiting for an ad or holding YouTube's captions on, and the click prepares in full.
+const prepare = async (videoId: string, signal: AbortSignal, early: boolean): Promise<Prepared | null> => {
   // Each navigation starts over, so the page open now is this video's
   const view = currentView();
-  // Measure the time from opening the video until the first translation is visible (TTFT)
-  const startedAt = performance.now();
-  const elapsed = () => Math.round(performance.now() - startedAt);
-  // Warm up the connection to the translator while the captions are being fetched
-  warmUpChatGPT();
   const [player, target] = await Promise.all([fetchPlayerResponse(videoId, view.player, signal), loadTargetLanguage()]);
-  if (signal.aborted) return;
+  signal.throwIfAborted();
   const track = player && pickSourceTrack(player, target);
   if (!track) {
     log(`no captions to translate into ${target}`, videoId);
-    return;
+    return null;
   }
-  const languages = { source: track.languageCode, target };
 
   // The player may just not be built yet, so throw and let it be retried
   const playerEl = document.getElementById(view.player);
-  const video = playerEl?.querySelector<HTMLVideoElement>('video');
-  if (!playerEl || !video) throw new Error('player not found');
+  if (!playerEl?.querySelector('video')) throw new Error('player not found');
 
   // If the caption URL is already known (the CC button was on, etc.), fetch the captions and start translating during the ad.
   // Otherwise the only way is to press the CC button so the player fetches them, and during an ad the player doesn't fetch
   // the video's captions, so wait for the ad to end.
   const knownCaptionUrl = freshCaptionUrl(videoId);
-  if (!knownCaptionUrl) await waitWhileAdShowing(playerEl, signal);
-  const playerCaptionUrl = knownCaptionUrl ?? (await getPlayerCaptionUrl(videoId, view.captionsButton, signal));
+  if (!knownCaptionUrl) {
+    if (early && playerEl.classList.contains('ad-showing')) throw new Error('an ad is showing');
+    await waitWhileAdShowing(playerEl, signal);
+  }
+  const playerCaptionUrl = knownCaptionUrl ?? (await getPlayerCaptionUrl(videoId, view.captionsButton, signal, early));
+  if (early && !playerCaptionUrl) throw new Error('no caption URL yet');
   const captions = await fetchCaptions(buildCaptionUrl(track.baseUrl, playerCaptionUrl), signal);
-  if (signal.aborted) return;
+  signal.throwIfAborted();
   if (!captions.length) {
     log('captions are empty', videoId);
-    return;
+    return null;
   }
+  return { title: player.videoDetails?.title, track, target, captions };
+};
+
+// The captions are fetched from the moment the pointer goes down on the button, not from the click that follows when
+// it is released (see head-start.ts). Nothing is sent to the translator before the click.
+const headStart = createHeadStart(prepare);
+
+const start = async (videoId: string, signal: AbortSignal, onMounted: () => void) => {
+  // Each navigation starts over, so the page open now is this video's
+  const view = currentView();
+  // Measure the time from turning jimaku on until the first translation is visible (TTFT)
+  const startedAt = performance.now();
+  const elapsed = () => Math.round(performance.now() - startedAt);
+  // Warm up the connection to the translator while the captions are being fetched
+  warmUpChatGPT();
+  const prepared = await headStart.take(videoId, signal);
+  if (signal.aborted || !prepared) return;
+  const { track, target, captions } = prepared;
+  const languages = { source: track.languageCode, target };
+
+  const playerEl = document.getElementById(view.player);
+  const video = playerEl?.querySelector<HTMLVideoElement>('video');
+  if (!playerEl || !video) throw new Error('player not found');
   const captionsAt = elapsed();
 
   // During an ad, video.currentTime is the ad's time, so the video's position is updated only outside ads
@@ -132,7 +160,7 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
     captions,
     translations,
     translator: createChatGPTTranslator(languages),
-    title: player.videoDetails?.title,
+    title: prepared.title,
     getCurrentTime: () => contentTime,
     onError: (error) => {
       log('translation failed', error);
@@ -206,11 +234,28 @@ const start = async (videoId: string, signal: AbortSignal, onMounted: () => void
 
 const controller = createController(start, { onError: (error) => log('failed to start (will retry)', error) });
 
+// Whether the user's next click on the button turns jimaku on for a video
+const aboutToTurnOn = () => extensionAlive() && page !== null && !controller.isEnabled();
+let approachedAt = -Infinity;
+
 // Turns jimaku on or off for the video open now (each video opens with it off)
-const button = createToggleButton(() => {
-  if (!extensionAlive()) return shutDown();
-  controller.setEnabled(!controller.isEnabled());
-  syncButton();
+const button = createToggleButton({
+  onClick: () => {
+    if (!extensionAlive()) return shutDown();
+    controller.setEnabled(!controller.isEnabled());
+    syncButton();
+  },
+  // The pointer or the focus reached the button: the worker and the connection may have gone idle while the video
+  // played, so wake them now (at most every 5 seconds). It only warms up, so nothing is spent if no click follows
+  onApproach: () => {
+    if (!aboutToTurnOn() || performance.now() - approachedAt < 5000) return;
+    approachedAt = performance.now();
+    warmUpChatGPT();
+  },
+  // The pointer went down on the button: fetch the captions now, ahead of the click
+  onPress: () => {
+    if (page && aboutToTurnOn()) headStart.begin(page.videoId);
+  },
 });
 const syncButton = () => button.sync(controller.isEnabled(), targetLanguage, currentView().toggle);
 
@@ -222,6 +267,7 @@ const shutDown = () => {
   clearInterval(buttonTimer);
   const wasEnabled = controller.isEnabled();
   controller.setEnabled(false);
+  headStart.drop();
   button.remove();
   const view = currentView();
   const playerEl = document.getElementById(view.player);
@@ -241,6 +287,8 @@ const init = async () => {
   watchTargetLanguage((code) => {
     targetLanguage = code;
     syncButton();
+    // Captions prepared for the language before may be another track's
+    headStart.drop();
     controller.restart();
   });
   watchSignIn(() => controller.restart());
@@ -255,6 +303,8 @@ const init = async () => {
     // The same video opened as a Short after a watch page, or the other way, plays in the other player: it opens off
     // like another video
     if (opened && opened.videoId === page?.videoId && opened.view !== page.view) controller.navigate(null);
+    // A head start belongs to the page it began on (the same video may now play in the other player)
+    headStart.drop();
     page = opened;
     if (page) warmUpChatGPT();
     controller.navigate(page?.videoId ?? null);

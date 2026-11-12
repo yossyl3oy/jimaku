@@ -64,7 +64,11 @@ const createIcon = (pressed: boolean, glyph: ButtonGlyph, shadow: boolean) => {
 
 export type ButtonSlot = { before: string; className: string; shadow: boolean };
 
-const createButton = (onClick: () => void, className: string) => {
+// onApproach and onPress come a moment before the click, so what the click needs can be made ready (see main.ts):
+// onApproach when the pointer or the focus reaches the button, onPress when the pointer goes down on it
+export type ToggleHandlers = { onClick: () => void; onApproach?: () => void; onPress?: () => void };
+
+const createButton = ({ onClick, onApproach, onPress }: ToggleHandlers, className: string) => {
   const button = document.createElement('button');
   button.className = `${className} ${BUTTON_CLASS}`;
   // Shorts' controls let the pointer through to the video except on their buttons
@@ -78,6 +82,17 @@ const createButton = (onClick: () => void, className: string) => {
     // on the button too. A click or Enter / Space from the user is trusted
     if (!event.isTrusted) return;
     onClick();
+  });
+  // From the user only, like the click: a script on the page can dispatch these events too. (It can move the focus
+  // here for real, which is why onApproach must not do anything a page shouldn't be able to cause.)
+  const fromUser = (handler?: () => void) => (event: Event) => {
+    if (event.isTrusted) handler?.();
+  };
+  button.addEventListener('pointerenter', fromUser(onApproach));
+  button.addEventListener('focus', fromUser(onApproach));
+  // The main button only, as for a click
+  button.addEventListener('pointerdown', (event) => {
+    if (event.button === 0) fromUser(onPress)(event);
   });
   return button;
 };
@@ -94,7 +109,7 @@ const render = (button: HTMLButtonElement, pressed: boolean, language: string, s
 // Each sync(pressed, language, slot) call checks the button is in the slot's controls and syncs its pressed state
 // and its character (language is the one translated into). The slot is the watch page's or the Shorts' one.
 // YouTube sometimes rebuilds the control bar, so put the button back if it's missing.
-export const createToggleButton = (onClick: () => void) => {
+export const createToggleButton = (handlers: ToggleHandlers) => {
   let button: HTMLButtonElement | null = null;
 
   return {
@@ -103,7 +118,7 @@ export const createToggleButton = (onClick: () => void) => {
       if (!before?.parentElement) return;
       if (!button || button.nextElementSibling !== before) {
         button?.remove();
-        button = createButton(onClick, slot.className);
+        button = createButton(handlers, slot.className);
         before.parentElement.insertBefore(button, before);
       }
       render(button, pressed, language, slot.shadow);

@@ -121,10 +121,13 @@ export const waitWhileAdShowing = (playerEl: HTMLElement, signal: AbortSignal) =
 // So both presses go back to back and the native captions keep their on/off. If nothing shows up, try once more the
 // old way, holding the captions on for 200ms. If we move to another video meanwhile (signal aborted), stop.
 // Shorts' own CC button works the same way.
+// quick (a head start, before the user's click): only the two presses back to back, and null if nothing shows up.
+// The captions are never held on then, since a press of the user's own could land in between and end up undone.
 export const getPlayerCaptionUrl = async (
   videoId: string,
   captionsButton: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  quick = false
 ): Promise<string | null> => {
   const known = freshCaptionUrl(videoId);
   if (known) return known;
@@ -136,7 +139,7 @@ export const getPlayerCaptionUrl = async (
     button.click();
     button.click();
     const url = await playerCaptionUrls.wait(videoId, 300, signal);
-    if (url) return url;
+    if (url || quick) return url;
     button.click();
     try {
       await sleep(200, signal);
@@ -145,6 +148,7 @@ export const getPlayerCaptionUrl = async (
       if (button.isConnected) button.click();
     }
   }
+  if (quick) return null;
   return playerCaptionUrls.wait(videoId, 5000, signal);
 };
 

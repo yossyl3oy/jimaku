@@ -14,6 +14,7 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `session.ts` Translates a video sequentially from the current caption line, about 5 minutes ahead of playback. Cancels the pending request when playback jumps
   - `translation-cache.ts` The translation cache every tab shares, per video, track and target language (kept by the background)
   - `controller.ts` Decides whether to start or stop the translation from the open video and jimaku's on/off, which every video opens with off
+  - `head-start.ts` Starts fetching a video's captions when the pointer goes down on the button, and hands them to the click that follows
   - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions (from the bottom edge, or from the top in Shorts)
   - `video-page.ts` Which video the page shows, from its URL: a watch page or a Short
   - `metrics.ts` Measures how long the "…" placeholder remains on screen
