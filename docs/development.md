@@ -2,6 +2,15 @@
 
 Building, testing and releasing jimaku, and where to change things. How it behaves is in [How it works](how-it-works.md).
 
+## Build
+
+```bash
+mise exec -- pnpm build           # Development build into dist/ (with the model benchmark page when its captions are there)
+mise exec -- pnpm build:release   # Only what the extension loads (what CI and the release workflow build)
+```
+
+Load `dist/` from `chrome://extensions` ("Load unpacked"). After each build, click the reload button on Jimaku there and reload the open YouTube tabs.
+
 ## Tests
 
 ```bash
@@ -68,7 +77,7 @@ The captions come from `bench-data/captions.json`, which is not committed becaus
 
 ## Adding another translator
 
-Pass `createPromptTranslator(stream, languages, warmup)` a function that sends the prompt and returns the response text bit by bit as it arrives (`AsyncIterable<string>`), and you get a `Translator` for that language pair (`{ source, target }`, BCP 47 codes). For `warmup`, pass something that sets up the connection ahead of time. Pick a model with a short time to first token and turn reasoning off (none / minimal).
+Pass `createPromptTranslator(stream, languages, warmup)` a function that sends the prompt and returns the response text bit by bit as it arrives (`AsyncIterable<string>`), and you get a `Translator` for that language pair (`{ source, target }`, BCP 47 codes). `warmup` is optional and nothing calls it yet: the content script warms up the ChatGPT translator itself (`warmUpChatGPT` in `src/content/chatgpt.ts`, see [ttft.md](ttft.md)), so another translator needs its own call there. Pick a model with a short time to first token and turn reasoning off (none / minimal).
 
 Calling a real API from the content script is blocked by CORS, so the ChatGPT translator runs `stream` in the background service worker and receives the chunks over a port (`chrome.runtime.connect`, see `src/core/port-stream.ts`).
 
@@ -83,7 +92,7 @@ The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and t
 ## Releasing
 
 1. Set the new version in both `package.json` and `public/manifest.json` (`tests/version.test.ts` checks they match).
-2. Commit, then tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+2. Commit, tag, then push `main` and the tag: `git tag v0.1.0 && git push origin main v0.1.0`.
 
 The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds with `pnpm build:release` (only the files the extension loads, which `tests/build.test.ts` lists), zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file. The release notes list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
 

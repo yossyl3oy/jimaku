@@ -1,6 +1,6 @@
 # How it works
 
-How jimaku picks the captions, places the translation, caches it and keeps the sign-in. For installing and using it, see the [README](../README.md).
+How jimaku picks the captions, places the translation, decides how far ahead to translate, caches it and keeps the sign-in. For installing and using it, see the [README](../README.md).
 
 ## Which captions are translated
 

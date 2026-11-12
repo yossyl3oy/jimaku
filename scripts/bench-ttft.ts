@@ -6,7 +6,7 @@ import type { Caption } from '../src/core/captions.ts';
 import { createMockTranslator } from '../src/core/mock.ts';
 import { createCaptionSession } from '../src/core/session.ts';
 
-// The same mock delays as main.ts
+// Delays that look like a real model's: the wait for the first character, then for each line
 const MOCK = { ttftMs: 400, perLineMs: 60 };
 
 // One line every 4 seconds, 300 lines (about a 20-minute video)

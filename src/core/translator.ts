@@ -29,7 +29,7 @@ export type TranslateOptions = {
 export type Translator = {
   // Returns an array as long as lines. Lines with no translation in the response are undefined.
   translate(lines: string[], context: TranslationContext, options?: TranslateOptions): Promise<(string | undefined)[]>;
-  // Called when a video opens, for example. A real translator sets up its connection or preflight here
-  // to cut the wait on the first request.
+  // Where a translator sets up its connection or preflight, to cut the wait on the first request. Nothing calls it
+  // yet: the content script warms up the ChatGPT translator itself (warmUpChatGPT in src/content/chatgpt.ts).
   warmup?(): void;
 };
