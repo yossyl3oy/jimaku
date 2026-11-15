@@ -2,7 +2,7 @@
 
 <h1 align="center">Jimaku</h1>
 
-A Chrome extension that translates YouTube captions and displays them on the video. Turn on YouTube's captions with the CC button to see the original text, with Jimaku's translation below or above it. Caption translation is its only feature.
+A browser extension for Chrome and Firefox that translates YouTube captions and displays them on the video. Turn on YouTube's captions with the CC button to see the original text, with Jimaku's translation below or above it. Caption translation is its only feature.
 
 Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for open-source and locally hosted apps). Claude API support is planned but not yet available.
 
@@ -16,27 +16,42 @@ Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for op
 - Translation starts at the current playback position, streams in line by line, and stays about 5 minutes ahead of playback, so mostly the part you watch counts toward your plan's usage
 - Translations are cached and shared by every tab until the browser closes, so turning Jimaku on again, returning to a video or opening it in another tab reuses existing translations
 - No API key and no API charges: requests count toward the usage included in your ChatGPT plan
-- Sign-in credentials are kept in memory, with the option to save them securely using Windows Hello / Touch ID
+- Sign-in credentials are kept in memory, with the option in Chrome to save them securely using Windows Hello / Touch ID
 - The interface supports the same 14 languages and follows your browser's language setting, falling back to English for other languages
 
 ## Install
 
+### Chrome
+
 From a release: download `jimaku-vX.Y.Z.zip` from the [Releases](https://github.com/yossyl3oy/jimaku/releases) page and unzip it. Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick the unzipped folder.
 
-From source: you need Chrome, and [mise](https://mise.jdx.dev/) with pnpm (mise installs the Node version in `mise.toml`; the pnpm version is specified in the `packageManager` field in `package.json`).
+To update, put the new version's files in the same folder (unzip over it) and click the reload button on Jimaku in `chrome://extensions`. Don't remove the extension to update it: removing it deletes your saved sign-in, and signing in again adds another "Jimaku" to the app usage settings in ChatGPT.
+
+### Firefox
+
+Firefox 128 or later.
+
+**Windows Hello / Touch ID are not supported in Firefox.** The sign-in can't be saved there, so you sign in again after each browser restart. Firefox doesn't let an extension be the owner of its own passkey ([bug 1693562](https://bugzilla.mozilla.org/show_bug.cgi?id=1693562)).
+
+Download `jimaku-firefox-vX.Y.Z.zip` from the [Releases](https://github.com/yossyl3oy/jimaku/releases) page. It is not signed by Mozilla, which decides how it can be installed:
+
+- Firefox (release and beta) installs only signed extensions, so there Jimaku can only be loaded until the browser restarts: open `about:debugging`, click "This Firefox", then "Load Temporary Add-on…" and pick the ZIP file.
+- Firefox Developer Edition, Nightly and ESR, and browsers built on Firefox without that requirement, keep it installed: set `xpinstall.signatures.required` to `false` in `about:config`, then open `about:addons`, click the gear and "Install Add-on From File…", and pick the ZIP file.
+
+### From source
+
+You need [mise](https://mise.jdx.dev/) with pnpm (mise installs the Node version in `mise.toml`; the pnpm version is specified in the `packageManager` field in `package.json`).
 
 ```bash
 mise exec -- pnpm install
 mise exec -- pnpm build:release
 ```
 
-Open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick `dist/`.
-
-To update, put the new version's files in the same folder (unzip over it, or build `dist/` again) and click the reload button on Jimaku in `chrome://extensions`. Don't remove the extension to update it: removing it deletes your saved sign-in, and signing in again adds another "Jimaku" to the app usage settings in ChatGPT.
+This builds `dist/chrome` and `dist/firefox`. In Chrome, open `chrome://extensions`, turn on Developer mode, click "Load unpacked" and pick `dist/chrome`; after building again, click the reload button on Jimaku there. In Firefox, load `dist/firefox` as above (any file in the folder will do for "Load Temporary Add-on…").
 
 ## Use
 
-1. Click the Jimaku icon in the toolbar, click Continue with ChatGPT and sign in. You can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.
+1. Click the Jimaku icon in the toolbar (in Firefox, in the extensions menu), click Continue with ChatGPT and sign in. In Chrome you can then securely save your sign-in credentials using Windows Hello / Touch ID, then use it to unlock Jimaku after a browser restart without signing in again.
 2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. The translation of each caption line appears at the bottom of the video. In Shorts, the 訳 button is in the controls at the top right of the video, also just left of the CC button, and the translation appears near the top, where YouTube shows captions in Shorts.
 3. Click the 訳 button again to turn Jimaku off. Every video opens with Jimaku off, each Short you swipe to included, and turning it on applies only to the video you're watching, so only the videos you choose count toward your plan's usage. It works independently of CC: turn CC on to see the original captions.
 

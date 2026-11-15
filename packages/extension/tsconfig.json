@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": [
+      "node",
+      "chrome"
+    ]
+  },
+  "include": [
+    "src",
+    "tests",
+    "scripts"
+  ]
+}

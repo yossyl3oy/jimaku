@@ -1,5 +1,5 @@
-# Builds the extension and publishes it as a GitHub release when a version tag (v0.1.0, ...) is pushed.
-# The tag must match the version in package.json and public/manifest.json.
+# Builds the extension for Chrome and Firefox and publishes both as a GitHub release when a version tag (v0.1.0, ...)
+# is pushed. The tag must match the version in package.json, which every manifest is built with.
 # Actions are pinned to a commit (its version in the comment), since a tag can be moved to other code and this job
 # can write releases. Dependabot updates both.
 name: Release
@@ -26,23 +26,25 @@ jobs:
       - name: Check the tag matches the version
         run: |
           version="${GITHUB_REF_NAME#v}"
-          for file in package.json public/manifest.json; do
-            actual="$(node -p "require('./$file').version")"
-            if [ "$actual" != "$version" ]; then
-              echo "::error file=$file::version is $actual, but the tag is $GITHUB_REF_NAME"
-              exit 1
-            fi
-          done
+          actual="$(node -p "require('./package.json').version")"
+          if [ "$actual" != "$version" ]; then
+            echo "::error file=package.json::version is $actual, but the tag is $GITHUB_REF_NAME"
+            exit 1
+          fi
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build:release
 
+      # The Chrome ZIP keeps the name it always had. The Firefox one is not signed by Mozilla (see docs/development.md)
       - name: Package the extension
-        run: cd dist && zip -qr "../jimaku-${GITHUB_REF_NAME}.zip" .
+        run: |
+          (cd dist/chrome && zip -qr "../../jimaku-${GITHUB_REF_NAME}.zip" .)
+          (cd dist/firefox && zip -qr "../../jimaku-firefox-${GITHUB_REF_NAME}.zip" .)
 
-      # The commits since the previous version tag (every commit for the first one), oldest first, each linked.
+      # Which file is for which browser, with what the Firefox one can't do, where the files are downloaded. Then the
+      # commits since the previous version tag (every commit for the first one), oldest first, each linked.
       # GitHub's generated notes list only pull requests, and commits here mostly go straight to main
       - name: Write the release notes
         run: |
@@ -50,6 +52,11 @@ jobs:
           previous="$(git describe --tags --abbrev=0 --match 'v*.*.*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
           range="${previous:+${previous}..}${GITHUB_REF_NAME}"
           {
+            echo "## Downloads"
+            echo
+            echo "- \`jimaku-${GITHUB_REF_NAME}.zip\`: Chrome"
+            echo "- \`jimaku-firefox-${GITHUB_REF_NAME}.zip\`: Firefox 128 or later. Not signed by Mozilla, and Windows Hello / Touch ID are not supported there: the sign-in is not saved, so you sign in again after each browser restart. See [Install](${repo}/blob/${GITHUB_REF_NAME}/README.md#firefox)"
+            echo
             echo "## Changes"
             echo
             git log --reverse --no-merges --format="- %s ([%h](${repo}/commit/%H))" "$range"
@@ -64,5 +71,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
-          gh release create "$GITHUB_REF_NAME" "jimaku-${GITHUB_REF_NAME}.zip"
+          gh release create "$GITHUB_REF_NAME" "jimaku-${GITHUB_REF_NAME}.zip" "jimaku-firefox-${GITHUB_REF_NAME}.zip"
           --verify-tag --title "Jimaku ${GITHUB_REF_NAME}" --notes-file release-notes.md

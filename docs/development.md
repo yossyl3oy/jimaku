@@ -5,11 +5,26 @@ Building, testing and releasing jimaku, and where to change things. How it behav
 ## Build
 
 ```bash
-mise exec -- pnpm build           # Development build into dist/ (with the model benchmark page when its captions are there)
+mise exec -- pnpm build           # Development builds into dist/chrome and dist/firefox (with the model benchmark page when its captions are there)
 mise exec -- pnpm build:release   # Only what the extension loads (what CI and the release workflow build)
 ```
 
-Load `dist/` from `chrome://extensions` ("Load unpacked"). After each build, click the reload button on Jimaku there and reload the open YouTube tabs.
+Both browsers are built from the same code; only `manifest.json` differs (`packages/extension/scripts/manifest.ts`). The commands run from the repository's root, which is a pnpm workspace (see [layout.md](layout.md)).
+
+- Chrome: load `dist/chrome` from `chrome://extensions` ("Load unpacked"). After each build, click the reload button on Jimaku there and reload the open YouTube tabs.
+- Firefox: open `about:debugging`, click "This Firefox", then "Load Temporary Add-on…" and pick any file in `dist/firefox`. After each build, click Reload there. A temporary add-on is gone when Firefox restarts.
+
+## Chrome and Firefox
+
+What differs between the two, and where it is handled:
+
+- **The background.** Chrome runs `background.js` as a service worker; Firefox has no service workers for extensions and runs the same script as an event page (`background.scripts`). Each manifest names only its own.
+- **The extension's own address.** Chrome's is `chrome-extension://<id>/` with the ID fixed by the manifest's `key` (below). Firefox's is `moz-extension://<uuid>/` with a UUID made anew for every installation, so the rule that catches the sign-in callback builds its target from `chrome.runtime.getURL('')` (`callbackRule` in the core's `browser.ts`). Firefox's manifest also makes the callback page web accessible to `http://127.0.0.1/*`, the address being redirected: Firefox's own tests want it to match too, and the redirect was tried only that way.
+- **The add-on ID.** Firefox needs `browser_specific_settings.gecko.id` (`jimaku@yossyl3oy.github.io`) to install an extension from a file or sign it, and takes no `key`. Like the key, it must never change. The oldest Firefox supported is 128, the first to run a content script in the page's world.
+- **The passkey.** The saved sign-in is unlocked by a passkey whose relying party is the extension itself. Firefox does not let an extension be the relying party of its own passkey ([bug 1693562](https://bugzilla.mozilla.org/show_bug.cgi?id=1693562)), so there the callback page doesn't offer to save the sign-in and it stays in memory (`passkeysSupported` in `browser.ts`).
+- **Signing.** Firefox's release and beta versions install only extensions signed by Mozilla. The Firefox ZIP of a release is not signed, so it is for temporary loading, and for the Firefox versions and forks that can turn the requirement off (see the README). Signing it would mean submitting each version to addons.mozilla.org, which also asks new extensions to declare the data they send (`data_collection_permissions`; jimaku sends the captions and the video's title to OpenAI).
+
+Checked by hand in Firefox on 2026-11-14, with `dist/firefox` loaded as a temporary add-on: the 訳 button, the sign-in through the callback rule, and translating. The benchmark page and installing the unsigned ZIP for good were not tried there.
 
 ## Tests
 
@@ -19,11 +34,11 @@ mise exec -- pnpm typecheck
 mise exec -- pnpm bench   # TTFT benchmark
 ```
 
-Caption JSON fixtures (`tests/fixtures/`) make it possible to test everything from parsing to the translation flow without a DOM. The ChatGPT sign-in, token refresh, vault and streaming are tested against a fake OpenAI service and in-memory storage (`tests/fakes.ts`). The real sign-in and the passkey prompt can only be checked in Chrome.
+`pnpm test` runs both packages' tests (`packages/core/tests/` and `packages/extension/tests/`). Caption JSON fixtures (`packages/core/tests/fixtures/`) make it possible to test everything from parsing to the translation flow without a DOM. The ChatGPT sign-in, token refresh, vault and streaming are tested against a fake OpenAI service and in-memory storage (`packages/core/tests/fakes.ts`). The real sign-in and the passkey prompt can only be checked in Chrome.
 
 ## Layout
 
-What each file under `src/` does is listed in [layout.md](layout.md).
+The two packages, and what each file in them does, are listed in [layout.md](layout.md).
 
 ## TTFT (time until the first translation is visible)
 
@@ -31,7 +46,7 @@ See [ttft.md](ttft.md) for how jimaku reduces the wait for the first translation
 
 ## Comparing models
 
-The development build (`mise exec -- pnpm build`) adds a benchmark page (`src/bench/`) when `bench-data/captions.json` is there; the release build leaves it out. Load `dist/`, sign in, and open `chrome-extension://bineloccjadloiohooadhfclifcfdbai/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
+The development build (`mise exec -- pnpm build`) adds a benchmark page (`packages/extension/src/bench/`) when `bench-data/captions.json` is there; the release build leaves it out. Load `dist/chrome`, sign in, and open `chrome-extension://bineloccjadloiohooadhfclifcfdbai/bench.html`. It translates the same caption chunks with each model in the account's catalog (`GET /v1/models`), at the lowest reasoning effort each one accepts, and with each prompt in `packages/extension/src/bench/prompts.ts`. For each, it shows the time to the first translated line, the tokens per request and per line, how many lines came back, and the translations next to a human translation. Download JSON saves the full report. Every request counts toward the plan's usage, and the page shows an estimate before running.
 
 The last comparisons (2026-10-31, English to Japanese, 6 chunks of a TED talk with human and auto-generated captions) measured all 10 models in the catalog. Translations were scored by whether speaker names were translated instead of left as "CA:" / "EM:", and whether lines stayed in place (each auto-generated line keeps its own key words and none of its neighbours'). Plan usage is in credits per hour of captions, from the measured tokens and the credit rates per model on [OpenAI's pricing page](https://learn.chatgpt.com/docs/pricing); the ChatGPT plan's included usage isn't published in tokens, but it is weighted by model in a similar way.
 
@@ -77,13 +92,13 @@ The captions come from `bench-data/captions.json`, which is not committed becaus
 
 ## Adding another translator
 
-Pass `createPromptTranslator(stream, languages, warmup)` a function that sends the prompt and returns the response text bit by bit as it arrives (`AsyncIterable<string>`), and you get a `Translator` for that language pair (`{ source, target }`, BCP 47 codes). `warmup` is optional and nothing calls it yet: the content script warms up the ChatGPT translator itself (`warmUpChatGPT` in `src/content/chatgpt.ts`, see [ttft.md](ttft.md)), so another translator needs its own call there. Pick a model with a short time to first token and turn reasoning off (none / minimal).
+Pass `createPromptTranslator(stream, languages, warmup)` a function that sends the prompt and returns the response text bit by bit as it arrives (`AsyncIterable<string>`), and you get a `Translator` for that language pair (`{ source, target }`, BCP 47 codes). `warmup` is optional and nothing calls it yet: the content script warms up the ChatGPT translator itself (`warmUpChatGPT` in the extension's `src/content/chatgpt.ts`, see [ttft.md](ttft.md)), so another translator needs its own call there. Pick a model with a short time to first token and turn reasoning off (none / minimal).
 
-Calling a real API from the content script is blocked by CORS, so the ChatGPT translator runs `stream` in the background service worker and receives the chunks over a port (`chrome.runtime.connect`, see `src/core/port-stream.ts`).
+Calling a real API from the content script is blocked by CORS, so the ChatGPT translator runs `stream` in the background service worker and receives the chunks over a port (`chrome.runtime.connect`, see `port-stream.ts` in the core).
 
 ## Interface localization
 
-The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts`); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits within Chrome's 132-character limit. The prompt sent to ChatGPT is not UI text and stays in Japanese.
+The popup, the sign-in and unlock pages, the notices on the video, the player button's label and the extension's description come from `packages/extension/public/_locales/<locale>/messages.json` through `chrome.i18n` (`src/shared/i18n.ts` in the extension); pages mark their static text with `data-i18n`. There is one locale for each target language (`zh_CN` / `zh_TW` for Simplified / Traditional Chinese, `pt_BR` for Portuguese) and English is the default. Core code returns message keys rather than text (`fatalNotice` in `errors.ts`), so it stays free of `chrome.*`. `tests/locales.test.ts` in the extension package checks that every locale has the same keys and placeholders, that every key the code uses exists and is used, and that the description fits within Chrome's 132-character limit. The prompt sent to ChatGPT is not UI text and stays in Japanese.
 
 ## CI and security
 
@@ -91,17 +106,17 @@ The CI workflow (`.github/workflows/ci.yml`) runs the typecheck, the tests and t
 
 ## Releasing
 
-1. Set the new version in both `package.json` and `public/manifest.json` (`tests/version.test.ts` checks they match).
+1. Set the new version in the repository's `package.json`. It is the only place: every manifest is built with it.
 2. Commit, tag, then push `main` and the tag: `git tag v0.1.0 && git push origin main v0.1.0`.
 
-The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches both versions, runs type checking and tests, builds with `pnpm build:release` (only the files the extension loads, which `tests/build.test.ts` lists), zips `dist/` as `jimaku-vX.Y.Z.zip`, and creates a GitHub release with the ZIP file. The release notes list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
+The Release workflow (`.github/workflows/release.yml`) runs on a `vX.Y.Z` tag. It checks that the tag matches that version, runs type checking and tests, builds with `pnpm build:release` (only the files the extension loads, which `tests/build.test.ts` in the extension package lists for each browser), zips `dist/chrome` as `jimaku-vX.Y.Z.zip` and `dist/firefox` as `jimaku-firefox-vX.Y.Z.zip`, and creates a GitHub release with both ZIP files. The release notes say which ZIP file is for which browser and that the Firefox one is unsigned and has no Windows Hello / Touch ID, then list every commit since the previous version tag (merge commits left out), oldest first and each linked, followed by a link comparing the two tags.
 
 Dependabot (`.github/dependabot.yml`) opens a weekly pull request for the dev dependencies (grouped into one) and another for the GitHub Actions, which updates both the pinned commit and the version in the comment.
 
 ## Extension ID
 
-The `key` in `public/manifest.json` (a public key) fixes the extension ID to `bineloccjadloiohooadhfclifcfdbai`, whatever folder the extension is loaded from. The saved sign-in and the passkey belong to that ID, and so does the "Jimaku" entry in ChatGPT's app usage settings (one per sign-in client). Without the key, an unpacked extension gets its ID from its folder's path, so each new folder started over with a new sign-in, a new passkey and a new entry in ChatGPT. `tests/extension-id.test.ts` checks the ID. The private key is not kept: loading an unpacked extension doesn't need it. The Chrome Web Store assigns its own key, so `key` has to be removed from a package uploaded there.
+The `key` in Chrome's manifest (a public key, in `packages/extension/scripts/manifest.ts`) fixes the extension ID to `bineloccjadloiohooadhfclifcfdbai`, whatever folder the extension is loaded from. The saved sign-in and the passkey belong to that ID, and so does the "Jimaku" entry in ChatGPT's app usage settings (one per sign-in client). Without the key, an unpacked extension gets its ID from its folder's path, so each new folder started over with a new sign-in, a new passkey and a new entry in ChatGPT. `tests/extension-id.test.ts` in the extension package checks the ID. The private key is not kept: loading an unpacked extension doesn't need it. The Chrome Web Store assigns its own key, so `key` has to be removed from a package uploaded there.
 
 ## Icon
 
-`assets/icon.svg` is the source of the extension's icon (an orange speech bubble with two white caption lines, on a transparent background); the popup's header inlines the same shape. The PNGs in `public/icons/` are made from it with `mise exec -- pnpm icons`, which needs `rsvg-convert` (`brew install librsvg`).
+`assets/icon.svg` is the source of the extension's icon (an orange speech bubble with two white caption lines, on a transparent background); the popup's header inlines the same shape. The PNGs in `packages/extension/public/icons/` are made from it with `mise exec -- pnpm icons`, which needs `rsvg-convert` (`brew install librsvg`).

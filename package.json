@@ -6,12 +6,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.ts",
-    "build:release": "node scripts/build.ts --release",
-    "test": "node --test 'tests/**/*.test.ts'",
-    "typecheck": "tsc --noEmit",
-    "bench": "node scripts/bench-ttft.ts",
-    "icons": "for size in 16 32 48 128; do rsvg-convert -w $size -h $size assets/icon.svg -o public/icons/icon-$size.png; done"
+    "build": "pnpm --filter @jimaku/extension run build",
+    "build:release": "pnpm --filter @jimaku/extension run build:release",
+    "test": "pnpm -r run test",
+    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/extension",
+    "bench": "pnpm --filter @jimaku/core run bench",
+    "icons": "for size in 16 32 48 128; do rsvg-convert -w $size -h $size assets/icon.svg -o packages/extension/public/icons/icon-$size.png; done"
   },
   "devDependencies": {
     "@types/chrome": "^0.3.7",

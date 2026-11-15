@@ -2,7 +2,9 @@
 
 An overview of the source code. See [How it works](how-it-works.md) for how jimaku behaves and [Development](development.md) for building it.
 
-- `src/core/` … Core logic with no dependencies on the DOM or `chrome.*`. Storage, `fetch` and the clock are passed in so the logic can be tested in isolation.
+The repository is a pnpm workspace of two packages: `packages/core` (`@jimaku/core`), the logic that touches neither the DOM nor the browser's extension APIs, with nearly all the tests; and `packages/extension` (`@jimaku/extension`), the extension itself, built for Chrome and Firefox from the same code. The extension imports the core as `@jimaku/core/<file>.ts`.
+
+- `packages/core/src/` … Core logic with no dependencies on the DOM or `chrome.*` (its typecheck runs without the `chrome` types). Storage, `fetch` and the clock are passed in so the logic can be tested in isolation.
   - `captions.ts` Parses json3 captions and finds the line at a playback time
   - `tracks.ts` Picks the caption track to translate and builds the timedtext URL
   - `caption-urls.ts` Tracks caption URLs requested by the player and waits for the next request
@@ -17,6 +19,7 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `head-start.ts` Starts fetching a video's captions when the pointer goes down on the button, and hands them to the click that follows
   - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions (from the bottom edge, or from the top in Shorts)
   - `video-page.ts` Which video the page shows, from its URL: a watch page or a Short
+  - `browser.ts` What Chrome and Firefox do differently, decided from the extension's own URL: the rule that catches the sign-in callback, and whether the sign-in can be saved behind a passkey
   - `metrics.ts` Measures how long the "…" placeholder remains on screen
   - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
   - `translator.ts` The pluggable translator interface `translate(lines, context, { onLine, signal }) → translations`
@@ -31,17 +34,22 @@ An overview of the source code. See [How it works](how-it-works.md) for how jima
   - `preview.ts` The popup's preview: a sample line and its translation in the chosen order
   - `model-bench.ts` The model benchmark's requests cut from real captions, and its summary of each model
   - `base64url.ts` base64url helpers
-- `src/bench/` … The model benchmark page and the prompts it compares, included only in development builds (see [development.md](development.md#comparing-models))
-- `src/background/main.ts` … The service worker: sign-in, tokens, translation requests
-- `src/popup/`, `src/callback/`, `src/unlock/`, `src/pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
-- `src/shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code
-- `src/shared/i18n.ts` … Provides interface text in the browser's language (`public/_locales/`)
-- `src/shared/settings.ts` … The target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
-- `src/content/` … Code that touches the YouTube page
-  - `main.ts` Entry point; wires the pieces together
-  - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
-  - `youtube.ts` Fetches the captions, and says where the player and its buttons are on a watch page and in Shorts
-  - `overlay.ts` The translation line
-  - `button.ts` The on/off button in the control bar (in Shorts, in the controls over the video)
-  - `translation-cache.ts` Asks the background for cached translations and sends it new ones
-- `src/page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script (from the watch page's player or the Shorts' one)
+- `packages/extension/src/` … The extension
+  - `bench/` … The model benchmark page and the prompts it compares, included only in development builds (see [development.md](development.md#comparing-models))
+  - `background/main.ts` … The background script (a service worker in Chrome, an event page in Firefox): sign-in, tokens, translation requests
+  - `popup/`, `callback/`, `unlock/`, `pages/` … The toolbar popup, the sign-in callback page, the unlock page, and the passkey (WebAuthn PRF) code they share
+  - `shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code
+  - `shared/i18n.ts` … Provides interface text in the browser's language (`packages/extension/public/_locales/`)
+  - `shared/settings.ts` … The target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
+  - `content/` … Code that touches the YouTube page
+    - `main.ts` Entry point; wires the pieces together
+    - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
+    - `youtube.ts` Fetches the captions, and says where the player and its buttons are on a watch page and in Shorts
+    - `overlay.ts` The translation line
+    - `button.ts` The on/off button in the control bar (in Shorts, in the controls over the video)
+    - `translation-cache.ts` Asks the background for cached translations and sends it new ones
+  - `page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script (from the watch page's player or the Shorts' one)
+- `packages/extension/public/` … The pages' HTML and CSS, the icons and the interface text, copied into every build as they are
+- `packages/extension/scripts/` … The build
+  - `manifest.ts` The manifest for each browser: everything shared, and what Chrome and Firefox need differently (the key or the add-on ID, how the background runs)
+  - `extension-build.ts`, `build.ts` Bundles the code and writes the manifest into `dist/chrome` and `dist/firefox`
