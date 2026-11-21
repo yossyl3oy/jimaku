@@ -11,14 +11,15 @@ The repository is a pnpm workspace of two packages: `packages/core` (`@jimaku/co
   - `languages.ts` Defines the available target languages and provides helpers for comparing and naming language codes
   - `button-glyph.ts` The character on the on/off button for each target language (訳, 역, 中, П or the language code)
   - `chunks.ts` The next range to translate (10 lines from the line being watched) and the surrounding lines used as context
-  - `prompt.ts` Builds the prompt, and parses the "number<TAB>translation" stream one line at a time
+  - `prompt.ts` Builds the prompt (naming YouTube or X), and parses the "number<TAB>translation" stream one line at a time
   - `translate.ts` Retries only the lines missing from the response
   - `session.ts` Translates a video sequentially from the current caption line, about 5 minutes ahead of playback. Cancels the pending request when playback jumps
   - `translation-cache.ts` The translation cache every tab shares, per video, track and target language (kept by the background)
   - `controller.ts` Decides whether to start or stop the translation from the open video and jimaku's on/off, which every video opens with off
   - `head-start.ts` Starts fetching a video's captions when the pointer goes down on the button, and hands them to the click that follows
-  - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions (from the bottom edge, or from the top in Shorts)
+  - `layout.ts` Calculates the scale needed to fit text on a single line and positions it relative to YouTube's captions (from the bottom edge, or from the top in Shorts). On X, where X's own captions are hidden, it uses the placement for CC off: near the bottom, and over the control bar while it shows
   - `video-page.ts` Which video the page shows, from its URL: a watch page or a Short
+  - `x-video.ts` X's videos: which caption track to translate, the captions in its cues, the post text that stands in for a title, and the id translations are cached under
   - `browser.ts` What Chrome and Firefox do differently, decided from the extension's own URL: the rule that catches the sign-in callback, and whether the sign-in can be saved behind a passkey
   - `metrics.ts` Measures how long the "…" placeholder remains on screen
   - `bridge.ts` Messages with the page-side script (keeps only the needed fields of the player info)
@@ -41,14 +42,17 @@ The repository is a pnpm workspace of two packages: `packages/core` (`@jimaku/co
   - `shared/chrome-store.ts` … Adapts `chrome.storage` to the interface expected by the core code
   - `shared/i18n.ts` … Provides interface text in the browser's language (`packages/extension/public/_locales/`)
   - `shared/settings.ts` … The target language and where the translation goes (`chrome.storage`), shared by the content script and the popup
-  - `content/` … Code that touches the YouTube page
+  - `content/` … Code that touches the YouTube page, and the pieces X's script shares with it (the overlay, the button, the translator, the cache)
     - `main.ts` Entry point; wires the pieces together
     - `chatgpt.ts` Provides the ChatGPT translator interface for the content script
     - `youtube.ts` Fetches the captions, and says where the player and its buttons are on a watch page and in Shorts
-    - `overlay.ts` The translation line
+    - `overlay.ts` The translation line (on X, with the source line while X's CC is on)
     - `button.ts` The on/off button in the control bar (in Shorts, in the controls over the video)
     - `translation-cache.ts` Asks the background for cached translations and sends it new ones
   - `page/player-bridge.ts` … Runs on the page side (MAIN world) and passes the player info to the content script (from the watch page's player or the Shorts' one)
+  - `x/` … The content script for X (`x.js`)
+    - `main.ts` Entry point: a button for every player whose CC button shows, one video translated at a time
+    - `player.ts` X's markup: the players, their CC buttons and control bars, the posts, and reading a video's caption tracks
 - `packages/extension/public/` … The pages' HTML and CSS, the icons and the interface text, copied into every build as they are
 - `packages/extension/scripts/` … The build
   - `manifest.ts` The manifest for each browser: everything shared, and what Chrome and Firefox need differently (the key or the add-on ID, how the background runs)

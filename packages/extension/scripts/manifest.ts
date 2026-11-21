@@ -49,9 +49,11 @@ export const manifestFor = (browser: Browser, version: string) => ({
       '32': 'icons/icon-32.png',
     },
   },
+  // YouTube's player info is read from the page's world (page.js). On X everything needed is in the page's DOM
   content_scripts: [
     { matches: ['https://www.youtube.com/*'], js: ['page.js'], run_at: 'document_start', world: 'MAIN' },
     { matches: ['https://www.youtube.com/*'], js: ['content.js'], run_at: 'document_idle' },
+    { matches: ['https://x.com/*'], js: ['x.js'], run_at: 'document_idle' },
   ],
   permissions: ['storage', 'declarativeNetRequestWithHostAccess'],
   host_permissions: ['https://auth.openai.com/*', 'https://api.openai.com/*', 'http://127.0.0.1/*'],

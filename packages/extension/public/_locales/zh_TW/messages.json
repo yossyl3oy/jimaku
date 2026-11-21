@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "將 YouTube 字幕翻譯成所選語言並顯示在影片上。使用 ChatGPT 方案翻譯，可用播放器中的按鈕開關。"
+    "message": "將 YouTube 和 X 的影片字幕翻譯成所選語言並顯示在影片上。使用 ChatGPT 方案翻譯，可用播放器中的按鈕開關。"
   },
   "appTagline": {
     "message": "字幕翻譯"

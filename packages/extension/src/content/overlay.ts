@@ -1,7 +1,9 @@
 // Shows the translation over the video. The source is left to YouTube's own captions (the CC button); while they are
 // shown, the translation goes under them or over them, moving them to make room when it takes their place.
+// On X the overlay shows the source line too, while X's CC button is on (src/x/ hides X's own captions then, since
+// they can't be moved), under or over the translation as chosen in the popup.
 
-import { fitScale, type Edge, type Placement } from '@jimaku/core/layout.ts';
+import { fitScale, type Edge, type Placement, type Position } from '@jimaku/core/layout.ts';
 
 const HOST_ID = 'jimaku-overlay';
 const SHIFT_STYLE_ID = 'jimaku-caption-shift';
@@ -39,12 +41,15 @@ const STYLE = `
   font-family: "YouTube Noto", Roboto, sans-serif;
   line-height: 1.35;
 }
+/* With a source line (on X only), the two lines in the order chosen: display: flex lays out the order property */
+.box.with-source { display: flex; flex-direction: column; align-items: center; }
+.box.translation-above .translation { order: -1; }
 /* The line carries its language (lang), so Chinese and Korean get the browser's font for that script.
    Japanese fonts are named only for Japanese, so Chinese is not drawn with Japanese glyph shapes */
 .line:lang(ja) { font-family: "YouTube Noto", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif; }
 /* In Shorts, from the top edge, where YouTube puts the captions there */
 .box.top { bottom: auto; top: var(--offset, 10%); }
-.box[hidden] { display: none; }
+.box[hidden], .line[hidden] { display: none; }
 .line {
   display: block;
   width: fit-content;
@@ -56,6 +61,7 @@ const STYLE = `
 /* A long line is shrunk slightly with --fit to fit on one line. If it still overflows, it wraps so no meaning is lost */
 .line { max-width: 100%; box-sizing: border-box; }
 .translation { font-size: calc(clamp(13px, 2.9cqw, 34px) * var(--fit, 1)); color: #ffe066; }
+.source { font-size: calc(clamp(13px, 2.9cqw, 34px) * var(--fit, 1)); }
 .measuring { white-space: nowrap; }
 .translation.pending { color: rgba(255, 255, 255, 0.5); }
 /* Why the translation stopped (not signed in, usage limit, ...) */
@@ -76,9 +82,16 @@ const STYLE = `
 .notice[hidden] { display: none; }
 `;
 
+// The caption line at the playback position: its translation (undefined until translated, '' when it could not be),
+// and its source, which shows only on an overlay mounted with the source's language (X's, while X's captions are on).
+// On YouTube the source is there too (the session's lines carry it) but never shows: YouTube's captions are the source
+export type OverlayLine = { translation: string | undefined; source?: string };
+
 export type Overlay = {
-  // The caption line at the playback position (null when there is none); its translation is undefined until translated
-  render(line: { translation: string | undefined } | null): void;
+  // The caption line at the playback position (null when there is none)
+  render(line: OverlayLine | null): void;
+  // Where the translation goes next to the source line: under it (below) or over it (above)
+  setOrder(position: Position): void;
   // Puts the translation placement.offset away from the edge and moves YouTube's captions there by placement.shift
   place(placement: Placement): void;
   // The translation's height on screen (0 while hidden)
@@ -88,9 +101,16 @@ export type Overlay = {
   destroy(): void;
 };
 
-// target is the language of the translation and noticeLanguage that of the notices (BCP 47 codes). edge is the one
-// YouTube's captions sit at, which the translation is placed from
-export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage: string, edge: Edge = 'bottom'): Overlay => {
+// target is the language of the translation, noticeLanguage that of the notices and source that of the source line
+// (BCP 47 codes); without source, no source line ever shows. edge is the one YouTube's captions sit at, which the
+// translation is placed from
+export const mountOverlay = (
+  player: HTMLElement,
+  target: string,
+  noticeLanguage: string,
+  edge: Edge = 'bottom',
+  source?: string
+): Overlay => {
   document.getElementById(HOST_ID)?.remove();
   document.getElementById(SHIFT_STYLE_ID)?.remove();
 
@@ -103,13 +123,19 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
   const box = document.createElement('div');
   box.className = 'box';
   box.classList.toggle('top', edge === 'top');
+  box.classList.toggle('with-source', source !== undefined);
   box.hidden = true;
   const translationEl = document.createElement('span');
   translationEl.className = 'line translation';
   translationEl.lang = target;
   // lang does not set the writing direction; auto lays out a right-to-left translation right to left
   translationEl.dir = 'auto';
-  box.append(translationEl);
+  const sourceEl = document.createElement('span');
+  sourceEl.className = 'line source';
+  if (source) sourceEl.lang = source;
+  sourceEl.dir = 'auto';
+  sourceEl.hidden = true;
+  box.append(sourceEl, translationEl);
   const noticeEl = document.createElement('div');
   noticeEl.className = 'notice';
   noticeEl.classList.toggle('top', edge === 'top');
@@ -133,25 +159,39 @@ export const mountOverlay = (player: HTMLElement, target: string, noticeLanguage
   };
   // Measure again when the player's width changes (fullscreen, theater mode, etc.)
   const resizeObserver = new ResizeObserver(() => {
-    if (!box.hidden) fitLine(translationEl);
+    for (const el of [sourceEl, translationEl]) if (!box.hidden && !el.hidden) fitLine(el);
   });
   resizeObserver.observe(host);
 
   // null: no caption line; undefined: waiting for its translation
   let shown: string | null | undefined = null;
+  let shownSource: string | null = null;
   let placed: Placement | null = null;
 
   return {
     render(line) {
       const translation = line ? line.translation : null;
-      if (translation === shown) return;
+      const lineSource = (source !== undefined && line?.source) || null;
+      if (translation === shown && lineSource === shownSource) return;
       shown = translation;
-      // While waiting, show "…"; hide it with no caption line, or for a line that could not be translated (empty string)
-      box.hidden = translation === null || translation === '';
-      if (box.hidden) return;
+      shownSource = lineSource;
+      // While waiting, show "…"; hide it with no caption line, or for a line that could not be translated (empty string).
+      // The source line shows whenever it is given
+      const withTranslation = translation !== null && translation !== '';
+      translationEl.hidden = !withTranslation;
+      sourceEl.hidden = lineSource === null;
+      box.hidden = !withTranslation && lineSource === null;
+      if (lineSource !== null) {
+        sourceEl.textContent = lineSource;
+        fitLine(sourceEl);
+      }
+      if (!withTranslation) return;
       translationEl.textContent = translation ?? '…';
       translationEl.classList.toggle('pending', translation === undefined);
       fitLine(translationEl);
+    },
+    setOrder(position) {
+      box.classList.toggle('translation-above', position === 'above');
     },
     setNotice(text) {
       noticeEl.hidden = text === null;

@@ -109,7 +109,8 @@ target.addEventListener('change', () => {
   showPreview();
   saveTargetLanguage(target.value).catch((error) => showError(t('errSaveTarget', (error as Error).message)));
 });
-// Under or over YouTube's captions; open videos move it right away (the content script watches this setting)
+// Under or over the source captions (YouTube's, or on X the source line jimaku shows); open videos move it right away
+// (the content scripts watch this setting)
 position.addEventListener('change', () => {
   showError(null);
   showPreview();

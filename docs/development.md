@@ -11,7 +11,7 @@ mise exec -- pnpm build:release   # Only what the extension loads (what CI and t
 
 Both browsers are built from the same code; only `manifest.json` differs (`packages/extension/scripts/manifest.ts`). The commands run from the repository's root, which is a pnpm workspace (see [layout.md](layout.md)).
 
-- Chrome: load `dist/chrome` from `chrome://extensions` ("Load unpacked"). After each build, click the reload button on Jimaku there and reload the open YouTube tabs.
+- Chrome: load `dist/chrome` from `chrome://extensions` ("Load unpacked"). After each build, click the reload button on Jimaku there and reload the open YouTube and X tabs.
 - Firefox: open `about:debugging`, click "This Firefox", then "Load Temporary Add-on…" and pick any file in `dist/firefox`. After each build, click Reload there. A temporary add-on is gone when Firefox restarts.
 
 ## Chrome and Firefox
@@ -22,9 +22,11 @@ What differs between the two, and where it is handled:
 - **The extension's own address.** Chrome's is `chrome-extension://<id>/` with the ID fixed by the manifest's `key` (below). Firefox's is `moz-extension://<uuid>/` with a UUID made anew for every installation, so the rule that catches the sign-in callback builds its target from `chrome.runtime.getURL('')` (`callbackRule` in the core's `browser.ts`). Firefox's manifest also makes the callback page web accessible to `http://127.0.0.1/*`, the address being redirected: Firefox's own tests want it to match too, and the redirect was tried only that way.
 - **The add-on ID.** Firefox needs `browser_specific_settings.gecko.id` (`jimaku@yossyl3oy.github.io`) to install an extension from a file or sign it, and takes no `key`. Like the key, it must never change. The oldest Firefox supported is 128, the first to run a content script in the page's world.
 - **The passkey.** The saved sign-in is unlocked by a passkey whose relying party is the extension itself. Firefox does not let an extension be the relying party of its own passkey ([bug 1693562](https://bugzilla.mozilla.org/show_bug.cgi?id=1693562)), so there the callback page doesn't offer to save the sign-in and it stays in memory (`passkeysSupported` in `browser.ts`).
-- **Signing.** Firefox's release and beta versions install only extensions signed by Mozilla. The Firefox ZIP of a release is not signed, so it is for temporary loading, and for the Firefox versions and forks that can turn the requirement off (see the README). Signing it would mean submitting each version to addons.mozilla.org, which also asks new extensions to declare the data they send (`data_collection_permissions`; jimaku sends the captions and the video's title to OpenAI).
+- **Signing.** Firefox's release and beta versions install only extensions signed by Mozilla. The Firefox ZIP of a release is not signed, so it is for temporary loading, and for the Firefox versions and forks that can turn the requirement off (see the README). Signing it would mean submitting each version to addons.mozilla.org, which also asks new extensions to declare the data they send (`data_collection_permissions`; jimaku sends the captions and the video's title to OpenAI, and on X the post's text).
 
 Checked by hand in Firefox on 2026-11-14, with `dist/firefox` loaded as a temporary add-on: the 訳 button, the sign-in through the callback rule, and translating. The benchmark page and installing the unsigned ZIP for good were not tried there.
+
+X (`x.js`) was checked by hand in Chrome on 2026-11-21, with `dist/chrome` loaded: the 訳 button in X's control bar (in a landscape and a portrait video) and translating with the ChatGPT plan. Before that, on 2026-11-20, its bundle ran inside x.com in a Chromium browser, with a stand-in for the `chrome.*` APIs and a translator that echoes each line: reading the captions (a creator's and auto-generated ones), the translation over the control bar, the original line with it while X's CC is on (with X's own hidden), both orders, a seek, turning another video on, and a post scrolling away. Not tried: X in Firefox (hiding X's captions there included), fullscreen, and X's media viewer.
 
 ## Tests
 

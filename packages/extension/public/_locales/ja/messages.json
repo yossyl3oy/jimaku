@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "YouTube の字幕を選んだ言語に訳して動画に出す。原文は YouTube の CC で。翻訳は ChatGPT プラン。操作バーのボタンで on/off"
+    "message": "YouTube と X の動画の字幕を選んだ言語に訳して動画に出す。原文は CC で。翻訳は ChatGPT プラン。操作バーのボタンで on/off"
   },
   "appTagline": {
     "message": "字幕翻訳"

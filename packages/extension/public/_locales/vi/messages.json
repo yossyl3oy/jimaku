@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Hiển thị bản dịch phụ đề YouTube trên video bằng gói ChatGPT của bạn. Bật/tắt bằng nút trên thanh điều khiển của trình phát."
+    "message": "Hiển thị bản dịch phụ đề YouTube và X trên video bằng gói ChatGPT của bạn. Bật/tắt bằng nút trên thanh điều khiển của trình phát."
   },
   "appTagline": {
     "message": "Dịch phụ đề"

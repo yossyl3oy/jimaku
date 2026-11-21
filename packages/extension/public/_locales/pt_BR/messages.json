@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Mostra no vídeo uma tradução das legendas do YouTube usando seu plano do ChatGPT. Liga e desliga pela barra do player."
+    "message": "Mostra no vídeo uma tradução das legendas do YouTube e do X usando seu plano do ChatGPT. Liga e desliga pela barra do player."
   },
   "appTagline": {
     "message": "Tradução de legendas"

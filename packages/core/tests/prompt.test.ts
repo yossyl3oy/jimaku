@@ -31,6 +31,58 @@ test('buildPrompt: includes the title, surrounding lines and the numbered lines 
   assert.match(prompt, /\n1\t1行目の訳\n2\t2行目の訳$/);
 });
 
+// The YouTube prompt is the one the model benchmark compared (see prompt.ts), so any change to it shows up here
+test('buildPrompt: the YouTube prompt stays exactly as benchmarked', () => {
+  const prompt = buildPrompt(['transformers actually work', 'right?'], context, enJa);
+  assert.equal(prompt, buildPrompt(['transformers actually work', 'right?'], context, enJa, 'youtube'));
+  assert.equal(
+    prompt,
+    `あなたは YouTube 動画の英語字幕を日本語字幕に訳す翻訳者です。
+
+## ルール
+1. 「訳す行」の各行を日本語に訳す。行数は 2。
+2. 1行は画面に1つずつ出る字幕。行をまとめたり、別の行に言葉を移したりしない。
+3. 自動生成字幕では1つの文が複数の行にまたがる。前後の行から文全体の意味をつかみ、その行が担う部分を自然な日本語にする。語順の都合で訳しにくければ、意味の切れ目で分けてよい。
+4. 「直前の行」「直後の行」は文脈にだけ使う。人名・呼び方・口調をそろえる。直前の行の訳は変えない。
+5. 字幕としてひと目で読める、短く自然な日本語にする。
+
+## 動画タイトル
+How Transformers Work
+
+## 直前の行（→ のあとは表示済みの訳）
+- so today we're going
+  → 今日は
+- to talk about how
+
+## 訳す行（番号<TAB>英語）
+<lines>
+1\ttransformers actually work
+2\tright?
+</lines>
+
+## 直後の行
+- [Music]
+
+## 出力
+訳す行と同じ番号を付け、「番号<TAB>訳」を1行ずつ、番号順に出す。説明やコードブロックは付けない。
+1\t1行目の訳
+2\t2行目の訳`
+  );
+});
+
+test('buildPrompt: on X, names a video posted to X and the post text instead of a title', () => {
+  const prompt = buildPrompt(['a'], { ...context, title: 'Applications are now open' }, enJa, 'x');
+  assert.match(prompt, /^あなたは X（旧Twitter）に投稿された動画の英語字幕を日本語字幕に訳す翻訳者です。/);
+  assert.match(prompt, /## 投稿の本文\nApplications are now open\n/);
+  assert.doesNotMatch(prompt, /YouTube|動画タイトル/);
+  // Everything else is the YouTube prompt's
+  const youtube = buildPrompt(['a'], { ...context, title: 'Applications are now open' }, enJa);
+  assert.equal(
+    prompt.replace('X（旧Twitter）に投稿された動画', 'YouTube 動画').replace('## 投稿の本文', '## 動画タイトル'),
+    youtube
+  );
+});
+
 test('buildPrompt: (なし) when there is no context', () => {
   const prompt = buildPrompt(['a'], { before: [], after: [] }, enJa);
   assert.match(prompt, /## 直前の行（→ のあとは表示済みの訳）\n\(なし\)/);
@@ -137,6 +189,18 @@ test('createPromptTranslator: passes the prompt to the stream and reports lines 
   assert.deepEqual(result, ['実際の仕組み', 'ですよね']);
   assert.deepEqual(seen, [0, 1]);
   assert.match(prompts[0], /transformers actually work/);
+});
+
+test('createPromptTranslator: asks with the prompt for the site it was made for (YouTube unless told)', async () => {
+  const prompts: string[] = [];
+  const stream: StreamFn = (prompt) => {
+    prompts.push(prompt);
+    return streamOf('1\tあ\n')(prompt);
+  };
+  await createPromptTranslator(stream, enJa).translate(['a'], context);
+  await createPromptTranslator(stream, enJa, undefined, 'x').translate(['a'], context);
+  assert.equal(prompts[0], buildPrompt(['a'], context, enJa, 'youtube'));
+  assert.equal(prompts[1], buildPrompt(['a'], context, enJa, 'x'));
 });
 
 test('createPromptTranslator: stops reading when aborted', async () => {

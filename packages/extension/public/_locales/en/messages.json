@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Translates YouTube captions using your ChatGPT plan. Turn translations on or off from the player's control bar."
+    "message": "Translates YouTube and X video captions using your ChatGPT plan. Turn translations on or off from the player's control bar."
   },
   "appTagline": {
     "message": "Subtitle translation"

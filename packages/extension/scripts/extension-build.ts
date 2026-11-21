@@ -35,6 +35,7 @@ export const buildExtension = async ({ browser, outdir, release, logLevel = 'inf
     entryPoints: {
       content: inPackage('src/content/main.ts'),
       page: inPackage('src/page/player-bridge.ts'),
+      x: inPackage('src/x/main.ts'),
       background: inPackage('src/background/main.ts'),
       popup: inPackage('src/popup/main.ts'),
       callback: inPackage('src/callback/main.ts'),

@@ -2,7 +2,7 @@
 
 <h1 align="center">Jimaku</h1>
 
-A browser extension for Chrome and Firefox that translates YouTube captions and displays them on the video. Turn on YouTube's captions with the CC button to see the original text, with Jimaku's translation below or above it. Caption translation is its only feature.
+A browser extension for Chrome and Firefox that translates the captions of YouTube videos and of videos posted to X, and displays them on the video. Turn on the captions with the CC button to see the original text, with Jimaku's translation below or above it. Caption translation is its only feature.
 
 Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for open-source and locally hosted apps). Claude API support is planned but not yet available.
 
@@ -12,6 +12,7 @@ Translation uses your ChatGPT plan through OpenAI's Sign in with ChatGPT (for op
 
 - A single line of translation below or above YouTube's captions; with CC off, only the translation is shown
 - Works on regular videos and on Shorts
+- Works on videos posted to X (x.com) that have captions, the creator's own or X's auto-generated ones, in the timeline and in posts
 - 14 target languages, with Japanese as the default
 - Translation starts at the current playback position, streams in line by line, and stays about 5 minutes ahead of playback, so mostly the part you watch counts toward your plan's usage
 - Translations are cached and shared by every tab until the browser closes, so turning Jimaku on again, returning to a video or opening it in another tab reuses existing translations
@@ -55,10 +56,12 @@ This builds `dist/chrome` and `dist/firefox`. In Chrome, open `chrome://extensio
 2. Open a YouTube video that has captions and click the 訳 button in the player's control bar, just left of the CC button. The translation of each caption line appears at the bottom of the video. In Shorts, the 訳 button is in the controls at the top right of the video, also just left of the CC button, and the translation appears near the top, where YouTube shows captions in Shorts.
 3. Click the 訳 button again to turn Jimaku off. Every video opens with Jimaku off, each Short you swipe to included, and turning it on applies only to the video you're watching, so only the videos you choose count toward your plan's usage. It works independently of CC: turn CC on to see the original captions.
 
+On X, a video that has captions shows the 訳 button in its control bar (which X shows while the pointer is over the video), just left of X's CC button. One video is translated at a time: turning Jimaku on for another video turns it off for the one before, and so does scrolling far enough that X takes the post away. With X's CC on, Jimaku shows the original line itself together with the translation, in place of X's own captions. A video whose caption file starts after the video's end (some start at 1:00:00) has nothing to translate, as X shows nothing for it either.
+
 In the popup (shown here in English; it follows the browser's language):
 
 - **Translate into** — the language to translate into. Changing it restarts translation for open videos in the new language. The button's character follows it: 訳 for Japanese, 역 for Korean, 中 for Chinese, П for Russian and the language code (EN, ES, …) for the others.
-- **Subtitle position** — Below original captions (the default) or Above original captions. Changes take effect immediately, and the preview shows the selected order.
+- **Subtitle position** — Below original captions (the default) or Above original captions. Changes take effect immediately, and the preview shows the selected order. On X this sets the order of the two lines Jimaku shows with CC on.
 - **Manage usage** — opens your ChatGPT usage settings. Jimaku doesn't display usage statistics, because Sign in with ChatGPT offers no way to read them.
 
 When translation can't continue (for example: not signed in, locked after a browser restart, usage limit reached, or the extension was updated while the tab was open), it stops and says why near the top of the video. Translation resumes automatically after you sign in or unlock; after an update, reload the tab.

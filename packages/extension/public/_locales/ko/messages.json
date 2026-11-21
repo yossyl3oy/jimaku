@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "YouTube 자막을 선택한 언어로 번역해 영상 위에 표시합니다. ChatGPT 요금제로 번역하며, 플레이어의 버튼으로 켜고 끕니다."
+    "message": "YouTube와 X 동영상의 자막을 선택한 언어로 번역해 영상 위에 표시합니다. ChatGPT 요금제로 번역하며, 플레이어의 버튼으로 켜고 끕니다."
   },
   "appTagline": {
     "message": "자막 번역"

@@ -4,7 +4,7 @@
 import { STORAGE_KEYS } from '@jimaku/core/chatgpt-auth.ts';
 import { ProviderError } from '@jimaku/core/errors.ts';
 import type { Languages } from '@jimaku/core/languages.ts';
-import { createPromptTranslator } from '@jimaku/core/prompt.ts';
+import { createPromptTranslator, type Site } from '@jimaku/core/prompt.ts';
 import { portStream, TRANSLATE_PORT } from '@jimaku/core/port-stream.ts';
 import type { Translator } from '@jimaku/core/translator.ts';
 
@@ -23,8 +23,9 @@ const connect = () => {
   return chrome.runtime.connect({ name: TRANSLATE_PORT });
 };
 
-export const createChatGPTTranslator = (languages: Languages): Translator =>
-  createPromptTranslator(portStream(connect), languages, warmUpChatGPT);
+// site: where the video plays (YouTube's or X's content script), which the prompt names
+export const createChatGPTTranslator = (languages: Languages, site: Site = 'youtube'): Translator =>
+  createPromptTranslator(portStream(connect), languages, warmUpChatGPT, site);
 
 export const watchSignIn = (onSignIn: () => void) => {
   chrome.storage.onChanged.addListener((changes, area) => {

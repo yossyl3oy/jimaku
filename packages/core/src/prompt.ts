@@ -18,7 +18,23 @@ export const LINES_CLOSE = '</lines>';
 // One line to translate. Numbers start at 1
 export const numberedLine = (index: number, text: string) => `${index + 1}\t${text}`;
 
-export const buildPrompt = (lines: readonly string[], context: TranslationContext, languages: Languages): string => {
+// Where the video plays, which the prompt names along with what its title is. The YouTube wording is the one the model
+// benchmark compared, so it stays as it was (tests/prompt.test.ts pins it). On X a video has no title of its own: the
+// post's text stands in for it
+export const SITES = ['youtube', 'x'] as const;
+export type Site = (typeof SITES)[number];
+const SITE_WORDS: Record<Site, { video: string; title: string }> = {
+  youtube: { video: 'YouTube 動画', title: '動画タイトル' },
+  x: { video: 'X（旧Twitter）に投稿された動画', title: '投稿の本文' },
+};
+
+export const buildPrompt = (
+  lines: readonly string[],
+  context: TranslationContext,
+  languages: Languages,
+  site: Site = 'youtube'
+): string => {
+  const words = SITE_WORDS[site];
   const sourceName = languageName(languages.source, 'ja');
   const targetName = languageName(languages.target, 'ja');
   const before = context.before.length
@@ -30,7 +46,7 @@ export const buildPrompt = (lines: readonly string[], context: TranslationContex
     : '(なし)';
   const after = context.after.length ? context.after.map((line) => `- ${line}`).join('\n') : '(なし)';
 
-  return `あなたは YouTube 動画の${sourceName}字幕を${targetName}字幕に訳す翻訳者です。
+  return `あなたは ${words.video}の${sourceName}字幕を${targetName}字幕に訳す翻訳者です。
 
 ## ルール
 1. 「訳す行」の各行を${targetName}に訳す。行数は ${lines.length}。
@@ -39,7 +55,7 @@ export const buildPrompt = (lines: readonly string[], context: TranslationContex
 4. 「直前の行」「直後の行」は文脈にだけ使う。人名・呼び方・口調をそろえる。直前の行の訳は変えない。
 5. 字幕としてひと目で読める、短く自然な${targetName}にする。
 
-## 動画タイトル
+## ${words.title}
 ${context.title ?? '(不明)'}
 
 ## 直前の行（→ のあとは表示済みの訳）
@@ -148,11 +164,17 @@ export const createLineParser = (
 // A stream that sends the prompt and returns the response text a little at a time
 export type StreamFn = (prompt: string, signal?: AbortSignal) => AsyncIterable<string>;
 
-// Any stream becomes a Translator into one language pair. The ChatGPT plan implements this stream (and the mock does).
-export const createPromptTranslator = (stream: StreamFn, languages: Languages, warmup?: () => void): Translator => ({
+// Any stream becomes a Translator into one language pair, for videos on one site. The ChatGPT plan implements this
+// stream (and the mock does).
+export const createPromptTranslator = (
+  stream: StreamFn,
+  languages: Languages,
+  warmup?: () => void,
+  site: Site = 'youtube'
+): Translator => ({
   async translate(lines: string[], context: TranslationContext, options: TranslateOptions = {}) {
     const parser = createLineParser(lines, options.onLine);
-    for await (const chunk of stream(buildPrompt(lines, context, languages), options.signal)) {
+    for await (const chunk of stream(buildPrompt(lines, context, languages, site), options.signal)) {
       options.signal?.throwIfAborted();
       parser.feed(chunk);
     }

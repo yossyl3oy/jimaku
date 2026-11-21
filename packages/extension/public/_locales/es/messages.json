@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Muestra en el vídeo una traducción de los subtítulos de YouTube con tu plan de ChatGPT. Se activa desde la barra del reproductor."
+    "message": "Traduce los subtítulos de YouTube y X con tu plan de ChatGPT y los muestra en el vídeo. Se activa desde la barra del reproductor."
   },
   "appTagline": {
     "message": "Traducción de subtítulos"

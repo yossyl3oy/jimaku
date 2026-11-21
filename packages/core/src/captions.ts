@@ -25,12 +25,16 @@ export const parseJson3 = (data: Json3): Caption[] => {
     }))
     .filter((caption) => caption.text.length > 0);
 
-  // Auto-generated captions overlap the next line in time, so a line disappears once the next one appears.
-  return captions.map((caption, i) => {
+  return trimOverlaps(captions);
+};
+
+// Auto-generated captions overlap the next line in time, so a line disappears once the next one appears. Only one line
+// shows at a time (findCaptionIndex looks for the one line at a time). Assumes captions are sorted by startTime.
+export const trimOverlaps = (captions: Caption[]): Caption[] =>
+  captions.map((caption, i) => {
     const next = captions[i + 1];
     return next ? { ...caption, endTime: Math.min(caption.endTime, next.startTime) } : caption;
   });
-};
 
 // Index of the caption shown at time, or null if none. Assumes captions are sorted by startTime.
 export const findCaptionIndex = (captions: Caption[], time: number): number | null => {

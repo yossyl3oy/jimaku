@@ -45,6 +45,12 @@ test('manifest: every browser asks for the same permissions, and no more than th
     const manifest = manifestFor(browser, '1.2.3');
     assert.deepEqual(manifest.permissions, ['storage', 'declarativeNetRequestWithHostAccess'], browser);
     assert.deepEqual(manifest.host_permissions, ['https://auth.openai.com/*', 'https://api.openai.com/*', 'http://127.0.0.1/*'], browser);
-    assert.deepEqual(manifest.content_scripts.map((script) => script.matches), [['https://www.youtube.com/*'], ['https://www.youtube.com/*']], browser);
+    assert.deepEqual(
+      manifest.content_scripts.map((script) => script.matches),
+      [['https://www.youtube.com/*'], ['https://www.youtube.com/*'], ['https://x.com/*']],
+      browser
+    );
+    // X's script runs in the content script's own world: nothing of jimaku runs in X's page
+    assert.deepEqual(manifest.content_scripts[2], { matches: ['https://x.com/*'], js: ['x.js'], run_at: 'document_idle' }, browser);
   }
 });

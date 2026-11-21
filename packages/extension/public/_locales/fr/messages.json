@@ -1,6 +1,6 @@
 {
   "extDescription": {
-    "message": "Affiche sur la vidéo une traduction des sous-titres YouTube avec votre forfait ChatGPT. S'active depuis la barre du lecteur."
+    "message": "Affiche sur la vidéo une traduction des sous-titres YouTube et X avec votre forfait ChatGPT. S'active depuis la barre du lecteur."
   },
   "appTagline": {
     "message": "Traduction des sous-titres"

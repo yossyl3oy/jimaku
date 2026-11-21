@@ -1,5 +1,6 @@
 // Puts jimaku's on/off button in the player's control bar (just left of the CC button), or in Shorts in the controls
-// over the video (just left of their CC button). YouTube's own CC button is left alone. Like the CC button, the icon shows the state itself:
+// over the video (just left of their CC button). YouTube's own CC button is left alone. X's players (src/x/) build
+// their buttons from the same pieces (createToggle, renderToggle). Like the CC button, the icon shows the state itself:
 // a white plate while on and a transparent frame while off (YouTube's current player no longer
 // draws the red underline under pressed buttons). The character on it follows the language translated into.
 
@@ -37,9 +38,10 @@ const createGlyph = ({ text, fontSize, y, fontFamily }: ButtonGlyph, fill: strin
 
 // On: a white plate with the character cut out. Off: a 2px white frame on a transparent background with the
 // character in white, the frame drawn like the CC button's (rounded outside, square inside).
-// Sized 24x24 like the CC button. YouTube enforces Trusted Types, so innerHTML isn't used.
-const createIcon = (pressed: boolean, glyph: ButtonGlyph, shadow: boolean) => {
-  const svg = createSvgElement('svg', { viewBox: '0 0 24 24', width: '24', height: '24' });
+// Sized 24x24 like the CC button (size, when given: as big as the icon of X's CC button). YouTube enforces Trusted
+// Types, so innerHTML isn't used.
+const createIcon = (pressed: boolean, glyph: ButtonGlyph, shadow: boolean, size = 24) => {
+  const svg = createSvgElement('svg', { viewBox: '0 0 24 24', width: String(size), height: String(size) });
   // The shadow of the icons in Shorts' controls (measured)
   if (shadow) svg.style.filter = 'drop-shadow(rgba(0, 0, 0, 0.8) 0px 0px 1px)';
   if (pressed) {
@@ -68,7 +70,7 @@ export type ButtonSlot = { before: string; className: string; shadow: boolean };
 // onApproach when the pointer or the focus reaches the button, onPress when the pointer goes down on it
 export type ToggleHandlers = { onClick: () => void; onApproach?: () => void; onPress?: () => void };
 
-const createButton = ({ onClick, onApproach, onPress }: ToggleHandlers, className: string) => {
+export const createToggle = ({ onClick, onApproach, onPress }: ToggleHandlers, className: string) => {
   const button = document.createElement('button');
   button.className = `${className} ${BUTTON_CLASS}`;
   // Shorts' controls let the pointer through to the video except on their buttons
@@ -98,12 +100,12 @@ const createButton = ({ onClick, onApproach, onPress }: ToggleHandlers, classNam
 };
 
 // Swaps the icon only when the state or the language changes, since sync runs again and again
-const render = (button: HTMLButtonElement, pressed: boolean, language: string, shadow: boolean) => {
+export const renderToggle = (button: HTMLButtonElement, pressed: boolean, language: string, shadow: boolean, size?: number) => {
   const state = String(pressed);
   if (button.getAttribute('aria-pressed') === state && button.dataset.language === language) return;
   button.setAttribute('aria-pressed', state);
   button.dataset.language = language;
-  button.replaceChildren(createIcon(pressed, buttonGlyphOf(language), shadow));
+  button.replaceChildren(createIcon(pressed, buttonGlyphOf(language), shadow, size));
 };
 
 // Each sync(pressed, language, slot) call checks the button is in the slot's controls and syncs its pressed state
@@ -118,10 +120,10 @@ export const createToggleButton = (handlers: ToggleHandlers) => {
       if (!before?.parentElement) return;
       if (!button || button.nextElementSibling !== before) {
         button?.remove();
-        button = createButton(handlers, slot.className);
+        button = createToggle(handlers, slot.className);
         before.parentElement.insertBefore(button, before);
       }
-      render(button, pressed, language, slot.shadow);
+      renderToggle(button, pressed, language, slot.shadow);
     },
     remove() {
       button?.remove();

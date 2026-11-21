@@ -25,6 +25,7 @@ for (const browser of BROWSERS) {
         'background.js',
         'content.js',
         'page.js',
+        'x.js',
         'page.css',
         'popup.html',
         'popup.js',
